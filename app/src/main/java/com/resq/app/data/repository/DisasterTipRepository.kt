@@ -4,15 +4,12 @@ import com.resq.app.data.dao.DisasterTipDao
 import com.resq.app.data.entity.DisasterTipEntity
 import com.resq.app.data.entity.UserProfileEntity
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository for disaster tip operations.
  * Handles quick tips for the Disaster Tips module.
  */
-@Singleton
-class DisasterTipRepository @Inject constructor(
+class DisasterTipRepository(
     private val disasterTipDao: DisasterTipDao
 ) {
 

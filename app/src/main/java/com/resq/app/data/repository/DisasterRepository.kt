@@ -9,15 +9,12 @@ import com.resq.app.data.entity.DisasterPreparationEntity
 import com.resq.app.data.entity.UserProfileEntity
 import com.resq.app.data.model.SituationType
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository for disaster-related operations.
  * Handles disasters, info, and preparation content.
  */
-@Singleton
-class DisasterRepository @Inject constructor(
+class DisasterRepository(
     private val disasterDao: DisasterDao,
     private val disasterInfoDao: DisasterInfoDao,
     private val disasterPreparationDao: DisasterPreparationDao

@@ -5,15 +5,12 @@ import com.resq.app.data.dao.FirstAidContentDao
 import com.resq.app.data.entity.FirstAidCategoryEntity
 import com.resq.app.data.entity.FirstAidContentEntity
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository for first aid operations.
  * Handles first aid categories and content.
  */
-@Singleton
-class FirstAidRepository @Inject constructor(
+class FirstAidRepository(
     private val firstAidCategoryDao: FirstAidCategoryDao,
     private val firstAidContentDao: FirstAidContentDao
 ) {

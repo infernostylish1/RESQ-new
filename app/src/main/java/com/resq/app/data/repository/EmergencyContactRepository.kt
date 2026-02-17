@@ -4,15 +4,12 @@ import com.resq.app.data.dao.EmergencyContactDao
 import com.resq.app.data.entity.EmergencyContactEntity
 import com.resq.app.data.model.ContactCategory
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository for emergency contact operations.
  * Handles both preloaded and user-added contacts.
  */
-@Singleton
-class EmergencyContactRepository @Inject constructor(
+class EmergencyContactRepository(
     private val emergencyContactDao: EmergencyContactDao
 ) {
 

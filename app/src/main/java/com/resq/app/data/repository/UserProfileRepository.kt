@@ -3,15 +3,12 @@ package com.resq.app.data.repository
 import com.resq.app.data.dao.UserProfileDao
 import com.resq.app.data.entity.UserProfileEntity
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository for user profile operations.
  * Handles onboarding data and disaster risk profile.
  */
-@Singleton
-class UserProfileRepository @Inject constructor(
+class UserProfileRepository(
     private val userProfileDao: UserProfileDao
 ) {
 

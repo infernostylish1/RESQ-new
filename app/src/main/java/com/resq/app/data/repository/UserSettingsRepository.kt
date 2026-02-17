@@ -5,15 +5,12 @@ import com.resq.app.data.entity.UserSettingsEntity
 import com.resq.app.data.model.FontSize
 import com.resq.app.data.model.TipsPreference
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * Repository for user settings operations.
  * Handles app preferences and accessibility settings.
  */
-@Singleton
-class UserSettingsRepository @Inject constructor(
+class UserSettingsRepository(
     private val userSettingsDao: UserSettingsDao
 ) {
 
