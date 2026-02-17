@@ -38,8 +38,8 @@ class DisasterRepository @Inject constructor(
         return disasterDao.getRecommendedDisasters(
             nearWater = profile.isNearWater,
             mountainous = profile.isInMountainousArea,
-            landslide = profile.isInLandslideProneArea,
-            flood = profile.isInFloodProneArea,
+            landslide = profile.isInLandslideProne,
+            flood = profile.isInFloodProne,
             volcano = profile.isNearVolcano,
             urban = profile.isInUrbanArea,
             coastal = profile.isInCoastalArea
