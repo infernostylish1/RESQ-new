@@ -53,6 +53,12 @@ data class DisasterPreparationEntity(
     @ColumnInfo(name = "content_tagalog")
     val contentTagalog: String,
 
+    @ColumnInfo(name = "tip")
+    val tip: String? = null,
+
+    @ColumnInfo(name = "tip_tagalog")
+    val tipTagalog: String? = null,
+
     @ColumnInfo(name = "media_type")
     val mediaType: MediaType = MediaType.TEXT,
 

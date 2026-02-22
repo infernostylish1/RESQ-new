@@ -238,4 +238,11 @@
     <string name="about_disclaimer_title">Disclaimer</string>
     <string name="about_disclaimer">This application is for educational purposes only. The information provided should not replace professional medical advice, emergency services, or official disaster response protocols. Always follow the instructions of local authorities during emergencies.</string>
     <string name="about_developed_by">Developed for educational purposes</string>
+
+    <!-- Plurals -->
+    <plurals name="step_count">
+        <item quantity="one">%d step</item>
+        <item quantity="other">%d steps</item>
+    </plurals>
+
 </resources>

@@ -26,8 +26,11 @@ room = "2.6.1"
 # Coroutines
 coroutines = "1.7.3"
 
-#Hilt
+# Hilt
 hilt = "2.51.1"
+
+# Recycler View
+recyclerview = "1.3.2"
 
 # Testing
 junit = "4.13.2"
@@ -67,6 +70,9 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+
+# Recycler View
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }

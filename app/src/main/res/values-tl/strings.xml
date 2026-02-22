@@ -238,4 +238,11 @@
     <string name="about_disclaimer_title">Disclaimer</string>
     <string name="about_disclaimer">Ang application na ito ay para sa mga layuning pang-edukasyon lamang. Ang impormasyong ibinibigay ay hindi dapat palitan ang propesyonal na payo medikal, mga serbisyo sa emergency, o opisyal na mga protocol sa pagtugon sa sakuna. Laging sundin ang mga tagubilin ng mga lokal na awtoridad sa mga emergency.</string>
     <string name="about_developed_by">Ginawa para sa mga layuning pang-edukasyon</string>
+
+    <!-- Plurals -->
+    <plurals name="step_count">
+        <item quantity="one">%d hakbang</item>
+        <item quantity="other">%d hakbang</item>
+    </plurals>
+
 </resources>

@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
         DisasterTipEntity::class,
         EmergencyContactEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

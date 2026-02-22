@@ -65,4 +65,11 @@ interface DisasterTipDao {
 
     @Query("DELETE FROM disaster_tips")
     suspend fun deleteAllTips()
+
+    @Query("UPDATE disaster_tips SET is_favorite = NOT is_favorite WHERE id = :tipId")
+    suspend fun toggleFavorite(tipId: Long)
+
+    @Query("SELECT * FROM disaster_tips WHERE is_favorite = 1")
+    fun getFavoriteTips(): Flow<List<DisasterTipEntity>>
+
 }

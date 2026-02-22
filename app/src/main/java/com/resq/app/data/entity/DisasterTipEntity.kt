@@ -37,5 +37,8 @@ data class DisasterTipEntity(
     val tipTextTagalog: String,
 
     @ColumnInfo(name = "source")
-    val source: String? = null
+    val source: String? = null,
+
+    @ColumnInfo(name = "is_favorite", defaultValue = "0")
+    val isFavorite: Boolean = false
 )
