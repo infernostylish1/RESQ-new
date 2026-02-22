@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.resq.app.ui.fragment.HomeFragment"
+        android:label="@string/nav_home"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_disaster_detail"
+            app:destination="@id/nav_disaster_detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_home_to_first_aid_detail"
+            app:destination="@id/nav_first_aid_detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_home_to_emergency_contacts"
+            app:destination="@id/nav_emergency_contacts"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_disasters"
+        android:name="com.resq.app.ui.fragment.DisastersFragment"
+        android:label="@string/nav_disasters"
+        tools:layout="@layout/fragment_disasters">
+
+        <action
+            android:id="@+id/action_disasters_to_detail"
+            app:destination="@id/nav_disaster_detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_disaster_detail"
+        android:name="com.resq.app.ui.fragment.DisasterDetailFragment"
+        android:label="{disasterName}"
+        tools:layout="@layout/fragment_disaster_detail">
+
+        <argument
+            android:name="disasterId"
+            app:argType="integer" />
+
+        <argument
+            android:name="disasterName"
+            app:argType="string"
+            android:defaultValue="Disaster" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_first_aid"
+        android:name="com.resq.app.ui.fragment.FirstAidFragment"
+        android:label="@string/nav_first_aid"
+        tools:layout="@layout/fragment_first_aid">
+
+        <action
+            android:id="@+id/action_first_aid_to_detail"
+            app:destination="@id/nav_first_aid_detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_first_aid_detail"
+        android:name="com.resq.app.ui.fragment.FirstAidDetailFragment"
+        android:label="{categoryName}"
+        tools:layout="@layout/fragment_first_aid_detail">
+
+        <argument
+            android:name="categoryId"
+            app:argType="integer" />
+
+        <argument
+            android:name="categoryName"
+            app:argType="string"
+            android:defaultValue="First Aid" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_tips"
+        android:name="com.resq.app.ui.fragment.TipsFragment"
+        android:label="@string/nav_tips"
+        tools:layout="@layout/fragment_tips" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.resq.app.ui.fragment.SettingsFragment"
+        android:label="@string/nav_settings"
+        tools:layout="@layout/fragment_settings">
+
+        <action
+            android:id="@+id/action_settings_to_emergency_contacts"
+            app:destination="@id/nav_emergency_contacts"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
+            android:id="@+id/action_settings_to_about"
+            app:destination="@id/nav_about"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_emergency_contacts"
+        android:name="com.resq.app.ui.fragment.EmergencyContactsFragment"
+        android:label="@string/contacts_title"
+        tools:layout="@layout/fragment_emergency_contacts" />
+
+    <fragment
+        android:id="@+id/nav_about"
+        android:name="com.resq.app.ui.fragment.AboutFragment"
+        android:label="@string/about_title"
+        tools:layout="@layout/fragment_about" />
+
+</navigation>
