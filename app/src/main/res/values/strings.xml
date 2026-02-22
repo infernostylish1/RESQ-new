@@ -229,6 +229,8 @@
     <string name="cd_disaster_icon">Disaster icon</string>
     <string name="cd_firstaid_icon">First aid icon</string>
     <string name="cd_tip_icon">Tip icon</string>
+    <string name="cd_contact_icon">Contact icon</string>
+    <string name="cd_share_button">Share</string>
 
     <!-- About -->
     <string name="about_title">About RESQ</string>

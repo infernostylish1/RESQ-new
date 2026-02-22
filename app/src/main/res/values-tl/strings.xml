@@ -229,6 +229,8 @@
     <string name="cd_disaster_icon">Icon ng sakuna</string>
     <string name="cd_firstaid_icon">Icon ng pertolya</string>
     <string name="cd_tip_icon">Icon ng tip</string>
+    <string name="cd_contact_icon">Icon ng kontak</string>
+    <string name="cd_share_button">Ibahagi</string>
 
     <!-- About -->
     <string name="about_title">Tungkol sa RESQ</string>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.RESQ.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_md"
+    android:clickable="true"
+    android:focusable="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_disaster_icon"
+            android:layout_width="@dimen/icon_size_xl"
+            android:layout_height="@dimen/icon_size_xl"
+            android:contentDescription="@string/cd_disaster_icon"
+            android:scaleType="centerInside"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/primary"
+            tools:src="@android:drawable/ic_dialog_alert" />
+
+        <TextView
+            android:id="@+id/tv_disaster_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+            app:layout_constraintBottom_toTopOf="@id/tv_disaster_description"
+            app:layout_constraintEnd_toStartOf="@id/iv_arrow"
+            app:layout_constraintStart_toEndOf="@id/iv_disaster_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Earthquake" />
+
+        <TextView
+            android:id="@+id/tv_disaster_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iv_arrow"
+            app:layout_constraintStart_toEndOf="@id/iv_disaster_icon"
+            app:layout_constraintTop_toBottomOf="@id/tv_disaster_name"
+            tools:text="Learn what to do before, during, and after an earthquake" />
+
+        <ImageView
+            android:id="@+id/iv_arrow"
+            android:layout_width="@dimen/icon_size_sm"
+            android:layout_height="@dimen/icon_size_sm"
+            android:contentDescription="@string/cd_next_button"
+            android:src="@android:drawable/ic_media_play"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/text_secondary" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.RESQ.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_sm">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_contact_icon"
+            android:layout_width="@dimen/icon_size_lg"
+            android:layout_height="@dimen/icon_size_lg"
+            android:contentDescription="@string/cd_contact_icon"
+            android:src="@android:drawable/ic_menu_call"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/error" />
+
+        <TextView
+            android:id="@+id/tv_contact_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+            app:layout_constraintBottom_toTopOf="@id/tv_contact_number"
+            app:layout_constraintEnd_toStartOf="@id/btn_call"
+            app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="Philippine National Police" />
+
+        <TextView
+            android:id="@+id/tv_contact_number"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_call"
+            app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
+            app:layout_constraintTop_toBottomOf="@id/tv_contact_name"
+            tools:text="117" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_call"
+            style="@style/Widget.RESQ.Button.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/cd_call_button"
+            app:backgroundTint="@color/error"
+            app:icon="@android:drawable/ic_menu_call"
+            app:iconTint="@color/on_error"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

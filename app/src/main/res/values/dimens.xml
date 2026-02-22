@@ -115,4 +115,7 @@
     <!-- Voice Command Button -->
     <dimen name="voice_button_size">56dp</dimen>
     <dimen name="voice_button_size_large">72dp</dimen>
+
+    <!-- Quick Access -->
+    <dimen name="quick_access_item_width">100dp</dimen>
 </resources>

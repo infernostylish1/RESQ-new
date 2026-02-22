@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_md"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/tv_step_number"
+        android:layout_width="@dimen/icon_size_lg"
+        android:layout_height="@dimen/icon_size_lg"
+        android:background="@drawable/splash_background"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+        android:textColor="@color/on_primary"
+        tools:text="1" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_md"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_step_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+            tools:text="Drop, Cover, and Hold On" />
+
+        <TextView
+            android:id="@+id/tv_step_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            android:textColor="@color/text_secondary"
+            tools:text="Get under a sturdy desk or table. Cover your head and neck. Hold on until shaking stops." />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_tip"
+            style="@style/Widget.RESQ.CardView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/info_container"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_sm"
+                    android:layout_height="@dimen/icon_size_sm"
+                    android:contentDescription="@string/cd_tip_icon"
+                    android:src="@android:drawable/ic_menu_info_details"
+                    app:tint="@color/on_info_container" />
+
+                <TextView
+                    android:id="@+id/tv_tip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_xs"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                    android:textColor="@color/on_info_container"
+                    tools:text="Stay away from windows and heavy objects that could fall." />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+</LinearLayout>

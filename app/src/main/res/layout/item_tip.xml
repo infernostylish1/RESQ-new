@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Widget.RESQ.CardView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/spacing_md">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/iv_tip_icon"
+            android:layout_width="@dimen/icon_size_md"
+            android:layout_height="@dimen/icon_size_md"
+            android:contentDescription="@string/cd_tip_icon"
+            android:src="@android:drawable/ic_menu_info_details"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/primary" />
+
+        <TextView
+            android:id="@+id/tv_tip_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:textAppearance="@style/TextAppearance.RESQ.Caption"
+            android:textColor="@color/primary"
+            app:layout_constraintBottom_toBottomOf="@id/iv_tip_icon"
+            app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
+            app:layout_constraintTop_toTopOf="@id/iv_tip_icon"
+            tools:text="Earthquake" />
+
+        <ImageButton
+            android:id="@+id/btn_favorite"
+            android:layout_width="@dimen/icon_size_lg"
+            android:layout_height="@dimen/icon_size_lg"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_favorite_button"
+            android:src="@android:drawable/btn_star_big_off"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_tip_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginEnd="@dimen/spacing_md"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_tip_icon"
+            tools:text="Keep an emergency kit with water, food, flashlight, and first aid supplies ready at all times." />
+
+        <ImageButton
+            android:id="@+id/btn_share"
+            android:layout_width="@dimen/icon_size_lg"
+            android:layout_height="@dimen/icon_size_lg"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_share_button"
+            android:src="@android:drawable/ic_menu_share"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_tip_content" />
+
+        <ImageButton
+            android:id="@+id/btn_read_aloud"
+            android:layout_width="@dimen/icon_size_lg"
+            android:layout_height="@dimen/icon_size_lg"
+            android:layout_marginStart="@dimen/spacing_sm"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cd_read_aloud_button"
+            android:src="@android:drawable/ic_btn_speak_now"
+            app:layout_constraintStart_toEndOf="@id/btn_share"
+            app:layout_constraintTop_toBottomOf="@id/tv_tip_content" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>
