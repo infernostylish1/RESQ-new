@@ -1,5 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Primary Colors - Emergency Red Theme -->
+    <color name="primary">#D32F2F</color>
+    <color name="primary_variant">#B71C1C</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <!-- Secondary Colors - Safety Orange -->
+    <color name="secondary">#FF6F00</color>
+    <color name="secondary_variant">#E65100</color>
+    <color name="on_secondary">#FFFFFF</color>
+
+    <!-- Tertiary Colors - Alert Blue -->
+    <color name="tertiary">#1976D2</color>
+    <color name="tertiary_variant">#0D47A1</color>
+    <color name="on_tertiary">#FFFFFF</color>
+
+    <!-- Background Colors - Light Theme -->
+    <color name="background">#FAFAFA</color>
+    <color name="on_background">#1C1B1F</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="on_surface">#1C1B1F</color>
+    <color name="surface_variant">#F5F5F5</color>
+    <color name="on_surface_variant">#49454F</color>
+
+    <!-- Error Colors -->
+    <color name="error">#B3261E</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="error_container">#F9DEDC</color>
+    <color name="on_error_container">#410E0B</color>
+
+    <!-- Success Colors -->
+    <color name="success">#2E7D32</color>
+    <color name="on_success">#FFFFFF</color>
+    <color name="success_container">#C8E6C9</color>
+    <color name="on_success_container">#1B5E20</color>
+
+    <!-- Warning Colors -->
+    <color name="warning">#F57C00</color>
+    <color name="on_warning">#FFFFFF</color>
+    <color name="warning_container">#FFE0B2</color>
+    <color name="on_warning_container">#E65100</color>
+
+    <!-- Info Colors -->
+    <color name="info">#0288D1</color>
+    <color name="on_info">#FFFFFF</color>
+    <color name="info_container">#B3E5FC</color>
+    <color name="on_info_container">#01579B</color>
+
+    <!-- Outline and Divider -->
+    <color name="outline">#79747E</color>
+    <color name="outline_variant">#CAC4D0</color>
+    <color name="divider">#E0E0E0</color>
+
+    <!-- Disaster Category Colors -->
+    <color name="disaster_earthquake">#8D6E63</color>
+    <color name="disaster_typhoon">#5C6BC0</color>
+    <color name="disaster_flood">#29B6F6</color>
+    <color name="disaster_fire">#EF5350</color>
+    <color name="disaster_volcanic">#FF7043</color>
+    <color name="disaster_tsunami">#26A69A</color>
+    <color name="disaster_landslide">#8D6E63</color>
+    <color name="disaster_storm_surge">#42A5F5</color>
+
+    <!-- First Aid Category Colors -->
+    <color name="firstaid_cpr">#E53935</color>
+    <color name="firstaid_wounds">#D32F2F</color>
+    <color name="firstaid_burns">#FF7043</color>
+    <color name="firstaid_fractures">#7E57C2</color>
+    <color name="firstaid_heat_cold">#29B6F6</color>
+    <color name="firstaid_drowning">#26A69A</color>
+
+    <!-- Situation Type Colors -->
+    <color name="situation_before">#FFA726</color>
+    <color name="situation_during">#EF5350</color>
+    <color name="situation_after">#66BB6A</color>
+
+    <!-- Navigation Colors -->
+    <color name="nav_selected">#D32F2F</color>
+    <color name="nav_unselected">#79747E</color>
+    <color name="nav_background">#FFFFFF</color>
+
+    <!-- Card Colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_stroke">#E0E0E0</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#49454F</color>
+    <color name="text_disabled">#9E9E9E</color>
+    <color name="text_hint">#757575</color>
+
+    <!-- Ripple and Touch Feedback -->
+    <color name="ripple_color">#1FD32F2F</color>
+
+    <!-- Scrim -->
+    <color name="scrim">#52000000</color>
+
+    <!-- Status Bar -->
+    <color name="status_bar">#B71C1C</color>
 </resources>

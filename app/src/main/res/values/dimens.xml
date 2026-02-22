@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Screen Margins -->
+    <dimen name="screen_margin_horizontal">16dp</dimen>
+    <dimen name="screen_margin_vertical">16dp</dimen>
+    <dimen name="screen_padding">16dp</dimen>
+
+    <!-- Content Spacing -->
+    <dimen name="spacing_xs">4dp</dimen>
+    <dimen name="spacing_sm">8dp</dimen>
+    <dimen name="spacing_md">16dp</dimen>
+    <dimen name="spacing_lg">24dp</dimen>
+    <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="spacing_xxl">48dp</dimen>
+
+    <!-- Card Dimensions -->
+    <dimen name="card_corner_radius">12dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="card_padding">16dp</dimen>
+    <dimen name="card_margin">8dp</dimen>
+    <dimen name="card_stroke_width">1dp</dimen>
+
+    <!-- Button Dimensions -->
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="button_height_small">36dp</dimen>
+    <dimen name="button_corner_radius">24dp</dimen>
+    <dimen name="button_padding_horizontal">24dp</dimen>
+    <dimen name="button_padding_vertical">12dp</dimen>
+    <dimen name="button_icon_size">24dp</dimen>
+    <dimen name="button_icon_padding">8dp</dimen>
+
+    <!-- FAB Dimensions -->
+    <dimen name="fab_size">56dp</dimen>
+    <dimen name="fab_mini_size">40dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <!-- Icon Sizes -->
+    <dimen name="icon_size_xs">16dp</dimen>
+    <dimen name="icon_size_sm">20dp</dimen>
+    <dimen name="icon_size_md">24dp</dimen>
+    <dimen name="icon_size_lg">32dp</dimen>
+    <dimen name="icon_size_xl">48dp</dimen>
+    <dimen name="icon_size_xxl">64dp</dimen>
+    <dimen name="icon_size_hero">96dp</dimen>
+
+    <!-- Text Sizes -->
+    <dimen name="text_size_xs">10sp</dimen>
+    <dimen name="text_size_caption">12sp</dimen>
+    <dimen name="text_size_body_small">14sp</dimen>
+    <dimen name="text_size_body">16sp</dimen>
+    <dimen name="text_size_subtitle">18sp</dimen>
+    <dimen name="text_size_title">20sp</dimen>
+    <dimen name="text_size_headline">24sp</dimen>
+    <dimen name="text_size_display_small">28sp</dimen>
+    <dimen name="text_size_display">32sp</dimen>
+    <dimen name="text_size_display_large">40sp</dimen>
+
+    <!-- Navigation -->
+    <dimen name="bottom_nav_height">80dp</dimen>
+    <dimen name="bottom_nav_icon_size">24dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="toolbar_elevation">4dp</dimen>
+
+    <!-- Search Bar -->
+    <dimen name="search_bar_height">48dp</dimen>
+    <dimen name="search_bar_corner_radius">24dp</dimen>
+    <dimen name="search_bar_padding">12dp</dimen>
+
+    <!-- List Items -->
+    <dimen name="list_item_height">72dp</dimen>
+    <dimen name="list_item_height_single">56dp</dimen>
+    <dimen name="list_item_padding_horizontal">16dp</dimen>
+    <dimen name="list_item_padding_vertical">12dp</dimen>
+    <dimen name="list_item_icon_size">40dp</dimen>
+
+    <!-- Grid Items -->
+    <dimen name="grid_item_min_width">150dp</dimen>
+    <dimen name="grid_spacing">8dp</dimen>
+
+    <!-- Avatar/Profile -->
+    <dimen name="avatar_size_small">32dp</dimen>
+    <dimen name="avatar_size_medium">48dp</dimen>
+    <dimen name="avatar_size_large">72dp</dimen>
+    <dimen name="avatar_size_xlarge">96dp</dimen>
+
+    <!-- Divider -->
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="divider_inset">16dp</dimen>
+
+    <!-- Input Fields -->
+    <dimen name="input_height">56dp</dimen>
+    <dimen name="input_corner_radius">4dp</dimen>
+    <dimen name="input_padding">12dp</dimen>
+
+    <!-- Dialogs -->
+    <dimen name="dialog_corner_radius">28dp</dimen>
+    <dimen name="dialog_padding">24dp</dimen>
+    <dimen name="dialog_max_width">560dp</dimen>
+
+    <!-- Onboarding -->
+    <dimen name="onboarding_image_size">200dp</dimen>
+    <dimen name="onboarding_indicator_size">8dp</dimen>
+    <dimen name="onboarding_indicator_spacing">8dp</dimen>
+
+    <!-- Tips Card -->
+    <dimen name="tip_card_min_height">120dp</dimen>
+
+    <!-- Step Indicator -->
+    <dimen name="step_indicator_size">32dp</dimen>
+    <dimen name="step_indicator_line_width">2dp</dimen>
+
+    <!-- Emergency Contact -->
+    <dimen name="contact_call_button_size">48dp</dimen>
+
+    <!-- Voice Command Button -->
+    <dimen name="voice_button_size">56dp</dimen>
+    <dimen name="voice_button_size_large">72dp</dimen>
+</resources>

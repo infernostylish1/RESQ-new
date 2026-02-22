@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">RESQ</string>
+    <string name="app_tagline">Ang Iyong Kaagapay sa Paghahanda sa Kalamidad</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Tahanan</string>
+    <string name="nav_disasters">Sakuna</string>
+    <string name="nav_first_aid">Pertolya</string>
+    <string name="nav_tips">Mga Tip</string>
+    <string name="nav_settings">Mga Setting</string>
+    <string name="nav_contacts">Mga Contact</string>
+
+    <!-- Common Actions -->
+    <string name="action_back">Bumalik</string>
+    <string name="action_next">Susunod</string>
+    <string name="action_previous">Nakaraan</string>
+    <string name="action_skip">Laktawan</string>
+    <string name="action_done">Tapos</string>
+    <string name="action_save">I-save</string>
+    <string name="action_cancel">Kanselahin</string>
+    <string name="action_close">Isara</string>
+    <string name="action_search">Maghanap</string>
+    <string name="action_call">Tumawag</string>
+    <string name="action_share">Ibahagi</string>
+    <string name="action_favorite">Paborito</string>
+    <string name="action_unfavorite">Alisin sa mga paborito</string>
+    <string name="action_retry">Subukan muli</string>
+    <string name="action_ok">OK</string>
+    <string name="action_yes">Oo</string>
+    <string name="action_no">Hindi</string>
+    <string name="action_read_aloud">Basahin nang Malakas</string>
+    <string name="action_stop_reading">Itigil ang Pagbasa</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Maligayang Pagdating sa RESQ</string>
+    <string name="onboarding_welcome_desc">Ang iyong komprehensibong gabay para sa paghahanda at pagtugon sa mga sakuna.</string>
+    <string name="onboarding_disasters_title">Impormasyon sa Sakuna</string>
+    <string name="onboarding_disasters_desc">Mag-access ng detalyadong impormasyon tungkol sa iba\'t ibang uri ng sakuna at kung paano maghanda para sa mga ito.</string>
+    <string name="onboarding_firstaid_title">Gabay sa Pertolya</string>
+    <string name="onboarding_firstaid_desc">Hakbang-hakbang na mga tagubilin sa pertolya para sa mga karaniwang emergency.</string>
+    <string name="onboarding_offline_title">Gumagana Offline</string>
+    <string name="onboarding_offline_desc">Lahat ng impormasyon ay naka-imbak sa lokal. Hindi kailangan ng koneksyon sa internet.</string>
+    <string name="onboarding_profile_title">Sabihin Mo sa Amin</string>
+    <string name="onboarding_profile_desc">Tulungan mo kaming i-personalize ang iyong karanasan gamit ang mga kaugnay na impormasyon sa sakuna.</string>
+    <string name="onboarding_get_started">Magsimula</string>
+
+    <!-- Profile -->
+    <string name="profile_name">Pangalan</string>
+    <string name="profile_name_hint">Ilagay ang iyong pangalan</string>
+    <string name="profile_age">Edad</string>
+    <string name="profile_age_hint">Ilagay ang iyong edad</string>
+    <string name="profile_address">Address</string>
+    <string name="profile_address_hint">Ilagay ang iyong address (opsyonal)</string>
+    <string name="profile_emergency_contact">Emergency Contact Number</string>
+    <string name="profile_emergency_contact_hint">Ilagay ang emergency contact number</string>
+
+    <!-- Home Screen -->
+    <string name="home_greeting_morning">Magandang Umaga</string>
+    <string name="home_greeting_afternoon">Magandang Hapon</string>
+    <string name="home_greeting_evening">Magandang Gabi</string>
+    <string name="home_safety_message">Manatiling handa, manatiling ligtas.</string>
+    <string name="home_quick_access">Mabilis na Access</string>
+    <string name="home_daily_tip">Pang-araw-araw na Tip</string>
+    <string name="home_tip_of_the_day">Tip ng Araw</string>
+    <string name="home_see_all">Tingnan Lahat</string>
+    <string name="home_search_hint">Maghanap ng sakuna, pertolya, mga tip...</string>
+
+    <!-- Disaster Module -->
+    <string name="disasters_title">Impormasyon sa Sakuna</string>
+    <string name="disasters_recommended">Inirerekomenda para sa Iyo</string>
+    <string name="disasters_all">Lahat ng Sakuna</string>
+    <string name="disasters_search_hint">Maghanap ng sakuna...</string>
+    <string name="disaster_information">Impormasyon</string>
+    <string name="disaster_preparation">Paghahanda</string>
+    <string name="disaster_before">Bago</string>
+    <string name="disaster_during">Habang</string>
+    <string name="disaster_after">Pagkatapos</string>
+
+    <!-- Disaster Names -->
+    <string name="disaster_earthquake">Lindol</string>
+    <string name="disaster_typhoon">Bagyo</string>
+    <string name="disaster_flood">Baha</string>
+    <string name="disaster_fire">Sunog</string>
+    <string name="disaster_volcanic">Aktibidad ng Bulkan</string>
+    <string name="disaster_tsunami">Tsunami</string>
+    <string name="disaster_landslide">Pagguho ng Lupa</string>
+    <string name="disaster_storm_surge">Storm Surge</string>
+
+    <!-- First Aid Module -->
+    <string name="firstaid_title">Gabay sa Pertolya</string>
+    <string name="firstaid_search_hint">Maghanap ng mga paksa sa pertolya...</string>
+    <string name="firstaid_step">Hakbang %1$d ng %2$d</string>
+    <string name="firstaid_important">Mahalaga</string>
+    <string name="firstaid_warning">Babala</string>
+    <string name="firstaid_note">Tandaan</string>
+
+    <!-- First Aid Categories -->
+    <string name="firstaid_cpr">CPR at Pagkabulol</string>
+    <string name="firstaid_wounds">Mga Sugat at Pagdurugo</string>
+    <string name="firstaid_burns">Mga Paso</string>
+    <string name="firstaid_fractures">Bali at Pilay</string>
+    <string name="firstaid_heat_cold">Mga Emergency sa Init at Lamig</string>
+    <string name="firstaid_drowning">Pagkalunod</string>
+
+    <!-- Tips Module -->
+    <string name="tips_title">Mga Tip sa Sakuna</string>
+    <string name="tips_daily">Pang-araw-araw na Tip</string>
+    <string name="tips_all">Lahat ng Tip</string>
+    <string name="tips_favorites">Mga Paboritong Tip</string>
+    <string name="tips_random">Random na Tip</string>
+    <string name="tips_next">Susunod na Tip</string>
+    <string name="tips_previous">Nakaraang Tip</string>
+    <string name="tips_search_hint">Maghanap ng mga tip...</string>
+    <string name="tips_no_favorites">Wala pang mga paboritong tip</string>
+    <string name="tips_add_favorites_hint">I-tap ang icon ng puso sa mga tip upang idagdag sila sa iyong mga paborito.</string>
+
+    <!-- Emergency Contacts -->
+    <string name="contacts_title">Mga Emergency Contact</string>
+    <string name="contacts_hotlines">Mga Emergency Hotline</string>
+    <string name="contacts_favorites">Mga Paborito</string>
+    <string name="contacts_all">Lahat ng Contact</string>
+    <string name="contacts_search_hint">Maghanap ng mga contact...</string>
+    <string name="contacts_call_confirm">Tawagan si %1$s?</string>
+    <string name="contacts_calling">Tumatawag...</string>
+    <string name="contacts_no_favorites">Wala pang mga paboritong contact</string>
+
+    <!-- Contact Categories -->
+    <string name="contact_category_emergency">Emergency</string>
+    <string name="contact_category_police">Pulis</string>
+    <string name="contact_category_fire">Bumbero</string>
+    <string name="contact_category_medical">Medikal</string>
+    <string name="contact_category_disaster">Pagtugon sa Sakuna</string>
+    <string name="contact_category_utility">Mga Utility</string>
+    <string name="contact_category_government">Pamahalaan</string>
+    <string name="contact_category_other">Iba pa</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Mga Setting</string>
+    <string name="settings_appearance">Hitsura</string>
+    <string name="settings_dark_theme">Madilim na Tema</string>
+    <string name="settings_dark_theme_desc">Magpalit sa pagitan ng maliwanag at madilim na mode</string>
+    <string name="settings_font_size">Laki ng Font</string>
+    <string name="settings_font_size_desc">I-adjust ang laki ng teksto para sa mas mahusay na pagbabasa</string>
+    <string name="settings_language">Wika</string>
+    <string name="settings_language_desc">Piliin ang iyong gustong wika</string>
+    <string name="settings_accessibility">Accessibility</string>
+    <string name="settings_voice_command">Mga Voice Command</string>
+    <string name="settings_voice_command_desc">Kontrolin ang app gamit ang boses</string>
+    <string name="settings_tts">Text-to-Speech</string>
+    <string name="settings_tts_desc">Ipabasa nang malakas ang nilalaman sa iyo</string>
+    <string name="settings_tts_speed">Bilis ng Pagsasalita</string>
+    <string name="settings_tts_pitch">Tono ng Pagsasalita</string>
+    <string name="settings_content">Nilalaman</string>
+    <string name="settings_tips_preference">Kagustuhan sa Tips</string>
+    <string name="settings_tips_preference_desc">Piliin kung paano ipakita ang mga tip</string>
+    <string name="settings_profile">Profile</string>
+    <string name="settings_edit_profile">I-edit ang Profile</string>
+    <string name="settings_about">Tungkol</string>
+    <string name="settings_about_app">Tungkol sa RESQ</string>
+    <string name="settings_version">Bersyon</string>
+    <string name="settings_reset">I-reset sa Default</string>
+    <string name="settings_reset_confirm">Sigurado ka bang gusto mong i-reset ang lahat ng setting sa default na mga halaga?</string>
+
+    <!-- Font Sizes -->
+    <string name="font_size_small">Maliit</string>
+    <string name="font_size_medium">Katamtaman</string>
+    <string name="font_size_large">Malaki</string>
+    <string name="font_size_extra_large">Sobrang Laki</string>
+
+    <!-- Tips Preferences -->
+    <string name="tips_pref_recommended">Inirerekomenda</string>
+    <string name="tips_pref_random">Random</string>
+
+    <!-- Languages -->
+    <string name="language_english">English</string>
+    <string name="language_tagalog">Tagalog</string>
+
+    <!-- Voice Commands -->
+    <string name="voice_listening">Nakikinig...</string>
+    <string name="voice_processing">Pinoproseso...</string>
+    <string name="voice_tap_to_speak">I-tap para magsalita</string>
+    <string name="voice_command_recognized">Utos: %1$s</string>
+    <string name="voice_command_unknown">Paumanhin, hindi ko naintindihan iyon.</string>
+    <string name="voice_permission_required">Kailangan ang permiso sa mikropono para sa mga voice command.</string>
+
+    <!-- TTS -->
+    <string name="tts_reading">Binabasa...</string>
+    <string name="tts_stopped">Natigil ang pagbasa</string>
+    <string name="tts_not_available">Hindi available ang text-to-speech</string>
+
+    <!-- Permissions -->
+    <string name="permission_phone_title">Permiso sa Telepono</string>
+    <string name="permission_phone_desc">Kailangan para tawagan ang mga emergency contact nang direkta mula sa app.</string>
+    <string name="permission_audio_title">Permiso sa Mikropono</string>
+    <string name="permission_audio_desc">Kailangan para sa functionality ng voice command.</string>
+    <string name="permission_denied">Tinanggihan ang permiso</string>
+    <string name="permission_grant">Ibigay ang Permiso</string>
+
+    <!-- Errors -->
+    <string name="error_generic">May nangyaring mali. Pakisubukan muli.</string>
+    <string name="error_loading">Hindi na-load ang nilalaman</string>
+    <string name="error_saving">Hindi na-save</string>
+    <string name="error_no_data">Walang available na data</string>
+    <string name="error_call_failed">Hindi makatawag</string>
+
+    <!-- Empty States -->
+    <string name="empty_search_results">Walang nahanap na resulta</string>
+    <string name="empty_search_hint">Subukan ang ibang mga keyword</string>
+    <string name="empty_content">Walang available na nilalaman</string>
+
+    <!-- Success Messages -->
+    <string name="success_saved">Matagumpay na na-save</string>
+    <string name="success_favorite_added">Naidagdag sa mga paborito</string>
+    <string name="success_favorite_removed">Naalis sa mga paborito</string>
+
+    <!-- Accessibility -->
+    <string name="cd_app_logo">RESQ Logo</string>
+    <string name="cd_search_icon">Maghanap</string>
+    <string name="cd_voice_icon">Voice command</string>
+    <string name="cd_back_button">Bumalik</string>
+    <string name="cd_close_button">Isara</string>
+    <string name="cd_favorite_button">I-toggle ang paborito</string>
+    <string name="cd_call_button">Tawagan ang contact</string>
+    <string name="cd_read_aloud_button">Basahin nang malakas ang nilalaman</string>
+    <string name="cd_next_button">Susunod</string>
+    <string name="cd_previous_button">Nakaraan</string>
+    <string name="cd_disaster_icon">Icon ng sakuna</string>
+    <string name="cd_firstaid_icon">Icon ng pertolya</string>
+    <string name="cd_tip_icon">Icon ng tip</string>
+
+    <!-- About -->
+    <string name="about_title">Tungkol sa RESQ</string>
+    <string name="about_description">Ang RESQ ay isang offline disaster preparedness application na idinisenyo upang magbigay ng accessible at maaasahang impormasyon upang matulungan ang mga indibidwal na tumugon nang epektibo sa mga emergency situation.</string>
+    <string name="about_disclaimer_title">Disclaimer</string>
+    <string name="about_disclaimer">Ang application na ito ay para sa mga layuning pang-edukasyon lamang. Ang impormasyong ibinibigay ay hindi dapat palitan ang propesyonal na payo medikal, mga serbisyo sa emergency, o opisyal na mga protocol sa pagtugon sa sakuna. Laging sundin ang mga tagubilin ng mga lokal na awtoridad sa mga emergency.</string>
+    <string name="about_developed_by">Ginawa para sa mga layuning pang-edukasyon</string>
+</resources>
