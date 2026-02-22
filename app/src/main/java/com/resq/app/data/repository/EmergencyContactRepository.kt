@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository for emergency contact operations.
- * Handles both preloaded and user-added contacts.
+ * Handles both preloaded official hotlines and user-added contacts.
  */
 class EmergencyContactRepository(
     private val emergencyContactDao: EmergencyContactDao
@@ -44,11 +44,11 @@ class EmergencyContactRepository(
         description: String? = null
     ): Long {
         val contact = EmergencyContactEntity(
-            name = name,
-            phoneNumber = phoneNumber,
-            category = category,
-            isCustom = true,
-            description = description,
+            name         = name,
+            phoneNumber  = phoneNumber,
+            category     = category,
+            isCustom     = true,
+            description  = description,
             displayOrder = 999
         )
         return emergencyContactDao.insertContact(contact)

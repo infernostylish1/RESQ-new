@@ -44,7 +44,7 @@ import kotlinx.coroutines.launch
         DisasterTipEntity::class,
         EmergencyContactEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -128,7 +128,7 @@ abstract class AppDatabase : RoomDatabase() {
 
             // Populate disaster tips
             val tips = PreloadedDisasterData.getDisasterTips()
-            database.disasterTipDao().insertAllTips(tips)
+            database.disasterTipDao().insertTips(tips)
 
             // Populate first aid categories
             val firstAidCategories = PreloadedFirstAidData.getCategories()

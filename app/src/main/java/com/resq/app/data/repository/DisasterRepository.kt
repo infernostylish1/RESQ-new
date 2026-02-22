@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Repository for disaster-related operations.
  * Handles disasters, info, and preparation content.
+ * All ViewModel-facing method names are normalized here.
  */
 class DisasterRepository(
     private val disasterDao: DisasterDao,
@@ -20,37 +21,51 @@ class DisasterRepository(
     private val disasterPreparationDao: DisasterPreparationDao
 ) {
 
-    // Disaster operations
-    fun getAllDisasters(): Flow<List<DisasterEntity>> = disasterDao.getAllDisasters()
+    // ─── Disaster CRUD ────────────────────────────────────────────────────────
 
-    suspend fun getAllDisastersOnce(): List<DisasterEntity> = disasterDao.getAllDisastersOnce()
+    fun getAllDisasters(): Flow<List<DisasterEntity>> =
+        disasterDao.getAllDisasters()
 
+    suspend fun getAllDisastersOnce(): List<DisasterEntity> =
+        disasterDao.getAllDisastersOnce()
+
+    /** Flow-based single disaster — used by ViewModels as getDisasterById */
     fun getDisasterById(disasterId: Long): Flow<DisasterEntity?> =
         disasterDao.getDisasterById(disasterId)
 
     suspend fun getDisasterByIdOnce(disasterId: Long): DisasterEntity? =
         disasterDao.getDisasterByIdOnce(disasterId)
 
-    fun getRecommendedDisasters(profile: UserProfileEntity): Flow<List<DisasterEntity>> {
-        return disasterDao.getRecommendedDisasters(
-            nearWater = profile.isNearWater,
-            mountainous = profile.isInMountainousArea,
-            landslide = profile.isInLandslideProne,
-            flood = profile.isInFloodProne,
-            volcano = profile.isNearVolcano,
-            urban = profile.isInUrbanArea,
-            coastal = profile.isInCoastalArea
+    fun getRecommendedDisasters(profile: UserProfileEntity): Flow<List<DisasterEntity>> =
+        disasterDao.getRecommendedDisasters(
+            nearWater    = profile.isNearWater,
+            mountainous  = profile.isInMountainousArea,
+            landslide    = profile.isInLandslideProne,
+            flood        = profile.isInFloodProne,
+            volcano      = profile.isNearVolcano,
+            urban        = profile.isInUrbanArea,
+            coastal      = profile.isInCoastalArea
         )
-    }
 
-    fun getUniversalDisasters(): Flow<List<DisasterEntity>> = disasterDao.getUniversalDisasters()
+    fun getUniversalDisasters(): Flow<List<DisasterEntity>> =
+        disasterDao.getUniversalDisasters()
 
     fun searchDisasters(query: String): Flow<List<DisasterEntity>> =
         disasterDao.searchDisasters(query)
 
-    suspend fun getDisasterCount(): Int = disasterDao.getDisasterCount()
+    suspend fun getDisasterCount(): Int =
+        disasterDao.getDisasterCount()
 
-    // Disaster Info operations
+    // ─── Disaster Info ────────────────────────────────────────────────────────
+
+    /**
+     * Primary method used by DisasterViewModel.
+     * Alias kept consistent: getDisasterInfo(disasterId)
+     */
+    fun getDisasterInfo(disasterId: Long): Flow<List<DisasterInfoEntity>> =
+        disasterInfoDao.getInfoByDisasterId(disasterId)
+
+    /** Legacy alias — kept for any internal callers */
     fun getInfoByDisasterId(disasterId: Long): Flow<List<DisasterInfoEntity>> =
         disasterInfoDao.getInfoByDisasterId(disasterId)
 
@@ -63,7 +78,25 @@ class DisasterRepository(
     fun searchInfo(query: String): Flow<List<DisasterInfoEntity>> =
         disasterInfoDao.searchInfo(query)
 
-    // Disaster Preparation operations
+    // ─── Disaster Preparation ─────────────────────────────────────────────────
+
+    /**
+     * Primary method used by DisasterViewModel.
+     * Returns all preparations for a disaster regardless of situation type.
+     */
+    fun getDisasterPreparations(disasterId: Long): Flow<List<DisasterPreparationEntity>> =
+        disasterPreparationDao.getPreparationByDisasterId(disasterId)
+
+    /**
+     * Filtered by SituationType — used when user selects Before/During/After chip.
+     */
+    fun getDisasterPreparationsBySituation(
+        disasterId: Long,
+        situationType: SituationType
+    ): Flow<List<DisasterPreparationEntity>> =
+        disasterPreparationDao.getPreparationBySituation(disasterId, situationType)
+
+    /** Legacy alias */
     fun getPreparationByDisasterId(disasterId: Long): Flow<List<DisasterPreparationEntity>> =
         disasterPreparationDao.getPreparationByDisasterId(disasterId)
 
@@ -78,9 +111,6 @@ class DisasterRepository(
 
     fun getGeneralPreparation(disasterId: Long): Flow<List<DisasterPreparationEntity>> =
         disasterPreparationDao.getGeneralPreparation(disasterId)
-
-    fun getPreparationByPhase(disasterId: Long, phase: String): Flow<List<DisasterPreparationEntity>> =
-        disasterPreparationDao.getPreparationByPhase(disasterId, phase)
 
     suspend fun getPhasesByDisasterId(disasterId: Long): List<String> =
         disasterPreparationDao.getPhasesByDisasterId(disasterId)

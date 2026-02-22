@@ -6,6 +6,7 @@ import com.resq.app.data.entity.FirstAidCategoryEntity
 import com.resq.app.data.entity.FirstAidContentEntity
 import com.resq.app.data.repository.FirstAidRepository
 import com.resq.app.data.repository.UserSettingsRepository
+import com.resq.app.ui.adapter.FirstAidCategoryAdapter.CategoryWithStepCount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,11 +24,20 @@ class FirstAidViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(FirstAidUiState())
     val uiState: StateFlow<FirstAidUiState> = _uiState.asStateFlow()
 
+    // --- Individual flows expected by FirstAidFragment ---
+    private val _categoriesWithStepCount = MutableStateFlow<List<CategoryWithStepCount>>(emptyList())
+    val categoriesWithStepCount: StateFlow<List<CategoryWithStepCount>> = _categoriesWithStepCount.asStateFlow()
+
+    // --- Detail flows expected by FirstAidDetailFragment ---
     private val _selectedCategory = MutableStateFlow<FirstAidCategoryEntity?>(null)
     val selectedCategory: StateFlow<FirstAidCategoryEntity?> = _selectedCategory.asStateFlow()
 
     private val _categoryContent = MutableStateFlow<List<FirstAidContentEntity>>(emptyList())
     val categoryContent: StateFlow<List<FirstAidContentEntity>> = _categoryContent.asStateFlow()
+
+    /** Alias used by FirstAidDetailFragment */
+    private val _categorySteps = MutableStateFlow<List<FirstAidContentEntity>>(emptyList())
+    val categorySteps: StateFlow<List<FirstAidContentEntity>> = _categorySteps.asStateFlow()
 
     private val _currentStepIndex = MutableStateFlow(0)
     val currentStepIndex: StateFlow<Int> = _currentStepIndex.asStateFlow()
@@ -45,6 +55,11 @@ class FirstAidViewModel @Inject constructor(
                 val languageCode = settings?.preferredLanguage ?: "en"
 
                 firstAidRepository.getAllCategories().collect { categories ->
+                    val withCounts = categories.map { cat ->
+                        val count = firstAidRepository.getContentCountByCategoryId(cat.id)
+                        CategoryWithStepCount(category = cat, stepCount = count)
+                    }
+                    _categoriesWithStepCount.value = withCounts
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         categories = categories,
@@ -61,7 +76,23 @@ class FirstAidViewModel @Inject constructor(
         }
     }
 
-    fun selectCategory(categoryId: Long) {
+    /** Called by FirstAidFragment when search is cleared. */
+    fun loadAllCategories() {
+        viewModelScope.launch {
+            val withCounts = _uiState.value.categories.map { cat ->
+                val count = firstAidRepository.getContentCountByCategoryId(cat.id)
+                CategoryWithStepCount(category = cat, stepCount = count)
+            }
+            _categoriesWithStepCount.value = withCounts
+            _uiState.value = _uiState.value.copy(
+                filteredCategories = _uiState.value.categories,
+                searchQuery = ""
+            )
+        }
+    }
+
+    /** Called by FirstAidDetailFragment to load a specific category and its steps. */
+    fun loadCategory(categoryId: Long) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingContent = true)
             _currentStepIndex.value = 0
@@ -72,7 +103,9 @@ class FirstAidViewModel @Inject constructor(
                 }
 
                 firstAidRepository.getContentByCategoryId(categoryId).collect { content ->
-                    _categoryContent.value = content.sortedBy { it.displayOrder }
+                    val sorted = content.sortedBy { it.displayOrder }
+                    _categoryContent.value = sorted
+                    _categorySteps.value = sorted
                 }
 
                 _uiState.value = _uiState.value.copy(isLoadingContent = false)
@@ -83,6 +116,10 @@ class FirstAidViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun selectCategory(categoryId: Long) {
+        loadCategory(categoryId)
     }
 
     fun nextStep() {
@@ -126,12 +163,22 @@ class FirstAidViewModel @Inject constructor(
     fun searchCategories(query: String) {
         viewModelScope.launch {
             if (query.isBlank()) {
+                val withCounts = _uiState.value.categories.map { cat ->
+                    val count = firstAidRepository.getContentCountByCategoryId(cat.id)
+                    CategoryWithStepCount(category = cat, stepCount = count)
+                }
+                _categoriesWithStepCount.value = withCounts
                 _uiState.value = _uiState.value.copy(
                     filteredCategories = _uiState.value.categories,
                     searchQuery = ""
                 )
             } else {
                 firstAidRepository.searchCategories(query).collect { results ->
+                    val withCounts = results.map { cat ->
+                        val count = firstAidRepository.getContentCountByCategoryId(cat.id)
+                        CategoryWithStepCount(category = cat, stepCount = count)
+                    }
+                    _categoriesWithStepCount.value = withCounts
                     _uiState.value = _uiState.value.copy(
                         filteredCategories = results,
                         searchQuery = query
@@ -144,6 +191,7 @@ class FirstAidViewModel @Inject constructor(
     fun clearSelection() {
         _selectedCategory.value = null
         _categoryContent.value = emptyList()
+        _categorySteps.value = emptyList()
         _currentStepIndex.value = 0
     }
 

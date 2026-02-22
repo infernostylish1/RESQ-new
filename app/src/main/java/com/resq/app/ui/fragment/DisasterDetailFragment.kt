@@ -11,9 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.chip.Chip
-import com.resq.app.data.model.SituationType
+import com.resq.app.R
 import com.resq.app.databinding.FragmentDisasterDetailBinding
 import com.resq.app.ui.adapter.PreparationStepAdapter
 import com.resq.app.ui.viewmodel.DisasterViewModel
@@ -22,6 +20,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Disaster detail fragment — shows info + before/during/after preparation steps.
+ *
+ * Filters preparations by the `phase` String column in DisasterPreparationEntity
+ * (values: "Before", "During", "After"), NOT by SituationType enum.
+ */
 @AndroidEntryPoint
 class DisasterDetailFragment : Fragment() {
 
@@ -36,7 +40,8 @@ class DisasterDetailFragment : Fragment() {
 
     private lateinit var preparationAdapter: PreparationStepAdapter
 
-    private var currentSituationType: SituationType = SituationType.GENERAL
+    /** Tracks the currently selected temporal phase as a String matching the DB column. */
+    private var currentPhase: String = PHASE_BEFORE
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,10 +57,9 @@ class DisasterDetailFragment : Fragment() {
         setupToolbar()
         setupChipGroup()
         setupRecyclerView()
-        setupClickListeners()
+        setupFab()
+        viewModel.loadDisaster(args.disasterId)
         observeViewModel()
-
-        viewModel.selectDisaster(args.disasterId.toLong())
     }
 
     private fun setupToolbar() {
@@ -65,69 +69,60 @@ class DisasterDetailFragment : Fragment() {
     }
 
     private fun setupChipGroup() {
-        binding.chipGroupSituation.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isNotEmpty()) {
-                currentSituationType = when (checkedIds.first()) {
-                    binding.chipBefore.id -> SituationType.GENERAL
-                    binding.chipDuring.id -> SituationType.URBAN
-                    binding.chipAfter.id -> SituationType.COASTAL
-                    else -> SituationType.GENERAL
-                }
-                updatePreparationsList()
-            }
-        }
-        // Select first chip by default
         binding.chipBefore.isChecked = true
+
+        binding.chipGroupSituation.setOnCheckedStateChangeListener { _, checkedIds ->
+            currentPhase = when {
+                checkedIds.contains(R.id.chip_before) -> PHASE_BEFORE
+                checkedIds.contains(R.id.chip_during) -> PHASE_DURING
+                checkedIds.contains(R.id.chip_after)  -> PHASE_AFTER
+                else -> PHASE_BEFORE
+            }
+            viewModel.loadPreparationsByPhase(args.disasterId, currentPhase)
+        }
     }
 
     private fun setupRecyclerView() {
         preparationAdapter = PreparationStepAdapter()
-
-        binding.rvPreparations.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = preparationAdapter
-        }
+        binding.rvPreparations.adapter = preparationAdapter
     }
 
-    private fun setupClickListeners() {
+    private fun setupFab() {
         binding.fabReadAloud.setOnClickListener {
             readCurrentContentAloud()
         }
     }
 
     private fun readCurrentContentAloud() {
-        val textToRead = viewModel.getContentForTTS()
-        if (textToRead.isNotEmpty()) {
-            ttsManager.speak(textToRead)
-        }
-    }
+        val disaster = viewModel.selectedDisaster.value ?: return
+        val preparations = viewModel.preparations.value
 
-    private fun updatePreparationsList() {
-        val preparations = viewModel.getPreparationsBySituation(currentSituationType)
-        preparationAdapter.submitList(preparations)
+        val sb = StringBuilder()
+        sb.append(disaster.name)
+        sb.append(". $currentPhase. ")
+        preparations.forEachIndexed { index, step ->
+            sb.append("Step ${index + 1}: ${step.title}. ${step.content}. ")
+        }
+        ttsManager.speak(sb.toString())
     }
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
                 launch {
                     viewModel.selectedDisaster.collect { disaster ->
                         disaster?.let {
-                            binding.collapsingToolbar.title = it.name
                             binding.tvDescription.text = it.description
+                            binding.collapsingToolbar.title = it.name
+                            viewModel.loadPreparationsByPhase(args.disasterId, currentPhase)
                         }
                     }
                 }
 
                 launch {
-                    viewModel.preparations.collect { preparations ->
-                        preparationAdapter.submitList(preparations)
-                    }
-                }
-
-                launch {
-                    viewModel.uiState.collect { state ->
-                        // Handle loading state if needed
+                    viewModel.preparations.collect { steps ->
+                        preparationAdapter.submitList(steps)
                     }
                 }
             }
@@ -135,8 +130,15 @@ class DisasterDetailFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
         ttsManager.stop()
+        super.onDestroyView()
         _binding = null
+    }
+
+    companion object {
+        /** Phase string constants — must match values stored in the `phase` DB column. */
+        const val PHASE_BEFORE = "Before"
+        const val PHASE_DURING = "During"
+        const val PHASE_AFTER = "After"
     }
 }

@@ -8,25 +8,77 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository for user settings operations.
- * Handles app preferences and accessibility settings.
+ * All ViewModel-facing method names normalized here.
  */
 class UserSettingsRepository(
     private val userSettingsDao: UserSettingsDao
 ) {
 
-    fun getSettings(): Flow<UserSettingsEntity?> = userSettingsDao.getSettings()
+    /**
+     * Flow-based settings observer.
+     * Used as getUserSettings() by ViewModels.
+     */
+    fun getUserSettings(): Flow<UserSettingsEntity?> =
+        userSettingsDao.getSettings()
 
-    suspend fun getSettingsOnce(): UserSettingsEntity? = userSettingsDao.getSettingsOnce()
+    /** Legacy alias */
+    fun getSettings(): Flow<UserSettingsEntity?> =
+        userSettingsDao.getSettings()
 
-    suspend fun insertSettings(settings: UserSettingsEntity) = userSettingsDao.insertSettings(settings)
+    suspend fun getSettingsOnce(): UserSettingsEntity? =
+        userSettingsDao.getSettingsOnce()
 
-    suspend fun updateSettings(settings: UserSettingsEntity) = userSettingsDao.updateSettings(settings)
+    /**
+     * Upsert — used by SettingsViewModel and OnboardingViewModel.
+     */
+    suspend fun insertOrUpdateSettings(settings: UserSettingsEntity) {
+        val existing = userSettingsDao.getSettingsOnce()
+        if (existing == null) {
+            userSettingsDao.insertSettings(settings)
+        } else {
+            userSettingsDao.updateSettings(settings.copy(id = existing.id))
+        }
+    }
 
-    suspend fun updateDarkTheme(isDark: Boolean) = userSettingsDao.updateDarkTheme(isDark)
+    suspend fun insertSettings(settings: UserSettingsEntity) =
+        userSettingsDao.insertSettings(settings)
 
-    suspend fun updateFontSize(fontSize: FontSize) = userSettingsDao.updateFontSize(fontSize)
+    suspend fun updateSettings(settings: UserSettingsEntity) =
+        userSettingsDao.updateSettings(settings)
 
-    suspend fun updateTtsEnabled(enabled: Boolean) = userSettingsDao.updateTtsEnabled(enabled)
+    suspend fun updateDarkTheme(isDark: Boolean) =
+        userSettingsDao.updateDarkTheme(isDark)
+
+    suspend fun updateFontSize(fontSize: FontSize) =
+        userSettingsDao.updateFontSize(fontSize)
+
+    /**
+     * TTS enabled toggle — used by SettingsViewModel.
+     */
+    suspend fun updateTTSEnabled(enabled: Boolean) =
+        userSettingsDao.updateTtsEnabled(enabled)
+
+    /** Legacy alias */
+    suspend fun updateTtsEnabled(enabled: Boolean) =
+        userSettingsDao.updateTtsEnabled(enabled)
+
+    /**
+     * TTS speed — used by SettingsViewModel.
+     */
+    suspend fun updateTTSSpeed(speed: Float) {
+        val current = userSettingsDao.getSettingsOnce()
+        val pitch = current?.ttsPitch ?: 1.0f
+        userSettingsDao.updateTtsSettings(speed, pitch)
+    }
+
+    /**
+     * TTS pitch — used by SettingsViewModel.
+     */
+    suspend fun updateTTSPitch(pitch: Float) {
+        val current = userSettingsDao.getSettingsOnce()
+        val speed = current?.ttsSpeed ?: 1.0f
+        userSettingsDao.updateTtsSettings(speed, pitch)
+    }
 
     suspend fun updateTtsSettings(speed: Float, pitch: Float) =
         userSettingsDao.updateTtsSettings(speed, pitch)
@@ -37,11 +89,30 @@ class UserSettingsRepository(
     suspend fun updateTipsPreference(preference: TipsPreference) =
         userSettingsDao.updateTipsPreference(preference)
 
-    suspend fun updateLanguage(language: String) = userSettingsDao.updateLanguage(language)
+    suspend fun updateLanguage(language: String) =
+        userSettingsDao.updateLanguage(language)
 
-    suspend fun getPreferredLanguage(): String = userSettingsDao.getPreferredLanguage() ?: "en"
+    /**
+     * Marks onboarding as completed.
+     * Used by OnboardingViewModel.
+     */
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        val current = userSettingsDao.getSettingsOnce()
+        if (current != null) {
+            userSettingsDao.updateSettings(current.copy(hasCompletedOnboarding = completed))
+        } else {
+            userSettingsDao.insertSettings(
+                UserSettingsEntity(hasCompletedOnboarding = completed)
+            )
+        }
+    }
 
-    suspend fun isDarkTheme(): Boolean = userSettingsDao.isDarkTheme() ?: false
+    suspend fun getPreferredLanguage(): String =
+        userSettingsDao.getPreferredLanguage() ?: "en"
 
-    suspend fun deleteSettings() = userSettingsDao.deleteSettings()
+    suspend fun isDarkTheme(): Boolean =
+        userSettingsDao.isDarkTheme() ?: false
+
+    suspend fun deleteSettings() =
+        userSettingsDao.deleteSettings()
 }

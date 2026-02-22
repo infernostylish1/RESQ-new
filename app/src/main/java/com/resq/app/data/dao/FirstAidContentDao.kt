@@ -43,6 +43,9 @@ interface FirstAidContentDao {
     """)
     fun searchContent(query: String): Flow<List<FirstAidContentEntity>>
 
+    @Query("SELECT COUNT(*) FROM first_aid_content WHERE category_id = :categoryId")
+    suspend fun getContentCountByCategoryId(categoryId: Long): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertContent(content: FirstAidContentEntity): Long
 

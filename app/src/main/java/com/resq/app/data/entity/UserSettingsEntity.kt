@@ -40,6 +40,9 @@ data class UserSettingsEntity(
     @ColumnInfo(name = "preferred_language")
     val preferredLanguage: String = "en",
 
+    @ColumnInfo(name = "has_completed_onboarding")
+    val hasCompletedOnboarding: Boolean = false,
+
     @ColumnInfo(name = "updated_at")
     val updatedAt: Long = System.currentTimeMillis()
 )

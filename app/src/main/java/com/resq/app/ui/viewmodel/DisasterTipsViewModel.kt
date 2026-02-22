@@ -3,8 +3,10 @@ package com.resq.app.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.resq.app.data.entity.DisasterTipEntity
+import com.resq.app.data.repository.DisasterRepository
 import com.resq.app.data.repository.DisasterTipRepository
 import com.resq.app.data.repository.UserSettingsRepository
+import com.resq.app.ui.adapter.TipAdapter.TipWithCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DisasterTipsViewModel @Inject constructor(
     private val disasterTipRepository: DisasterTipRepository,
+    private val disasterRepository: DisasterRepository,
     private val userSettingsRepository: UserSettingsRepository
 ) : ViewModel() {
 
@@ -25,12 +28,32 @@ class DisasterTipsViewModel @Inject constructor(
     private val _currentTip = MutableStateFlow<DisasterTipEntity?>(null)
     val currentTip: StateFlow<DisasterTipEntity?> = _currentTip.asStateFlow()
 
+    /** Flow expected by TipsFragment — the list currently displayed. */
+    private val _tipsWithCategory = MutableStateFlow<List<TipWithCategory>>(emptyList())
+    val tipsWithCategory: StateFlow<List<TipWithCategory>> = _tipsWithCategory.asStateFlow()
+
     private var currentTipIndex = 0
     private var allTipsList: List<DisasterTipEntity> = emptyList()
+    private var showingFavorites = false
 
     init {
         loadTips()
         loadRandomTip()
+    }
+
+    /**
+     * Maps a list of DisasterTipEntity to TipWithCategory by looking up the
+     * disaster name from the DisasterRepository.
+     */
+    private suspend fun mapToTipWithCategory(tips: List<DisasterTipEntity>): List<TipWithCategory> {
+        val disasters = disasterRepository.getAllDisasters().first()
+        val disasterMap = disasters.associateBy { it.id }
+        return tips.map { tip ->
+            TipWithCategory(
+                tip = tip,
+                categoryName = disasterMap[tip.disasterId]?.name ?: "General"
+            )
+        }
     }
 
     private fun loadTips() {
@@ -43,6 +66,7 @@ class DisasterTipsViewModel @Inject constructor(
 
                 disasterTipRepository.getAllTips().collect { tips ->
                     allTipsList = tips
+                    _tipsWithCategory.value = mapToTipWithCategory(tips)
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         allTips = tips,
@@ -75,6 +99,58 @@ class DisasterTipsViewModel @Inject constructor(
         }
     }
 
+    /** Called by TipsFragment "All Tips" tab. */
+    fun loadAllTips() {
+        showingFavorites = false
+        viewModelScope.launch {
+            _tipsWithCategory.value = mapToTipWithCategory(_uiState.value.allTips)
+            _uiState.value = _uiState.value.copy(
+                filteredTips = _uiState.value.allTips
+            )
+        }
+    }
+
+    /** Called by TipsFragment "Favorites" tab. */
+    fun loadFavoriteTips() {
+        showingFavorites = true
+        viewModelScope.launch {
+            val favorites = _uiState.value.allTips.filter { it.isFavorite }
+            _tipsWithCategory.value = mapToTipWithCategory(favorites)
+            _uiState.value = _uiState.value.copy(filteredTips = favorites)
+        }
+    }
+
+    /** Called by TipsFragment when the favorite icon on a tip is tapped. */
+    fun toggleFavorite(tip: DisasterTipEntity) {
+        viewModelScope.launch {
+            val updated = tip.copy(isFavorite = !tip.isFavorite)
+            disasterTipRepository.updateTip(updated)
+
+            // Update in-memory lists
+            allTipsList = allTipsList.map { if (it.id == tip.id) updated else it }
+            val allUpdated = _uiState.value.allTips.map { if (it.id == tip.id) updated else it }
+            _uiState.value = _uiState.value.copy(allTips = allUpdated)
+
+            // Refresh displayed list
+            if (showingFavorites) {
+                loadFavoriteTips()
+            } else {
+                _tipsWithCategory.value = mapToTipWithCategory(allUpdated)
+                _uiState.value = _uiState.value.copy(filteredTips = allUpdated)
+            }
+        }
+    }
+
+    /** Called by TipsFragment when search is cleared. */
+    fun clearSearch() {
+        _uiState.value = _uiState.value.copy(searchQuery = "")
+        if (showingFavorites) {
+            loadFavoriteTips()
+        } else {
+            loadAllTips()
+        }
+    }
+
     fun getNextTip() {
         if (allTipsList.isEmpty()) return
         currentTipIndex = (currentTipIndex + 1) % allTipsList.size
@@ -96,11 +172,13 @@ class DisasterTipsViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(selectedDisasterId = disasterId)
 
             if (disasterId == null) {
+                _tipsWithCategory.value = mapToTipWithCategory(_uiState.value.allTips)
                 _uiState.value = _uiState.value.copy(
                     filteredTips = _uiState.value.allTips
                 )
             } else {
                 disasterTipRepository.getTipsByDisasterId(disasterId).collect { tips ->
+                    _tipsWithCategory.value = mapToTipWithCategory(tips)
                     _uiState.value = _uiState.value.copy(filteredTips = tips)
                 }
             }
@@ -108,18 +186,26 @@ class DisasterTipsViewModel @Inject constructor(
     }
 
     fun searchTips(query: String) {
-        _uiState.value = _uiState.value.copy(searchQuery = query)
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(searchQuery = query)
 
-        if (query.isBlank()) {
-            _uiState.value = _uiState.value.copy(
-                filteredTips = _uiState.value.allTips
-            )
-        } else {
-            val filtered = _uiState.value.allTips.filter { tip ->
-                tip.tipText.contains(query, ignoreCase = true) ||
-                        tip.tipTextTagalog.contains(query, ignoreCase = true)
+            val source = if (showingFavorites) {
+                _uiState.value.allTips.filter { it.isFavorite }
+            } else {
+                _uiState.value.allTips
             }
-            _uiState.value = _uiState.value.copy(filteredTips = filtered)
+
+            if (query.isBlank()) {
+                _tipsWithCategory.value = mapToTipWithCategory(source)
+                _uiState.value = _uiState.value.copy(filteredTips = source)
+            } else {
+                val filtered = source.filter { tip ->
+                    tip.tipText.contains(query, ignoreCase = true) ||
+                            tip.tipTextTagalog.contains(query, ignoreCase = true)
+                }
+                _tipsWithCategory.value = mapToTipWithCategory(filtered)
+                _uiState.value = _uiState.value.copy(filteredTips = filtered)
+            }
         }
     }
 
