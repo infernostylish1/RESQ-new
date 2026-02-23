@@ -32,6 +32,7 @@
     <string name="action_no">Hindi</string>
     <string name="action_read_aloud">Basahin nang Malakas</string>
     <string name="action_stop_reading">Itigil ang Pagbasa</string>
+    <string name="action_get_started">Magsimula</string>
 
     <!-- Onboarding -->
     <string name="onboarding_welcome_title">Maligayang Pagdating sa RESQ</string>
@@ -40,10 +41,14 @@
     <string name="onboarding_disasters_desc">Mag-access ng detalyadong impormasyon tungkol sa iba\'t ibang uri ng sakuna at kung paano maghanda para sa mga ito.</string>
     <string name="onboarding_firstaid_title">Gabay sa Pertolya</string>
     <string name="onboarding_firstaid_desc">Hakbang-hakbang na mga tagubilin sa pertolya para sa mga karaniwang emergency.</string>
+    <string name="onboarding_first_aid_title">Gabay sa Pertolya</string>
+    <string name="onboarding_first_aid_desc">Hakbang-hakbang na mga tagubilin sa pertolya para sa mga karaniwang emergency.</string>
     <string name="onboarding_offline_title">Gumagana Offline</string>
     <string name="onboarding_offline_desc">Lahat ng impormasyon ay naka-imbak sa lokal. Hindi kailangan ng koneksyon sa internet.</string>
     <string name="onboarding_profile_title">Sabihin Mo sa Amin</string>
     <string name="onboarding_profile_desc">Tulungan mo kaming i-personalize ang iyong karanasan gamit ang mga kaugnay na impormasyon sa sakuna.</string>
+    <string name="onboarding_ready_title">Handa Ka Na!</string>
+    <string name="onboarding_ready_desc">Manatiling handa at manatiling ligtas kasama ang RESQ.</string>
     <string name="onboarding_get_started">Magsimula</string>
 
     <!-- Profile -->
@@ -162,6 +167,7 @@
     <string name="settings_version">Bersyon</string>
     <string name="settings_reset">I-reset sa Default</string>
     <string name="settings_reset_confirm">Sigurado ka bang gusto mong i-reset ang lahat ng setting sa default na mga halaga?</string>
+    <string name="settings_emergency_contacts">Mga Emergency Contact</string>
 
     <!-- Font Sizes -->
     <string name="font_size_small">Maliit</string>
@@ -238,6 +244,7 @@
     <string name="about_disclaimer_title">Disclaimer</string>
     <string name="about_disclaimer">Ang application na ito ay para sa mga layuning pang-edukasyon lamang. Ang impormasyong ibinibigay ay hindi dapat palitan ang propesyonal na payo medikal, mga serbisyo sa emergency, o opisyal na mga protocol sa pagtugon sa sakuna. Laging sundin ang mga tagubilin ng mga lokal na awtoridad sa mga emergency.</string>
     <string name="about_developed_by">Ginawa para sa mga layuning pang-edukasyon</string>
+    <string name="about_version">Bersyon %1$s</string>
 
     <!-- Plurals -->
     <plurals name="step_count">

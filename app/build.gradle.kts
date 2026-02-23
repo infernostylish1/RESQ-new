@@ -98,6 +98,9 @@ dependencies {
     // Recycler View
     implementation(libs.androidx.recyclerview)
 
+    // Splash Screen
+    implementation(libs.androidx.splashscreen)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

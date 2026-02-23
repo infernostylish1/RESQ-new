@@ -32,6 +32,7 @@
     <string name="action_no">No</string>
     <string name="action_read_aloud">Read Aloud</string>
     <string name="action_stop_reading">Stop Reading</string>
+    <string name="action_get_started">Get Started</string>
 
     <!-- Onboarding -->
     <string name="onboarding_welcome_title">Welcome to RESQ</string>
@@ -40,10 +41,14 @@
     <string name="onboarding_disasters_desc">Access detailed information about different types of disasters and how to prepare for them.</string>
     <string name="onboarding_firstaid_title">First Aid Guide</string>
     <string name="onboarding_firstaid_desc">Step-by-step first aid instructions for common emergencies.</string>
+    <string name="onboarding_first_aid_title">First Aid Guide</string>
+    <string name="onboarding_first_aid_desc">Step-by-step first aid instructions for common emergencies.</string>
     <string name="onboarding_offline_title">Works Offline</string>
     <string name="onboarding_offline_desc">All information is stored locally. No internet connection required.</string>
     <string name="onboarding_profile_title">Tell Us About You</string>
     <string name="onboarding_profile_desc">Help us personalize your experience with relevant disaster information.</string>
+    <string name="onboarding_ready_title">You\'re Ready!</string>
+    <string name="onboarding_ready_desc">Stay prepared and stay safe with RESQ.</string>
     <string name="onboarding_get_started">Get Started</string>
 
     <!-- Profile -->
@@ -162,6 +167,7 @@
     <string name="settings_version">Version</string>
     <string name="settings_reset">Reset to Defaults</string>
     <string name="settings_reset_confirm">Are you sure you want to reset all settings to default values?</string>
+    <string name="settings_emergency_contacts">Emergency Contacts</string>
 
     <!-- Font Sizes -->
     <string name="font_size_small">Small</string>
@@ -238,6 +244,7 @@
     <string name="about_disclaimer_title">Disclaimer</string>
     <string name="about_disclaimer">This application is for educational purposes only. The information provided should not replace professional medical advice, emergency services, or official disaster response protocols. Always follow the instructions of local authorities during emergencies.</string>
     <string name="about_developed_by">Developed for educational purposes</string>
+    <string name="about_version">Version %1$s</string>
 
     <!-- Plurals -->
     <plurals name="step_count">
