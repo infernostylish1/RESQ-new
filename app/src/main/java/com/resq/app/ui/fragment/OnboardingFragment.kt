@@ -1,37 +1,46 @@
-package com.resq.app.ui.activity
+package com.resq.app.ui.fragment
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
-import com.resq.app.MainActivity
 import com.resq.app.R
-import com.resq.app.databinding.ActivityOnboardingBinding
+import com.resq.app.databinding.FragmentOnboardingBinding
 import com.resq.app.ui.adapter.OnboardingPagerAdapter
 import com.resq.app.ui.viewmodel.OnboardingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class OnboardingActivity : AppCompatActivity() {
+class OnboardingFragment : Fragment() {
 
-    private lateinit var binding: ActivityOnboardingBinding
+    private var _binding: FragmentOnboardingBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: OnboardingViewModel by viewModels()
-
     private lateinit var pagerAdapter: OnboardingPagerAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityOnboardingBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentOnboardingBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupViewPager()
         setupIndicators()
@@ -81,12 +90,9 @@ class OnboardingActivity : AppCompatActivity() {
         binding.indicatorContainer.removeAllViews()
 
         for (i in 0 until indicatorCount) {
-            val indicator = ImageView(this).apply {
+            val indicator = ImageView(requireContext()).apply {
                 setImageDrawable(
-                    ContextCompat.getDrawable(
-                        this@OnboardingActivity,
-                        R.drawable.indicator_inactive
-                    )
+                    ContextCompat.getDrawable(requireContext(), R.drawable.indicator_inactive)
                 )
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -98,7 +104,6 @@ class OnboardingActivity : AppCompatActivity() {
             }
             binding.indicatorContainer.addView(indicator)
         }
-
         updateIndicators(0)
     }
 
@@ -111,7 +116,7 @@ class OnboardingActivity : AppCompatActivity() {
             } else {
                 R.drawable.indicator_inactive
             }
-            indicator.setImageDrawable(ContextCompat.getDrawable(this, drawableRes))
+            indicator.setImageDrawable(ContextCompat.getDrawable(requireContext(), drawableRes))
         }
     }
 
@@ -120,7 +125,6 @@ class OnboardingActivity : AppCompatActivity() {
         val isLastPage = position == OnboardingViewModel.TOTAL_PAGES - 1
 
         binding.btnPrevious.visibility = if (isFirstPage) View.INVISIBLE else View.VISIBLE
-
         binding.btnNext.text = if (isLastPage) {
             getString(R.string.action_get_started)
         } else {
@@ -151,11 +155,11 @@ class OnboardingActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     if (state.onboardingComplete) {
-                        navigateToMain()
+                        navigateToHome()
                     }
 
                     state.error?.let { error ->
@@ -166,8 +170,8 @@ class OnboardingActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.currentPage.collect { page ->
                     if (binding.viewPager.currentItem != page) {
                         binding.viewPager.setCurrentItem(page, true)
@@ -177,12 +181,8 @@ class OnboardingActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        finish()
+    private fun navigateToHome() {
+        findNavController().navigate(R.id.action_onboarding_to_home)
     }
 
     private fun showError(message: String) {
@@ -191,5 +191,10 @@ class OnboardingActivity : AppCompatActivity() {
             message,
             com.google.android.material.snackbar.Snackbar.LENGTH_LONG
         ).show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

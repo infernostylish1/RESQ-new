@@ -2,8 +2,22 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/nav_home">
+    android:id="@+id/nav_graph">
+
+    <!-- ── Onboarding ────────────────────────────────────────────────────── -->
+    <fragment
+        android:id="@+id/nav_onboarding"
+        android:name="com.resq.app.ui.fragment.OnboardingFragment"
+        android:label="Welcome"
+        tools:layout="@layout/fragment_onboarding">
+
+        <action
+            android:id="@+id/action_onboarding_to_home"
+            app:destination="@id/nav_home"
+            app:popUpTo="@id/nav_onboarding"
+            app:popUpToInclusive="true" />
+
+    </fragment>
 
     <!-- ── Home ──────────────────────────────────────────────────────────── -->
     <fragment

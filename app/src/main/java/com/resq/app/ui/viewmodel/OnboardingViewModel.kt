@@ -105,6 +105,7 @@ class OnboardingViewModel @Inject constructor(
                 )
 
                 userProfileRepository.insertProfile(profile)
+                userSettingsRepository.setOnboardingCompleted(true)
 
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -127,6 +128,7 @@ class OnboardingViewModel @Inject constructor(
                 onboardingCompleted = true
             )
             userProfileRepository.insertProfile(profile)
+            userSettingsRepository.setOnboardingCompleted(true)
 
             _uiState.value = _uiState.value.copy(
                 hasCompletedOnboarding = true,
