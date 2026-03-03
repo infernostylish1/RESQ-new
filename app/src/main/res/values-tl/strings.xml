@@ -51,6 +51,18 @@
     <string name="onboarding_ready_desc">Manatiling handa at manatiling ligtas kasama ang RESQ.</string>
     <string name="onboarding_get_started">Magsimula</string>
 
+    <!-- Onboarding — Location Risk Questions (NEW) -->
+    <string name="onboarding_location_title">Ang Iyong Lokasyon</string>
+    <string name="onboarding_location_desc">Piliin ang lahat ng angkop sa iyong lugar. Tinutulungan kami nitong ipakita sa iyo ang pinaka-kaugnay na impormasyon sa sakuna.</string>
+    <string name="onboarding_location_near_water">Nakatira ako malapit sa tubig (dagat, ilog, o lawa)</string>
+    <string name="onboarding_location_mountainous">Nakatira ako sa maburol na lugar</string>
+    <string name="onboarding_location_landslide">Nakatira ako sa lugar na madaling makaranas ng pagguho ng lupa</string>
+    <string name="onboarding_location_flood">Nakatira ako sa lugar na madaling bahain</string>
+    <string name="onboarding_location_volcano">Nakatira ako malapit sa bulkan</string>
+    <string name="onboarding_location_urban">Nakatira ako sa urban na lugar</string>
+    <string name="onboarding_location_coastal">Nakatira ako sa lugar na malapit sa baybayin</string>
+    <string name="onboarding_location_skip_hint">Maaari mong i-update ito sa Mga Setting.</string>
+
     <!-- Profile -->
     <string name="profile_name">Pangalan</string>
     <string name="profile_name_hint">Ilagay ang iyong pangalan</string>

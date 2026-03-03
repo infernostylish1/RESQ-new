@@ -51,6 +51,18 @@
     <string name="onboarding_ready_desc">Stay prepared and stay safe with RESQ.</string>
     <string name="onboarding_get_started">Get Started</string>
 
+    <!-- Onboarding — Location Risk Questions (NEW) -->
+    <string name="onboarding_location_title">Your Location Profile</string>
+    <string name="onboarding_location_desc">Select all that apply to your area. This helps us show you the most relevant disaster information.</string>
+    <string name="onboarding_location_near_water">I live near a body of water (sea, river, or lake)</string>
+    <string name="onboarding_location_mountainous">I live in a mountainous area</string>
+    <string name="onboarding_location_landslide">I live in a landslide-prone area</string>
+    <string name="onboarding_location_flood">I live in a flood-prone area</string>
+    <string name="onboarding_location_volcano">I live near a volcano</string>
+    <string name="onboarding_location_urban">I live in an urban area</string>
+    <string name="onboarding_location_coastal">I live in a coastal area</string>
+    <string name="onboarding_location_skip_hint">You can update this later in Settings.</string>
+
     <!-- Profile -->
     <string name="profile_name">Name</string>
     <string name="profile_name_hint">Enter your name</string>

@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,13 +31,10 @@ class OnboardingViewModel @Inject constructor(
     private fun checkOnboardingStatus() {
         viewModelScope.launch {
             val isCompleted = userProfileRepository.isOnboardingCompleted()
-            _uiState.value = _uiState.value.copy(
-                hasCompletedOnboarding = isCompleted
-            )
+            _uiState.value = _uiState.value.copy(hasCompletedOnboarding = isCompleted)
         }
     }
 
-    // Location-based risk profile updates
     fun updateNearWater(isNearWater: Boolean) {
         _uiState.value = _uiState.value.copy(isNearWater = isNearWater)
     }
@@ -88,10 +84,8 @@ class OnboardingViewModel @Inject constructor(
     fun completeOnboarding() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-
             try {
                 val state = _uiState.value
-
                 val profile = UserProfileEntity(
                     id = 1,
                     isNearWater = state.isNearWater,
@@ -103,8 +97,9 @@ class OnboardingViewModel @Inject constructor(
                     isInCoastalArea = state.isCoastal,
                     onboardingCompleted = true
                 )
-
-                userProfileRepository.insertProfile(profile)
+                // FIX: was insertProfile() — would silently fail if default row
+                // already exists from DatabaseCallback.onCreate()
+                userProfileRepository.insertOrUpdateProfile(profile)
                 userSettingsRepository.setOnboardingCompleted(true)
 
                 _uiState.value = _uiState.value.copy(
@@ -123,11 +118,9 @@ class OnboardingViewModel @Inject constructor(
 
     fun skipOnboarding() {
         viewModelScope.launch {
-            val profile = UserProfileEntity(
-                id = 1,
-                onboardingCompleted = true
-            )
-            userProfileRepository.insertProfile(profile)
+            val profile = UserProfileEntity(id = 1, onboardingCompleted = true)
+            // FIX: same as above
+            userProfileRepository.insertOrUpdateProfile(profile)
             userSettingsRepository.setOnboardingCompleted(true)
 
             _uiState.value = _uiState.value.copy(
@@ -142,7 +135,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     companion object {
-        const val TOTAL_PAGES = 4
+        // Was 4 — added location page between "First Aid" and "Ready"
+        const val TOTAL_PAGES = 5
     }
 }
 

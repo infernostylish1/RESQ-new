@@ -14,9 +14,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.snackbar.Snackbar
 import com.resq.app.R
 import com.resq.app.databinding.FragmentOnboardingBinding
 import com.resq.app.ui.adapter.OnboardingPagerAdapter
+import com.resq.app.ui.adapter.OnboardingPagerAdapter.LocationField
+import com.resq.app.ui.adapter.OnboardingPagerAdapter.OnboardingPage
 import com.resq.app.ui.viewmodel.OnboardingViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -41,39 +44,26 @@ class OnboardingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupViewPager()
         setupIndicators()
         setupClickListeners()
         observeViewModel()
     }
 
-    private fun setupViewPager() {
-        val pages = listOf(
-            OnboardingPagerAdapter.OnboardingPage(
-                title = getString(R.string.onboarding_welcome_title),
-                description = getString(R.string.onboarding_welcome_desc),
-                imageRes = R.drawable.ic_launcher_foreground
-            ),
-            OnboardingPagerAdapter.OnboardingPage(
-                title = getString(R.string.onboarding_disasters_title),
-                description = getString(R.string.onboarding_disasters_desc),
-                imageRes = R.drawable.ic_launcher_foreground
-            ),
-            OnboardingPagerAdapter.OnboardingPage(
-                title = getString(R.string.onboarding_first_aid_title),
-                description = getString(R.string.onboarding_first_aid_desc),
-                imageRes = R.drawable.ic_launcher_foreground
-            ),
-            OnboardingPagerAdapter.OnboardingPage(
-                title = getString(R.string.onboarding_ready_title),
-                description = getString(R.string.onboarding_ready_desc),
-                imageRes = R.drawable.ic_launcher_foreground
-            )
-        )
+    // ── ViewPager setup ───────────────────────────────────────────────────────
 
-        pagerAdapter = OnboardingPagerAdapter(pages)
+    private fun setupViewPager() {
+        val pages = buildPageList()
+
+        pagerAdapter = OnboardingPagerAdapter(
+            pages = pages,
+            onLocationChanged = ::onLocationFieldChanged
+        )
         binding.viewPager.adapter = pagerAdapter
+
+        // Disable swipe on the location page so scroll inside
+        // NestedScrollView doesn't fight the ViewPager
+        binding.viewPager.isUserInputEnabled = false
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
@@ -85,22 +75,58 @@ class OnboardingFragment : Fragment() {
         })
     }
 
-    private fun setupIndicators() {
-        val indicatorCount = OnboardingViewModel.TOTAL_PAGES
-        binding.indicatorContainer.removeAllViews()
+    private fun buildPageList(): List<OnboardingPage> = listOf(
+        OnboardingPage.InfoPage(
+            title = getString(R.string.onboarding_welcome_title),
+            description = getString(R.string.onboarding_welcome_desc),
+            imageRes = R.drawable.ic_launcher_foreground
+        ),
+        OnboardingPage.InfoPage(
+            title = getString(R.string.onboarding_disasters_title),
+            description = getString(R.string.onboarding_disasters_desc),
+            imageRes = R.drawable.ic_launcher_foreground
+        ),
+        OnboardingPage.InfoPage(
+            title = getString(R.string.onboarding_first_aid_title),
+            description = getString(R.string.onboarding_first_aid_desc),
+            imageRes = R.drawable.ic_launcher_foreground
+        ),
+        // Location question page — index 3
+        OnboardingPage.LocationPage(),
+        OnboardingPage.InfoPage(
+            title = getString(R.string.onboarding_ready_title),
+            description = getString(R.string.onboarding_ready_desc),
+            imageRes = R.drawable.ic_launcher_foreground
+        )
+    )
 
-        for (i in 0 until indicatorCount) {
+    // ── Location checkbox callback ────────────────────────────────────────────
+
+    private fun onLocationFieldChanged(field: LocationField, checked: Boolean) {
+        when (field) {
+            LocationField.NEAR_WATER   -> viewModel.updateNearWater(checked)
+            LocationField.MOUNTAINOUS  -> viewModel.updateMountainous(checked)
+            LocationField.LANDSLIDE    -> viewModel.updateLandslideProne(checked)
+            LocationField.FLOOD        -> viewModel.updateFloodProne(checked)
+            LocationField.VOLCANO      -> viewModel.updateNearVolcano(checked)
+            LocationField.URBAN        -> viewModel.updateUrban(checked)
+            LocationField.COASTAL      -> viewModel.updateCoastal(checked)
+        }
+    }
+
+    // ── Indicators ────────────────────────────────────────────────────────────
+
+    private fun setupIndicators() {
+        binding.indicatorContainer.removeAllViews()
+        repeat(OnboardingViewModel.TOTAL_PAGES) {
             val indicator = ImageView(requireContext()).apply {
                 setImageDrawable(
                     ContextCompat.getDrawable(requireContext(), R.drawable.indicator_inactive)
                 )
-                val params = LinearLayout.LayoutParams(
+                layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply {
-                    setMargins(8, 0, 8, 0)
-                }
-                layoutParams = params
+                ).apply { setMargins(8, 0, 8, 0) }
             }
             binding.indicatorContainer.addView(indicator)
         }
@@ -108,29 +134,31 @@ class OnboardingFragment : Fragment() {
     }
 
     private fun updateIndicators(position: Int) {
-        val childCount = binding.indicatorContainer.childCount
-        for (i in 0 until childCount) {
+        repeat(binding.indicatorContainer.childCount) { i ->
             val indicator = binding.indicatorContainer.getChildAt(i) as ImageView
-            val drawableRes = if (i == position) {
-                R.drawable.indicator_active
-            } else {
-                R.drawable.indicator_inactive
-            }
-            indicator.setImageDrawable(ContextCompat.getDrawable(requireContext(), drawableRes))
+            indicator.setImageDrawable(
+                ContextCompat.getDrawable(
+                    requireContext(),
+                    if (i == position) R.drawable.indicator_active else R.drawable.indicator_inactive
+                )
+            )
         }
     }
+
+    // ── Button visibility ─────────────────────────────────────────────────────
 
     private fun updateButtonsVisibility(position: Int) {
-        val isFirstPage = position == 0
-        val isLastPage = position == OnboardingViewModel.TOTAL_PAGES - 1
-
-        binding.btnPrevious.visibility = if (isFirstPage) View.INVISIBLE else View.VISIBLE
-        binding.btnNext.text = if (isLastPage) {
-            getString(R.string.action_get_started)
-        } else {
-            getString(R.string.action_next)
-        }
+        binding.btnPrevious.visibility =
+            if (position == 0) View.INVISIBLE else View.VISIBLE
+        binding.btnNext.text =
+            if (position == OnboardingViewModel.TOTAL_PAGES - 1) {
+                getString(R.string.action_get_started)
+            } else {
+                getString(R.string.action_next)
+            }
     }
+
+    // ── Click listeners ───────────────────────────────────────────────────────
 
     private fun setupClickListeners() {
         binding.btnSkip.setOnClickListener {
@@ -138,21 +166,21 @@ class OnboardingFragment : Fragment() {
         }
 
         binding.btnPrevious.setOnClickListener {
-            val currentItem = binding.viewPager.currentItem
-            if (currentItem > 0) {
-                binding.viewPager.currentItem = currentItem - 1
-            }
+            val current = binding.viewPager.currentItem
+            if (current > 0) binding.viewPager.currentItem = current - 1
         }
 
         binding.btnNext.setOnClickListener {
-            val currentItem = binding.viewPager.currentItem
-            if (currentItem < OnboardingViewModel.TOTAL_PAGES - 1) {
-                binding.viewPager.currentItem = currentItem + 1
+            val current = binding.viewPager.currentItem
+            if (current < OnboardingViewModel.TOTAL_PAGES - 1) {
+                binding.viewPager.currentItem = current + 1
             } else {
                 viewModel.completeOnboarding()
             }
         }
     }
+
+    // ── ViewModel observation ─────────────────────────────────────────────────
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
@@ -160,10 +188,10 @@ class OnboardingFragment : Fragment() {
                 viewModel.uiState.collect { state ->
                     if (state.onboardingComplete) {
                         navigateToHome()
+                        return@collect
                     }
-
-                    state.error?.let { error ->
-                        showError(error)
+                    state.error?.let {
+                        showError(it)
                         viewModel.clearError()
                     }
                 }
@@ -181,16 +209,14 @@ class OnboardingFragment : Fragment() {
         }
     }
 
+    // ── Navigation ────────────────────────────────────────────────────────────
+
     private fun navigateToHome() {
         findNavController().navigate(R.id.action_onboarding_to_home)
     }
 
     private fun showError(message: String) {
-        com.google.android.material.snackbar.Snackbar.make(
-            binding.root,
-            message,
-            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
-        ).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {

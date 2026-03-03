@@ -9,112 +9,125 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/screen_padding">
+        android:paddingHorizontal="@dimen/screen_padding"
+        android:paddingTop="@dimen/spacing_xl"
+        android:paddingBottom="@dimen/spacing_xl">
 
         <TextView
-            android:id="@+id/tv_title"
+            android:id="@+id/tv_location_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/onboarding_profile_title"
+            android:text="@string/onboarding_location_title"
             android:textAppearance="@style/TextAppearance.RESQ.Headline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_description"
+            android:id="@+id/tv_location_desc"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_sm"
             android:gravity="center"
-            android:text="@string/onboarding_profile_desc"
+            android:text="@string/onboarding_location_desc"
             android:textAppearance="@style/TextAppearance.RESQ.Body"
             android:textColor="@color/text_secondary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+            app:layout_constraintTop_toBottomOf="@id/tv_location_title" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_name"
-            style="@style/Widget.RESQ.TextInputLayout"
+        <!-- Checkboxes -->
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_near_water"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_xl"
-            android:hint="@string/profile_name"
+            android:text="@string/onboarding_location_near_water"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_description">
+            app:layout_constraintTop_toBottomOf="@id/tv_location_desc" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:maxLines="1" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_age"
-            style="@style/Widget.RESQ.TextInputLayout"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_mountainous"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:hint="@string/profile_age"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/onboarding_location_mountainous"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/til_name">
+            app:layout_constraintTop_toBottomOf="@id/cb_near_water" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_age"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="3"
-                android:maxLines="1" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_address"
-            style="@style/Widget.RESQ.TextInputLayout"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_landslide"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:hint="@string/profile_address"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/onboarding_location_landslide"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/til_age">
+            app:layout_constraintTop_toBottomOf="@id/cb_mountainous" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPostalAddress"
-                android:maxLines="2" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_emergency_contact"
-            style="@style/Widget.RESQ.TextInputLayout"
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_flood"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:hint="@string/profile_emergency_contact"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/onboarding_location_flood"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/til_address">
+            app:layout_constraintTop_toBottomOf="@id/cb_landslide" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_emergency_contact"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone"
-                android:maxLines="1" />
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_volcano"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/onboarding_location_volcano"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cb_flood" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_urban"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/onboarding_location_urban"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cb_volcano" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cb_coastal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:text="@string/onboarding_location_coastal"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cb_urban" />
+
+        <TextView
+            android:id="@+id/tv_skip_hint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_lg"
+            android:gravity="center"
+            android:text="@string/onboarding_location_skip_hint"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cb_coastal" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
