@@ -12,7 +12,7 @@
         android:id="@+id/tv_step_number"
         android:layout_width="@dimen/icon_size_lg"
         android:layout_height="@dimen/icon_size_lg"
-        android:background="@drawable/splash_background"
+        android:background="@drawable/bg_step_number_circle"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
         android:textColor="@color/on_primary"

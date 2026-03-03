@@ -55,10 +55,11 @@
         <item name="android:windowBackground">@color/background</item>
     </style>
 
-    <!-- Splash Screen Theme - Dark -->
-    <style name="Theme.RESQ.Splash" parent="Theme.RESQ">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-        <item name="android:statusBarColor">@color/primary_variant</item>
+    <!-- Splash Screen Theme -->
+    <style name="Theme.RESQ.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.RESQ</item>
     </style>
 
     <!-- Onboarding Theme - Dark -->
