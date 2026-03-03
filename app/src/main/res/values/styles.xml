@@ -201,7 +201,7 @@
         <item name="checkedIconVisible">true</item>
     </style>
 
-    <style name="Widget.RESQ.Chip.Situation" parent="Widget.Material3.Chip.Assist">
+    <style name="Widget.RESQ.Chip.Situation" parent="Widget.Material3.Chip.Filter">
         <item name="chipCornerRadius">16dp</item>
     </style>
 
