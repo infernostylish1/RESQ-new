@@ -264,4 +264,12 @@
         <item quantity="other">%d hakbang</item>
     </plurals>
 
+    <!-- Disasters screen section headers -->
+    <string name="disasters_section_for_you">Para Sayo</string>
+    <string name="disasters_section_other">Ibang Sakuna</string>
+
+    <!-- Tips tab labels — update existing strings or replace references in fragment_tips.xml -->
+    <string name="tips_recommended">Para Sayo</string>
+    <string name="tips_all_tips">Lahat ng Tip</string>
+
 </resources>

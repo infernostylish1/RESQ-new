@@ -21,12 +21,12 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/tips_all" />
+            android:text="@string/tips_recommended" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/tips_favorites" />
+            android:text="@string/tips_all_tips" />
 
     </com.google.android.material.tabs.TabLayout>
 

@@ -23,16 +23,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Tips fragment — shows all tips and favorites via TabLayout.
+ * Tips fragment.
  *
- * Fixes applied:
- * - Replaced Spinner/ArrayAdapter with TabLayout.OnTabSelectedListener
- *   (layout has tab_layout with 2 TabItems, not a Spinner)
- * - binding.spinnerFilter → binding.tabLayout
- * - binding.btnRefresh removed (no such view in layout)
- * - binding.tvEmptyState → binding.emptyState (id: empty_state, a LinearLayout)
- * - binding.progressBar removed (no progress indicator in fragment_tips.xml)
- * - Layout uses et_search (TextInputEditText), not a SearchView
+ * Changes from original:
+ * - Tab 0: "Recommended" — calls viewModel.loadRecommendedTipsForTab()
+ * - Tab 1: "All Tips"    — calls viewModel.loadAllTips()
+ * - Favorites are managed via the star icon on each tip card (unchanged behavior).
+ * - No structural layout changes — fragment_tips.xml tab text strings updated separately.
  */
 @AndroidEntryPoint
 class TipsFragment : Fragment() {
@@ -66,26 +63,23 @@ class TipsFragment : Fragment() {
 
     private fun setupRecyclerView() {
         tipAdapter = TipAdapter(
-            onFavoriteClick = { tip ->
-                viewModel.toggleFavorite(tip)
-            },
-            onShareClick = { tip ->
-                shareTip(tip.tipText)
-            },
-            onReadAloudClick = { tip ->
-                ttsManager.speak(tip.tipText)
-            }
+            onFavoriteClick  = { tip -> viewModel.toggleFavorite(tip) },
+            onShareClick     = { tip -> shareTip(tip.tipText) },
+            onReadAloudClick = { tip -> ttsManager.speak(tip.tipText) }
         )
         binding.rvTips.adapter = tipAdapter
     }
 
     private fun setupTabLayout() {
-        // Layout has TabLayout with 2 tabs: "All Tips" (0) and "Favorites" (1)
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
+                // Clear search text when switching tabs so the new tab
+                // shows its full unfiltered list immediately.
+                binding.etSearch.text?.clear()
+
                 when (tab?.position) {
-                    0 -> viewModel.loadAllTips()
-                    1 -> viewModel.loadFavoriteTips()
+                    0 -> viewModel.loadRecommendedTipsForTab() // CHANGED: was loadAllTips()
+                    1 -> viewModel.loadAllTips()               // CHANGED: was loadFavoriteTips()
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
@@ -94,7 +88,6 @@ class TipsFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        // Layout uses TextInputLayout + et_search
         binding.etSearch.addTextChangedListener { editable ->
             val query = editable?.toString().orEmpty().trim()
             if (query.isEmpty()) {
@@ -117,16 +110,13 @@ class TipsFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 launch {
                     viewModel.tipsWithCategory.collect { tips ->
                         tipAdapter.submitList(tips)
-                        // Correct ID: empty_state (LinearLayout, not a TextView)
-                        binding.emptyState.isVisible  = tips.isEmpty()
-                        binding.rvTips.isVisible       = tips.isNotEmpty()
+                        binding.emptyState.isVisible = tips.isEmpty()
+                        binding.rvTips.isVisible     = tips.isNotEmpty()
                     }
                 }
-                // No progress_indicator in fragment_tips.xml — no loading observer
             }
         }
     }

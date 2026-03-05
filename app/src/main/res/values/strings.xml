@@ -264,4 +264,12 @@
         <item quantity="other">%d steps</item>
     </plurals>
 
+    <!-- Disasters screen section headers -->
+    <string name="disasters_section_for_you">For You</string>
+    <string name="disasters_section_other">Other Disasters</string>
+
+    <!-- Tips tab labels — update existing strings or replace references in fragment_tips.xml -->
+    <string name="tips_recommended">Recommended</string>
+    <string name="tips_all_tips">All Tips</string>
+
 </resources>

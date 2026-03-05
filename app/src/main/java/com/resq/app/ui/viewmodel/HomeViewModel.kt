@@ -11,6 +11,7 @@ import com.resq.app.data.repository.DisasterTipRepository
 import com.resq.app.data.repository.UserProfileRepository
 import com.resq.app.data.repository.UserSettingsRepository
 import com.resq.app.util.DateTimeHelper
+import com.resq.app.util.ProfileSituationMapper          // CHANGED: new import
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,6 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    // --- Individual StateFlows that fragments collect ---
     private val _greeting = MutableStateFlow("")
     val greeting: StateFlow<String> = _greeting.asStateFlow()
 
@@ -49,6 +49,11 @@ class HomeViewModel @Inject constructor(
 
     private var allTipsList: List<DisasterTipEntity> = emptyList()
     private var allDisastersList: List<DisasterEntity> = emptyList()
+
+    // CHANGED: track the recommended subset separately so search can filter
+    // within it rather than within the full list.
+    private var recommendedDisastersList: List<DisasterEntity> = emptyList()
+
     private var currentTipIndex = 0
 
     init {
@@ -60,34 +65,46 @@ class HomeViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                val profile = userProfileRepository.getUserProfile().first()
+                val profile  = userProfileRepository.getUserProfile().first()
                 val settings = userSettingsRepository.getSettings().first()
                 val disasterList = disasterRepository.getAllDisasters().first()
                 val tips = disasterTipRepository.getRandomTips(10)
 
-                allTipsList = tips
+                allTipsList      = tips
                 allDisastersList = disasterList
                 val tip = tips.firstOrNull()
 
-                val languageCode = settings?.preferredLanguage ?: "en"
-                val greetingText = dateTimeHelper.getGreeting(languageCode)
-                val safetyText = dateTimeHelper.getTimeBasedSafetyMessage(languageCode)
+                // CHANGED: compute the recommended subset once at load time.
+                // If there is no profile yet (first launch before onboarding),
+                // fall back to showing all disasters so the strip is never empty.
+                recommendedDisastersList = if (profile != null) {
+                    ProfileSituationMapper.filterRecommended(disasterList, profile)
+                        .ifEmpty { disasterList }   // guard: never show empty strip
+                } else {
+                    disasterList
+                }
 
-                // Update individual flows
-                _greeting.value = greetingText
+                val languageCode  = settings?.preferredLanguage ?: "en"
+                val greetingText  = dateTimeHelper.getGreeting(languageCode)
+                val safetyText    = dateTimeHelper.getTimeBasedSafetyMessage(languageCode)
+
+                _greeting.value      = greetingText
                 _safetyMessage.value = safetyText
-                _disasters.value = disasterList
-                _currentTip.value = tip
-                _userProfile.value = profile
+                _currentTip.value    = tip
+                _userProfile.value   = profile
+
+                // CHANGED: publish the recommended subset (capped at 5 in the
+                // fragment, consistent with the existing .take(5) call there).
+                _disasters.value = recommendedDisastersList
 
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    userProfile = profile,
+                    isLoading    = false,
+                    userProfile  = profile,
                     userSettings = settings,
-                    disasters = disasterList,
-                    currentTip = tip,
-                    greeting = greetingText,
-                    currentDate = dateTimeHelper.getCurrentDateFormatted(languageCode),
+                    disasters    = recommendedDisastersList, // CHANGED
+                    currentTip   = tip,
+                    greeting     = greetingText,
+                    currentDate  = dateTimeHelper.getCurrentDateFormatted(languageCode),
                     safetyMessage = safetyText
                 )
             } catch (e: Exception) {
@@ -99,28 +116,27 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** Called by HomeFragment when the favorite button is tapped on the daily tip. */
     fun toggleTipFavorite() {
         viewModelScope.launch {
-            val tip = _currentTip.value ?: return@launch
+            val tip     = _currentTip.value ?: return@launch
             val updated = tip.copy(isFavorite = !tip.isFavorite)
             disasterTipRepository.updateTip(updated)
             _currentTip.value = updated
-            _uiState.value = _uiState.value.copy(currentTip = updated)
+            _uiState.value    = _uiState.value.copy(currentTip = updated)
         }
     }
 
-    /** Called by HomeFragment search box. */
+    // CHANGED: search filters within the recommended subset, not the full list,
+    // so the quick-access strip stays contextually relevant during search.
     fun onSearchQueryChanged(query: String) {
         viewModelScope.launch {
-            if (query.isBlank()) {
-                _disasters.value = allDisastersList
+            _disasters.value = if (query.isBlank()) {
+                recommendedDisastersList
             } else {
-                val filtered = allDisastersList.filter { disaster ->
+                recommendedDisastersList.filter { disaster ->
                     disaster.name.contains(query, ignoreCase = true) ||
                             disaster.nameTagalog.contains(query, ignoreCase = true)
                 }
-                _disasters.value = filtered
             }
         }
     }
@@ -131,7 +147,7 @@ class HomeViewModel @Inject constructor(
                 val tips = disasterTipRepository.getRandomTips(1)
                 if (tips.isNotEmpty()) {
                     _currentTip.value = tips.first()
-                    _uiState.value = _uiState.value.copy(currentTip = tips.first())
+                    _uiState.value    = _uiState.value.copy(currentTip = tips.first())
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -143,19 +159,16 @@ class HomeViewModel @Inject constructor(
 
     fun getNextTip() {
         if (allTipsList.isEmpty()) return
-        currentTipIndex = (currentTipIndex + 1) % allTipsList.size
-        val tip = allTipsList[currentTipIndex]
+        currentTipIndex   = (currentTipIndex + 1) % allTipsList.size
+        val tip           = allTipsList[currentTipIndex]
         _currentTip.value = tip
-        _uiState.value = _uiState.value.copy(currentTip = tip)
+        _uiState.value    = _uiState.value.copy(currentTip = tip)
     }
 
-    fun getLanguageCode(): String {
-        return _uiState.value.userSettings?.preferredLanguage ?: "en"
-    }
+    fun getLanguageCode(): String =
+        _uiState.value.userSettings?.preferredLanguage ?: "en"
 
-    fun refreshData() {
-        loadHomeData()
-    }
+    fun refreshData() { loadHomeData() }
 }
 
 data class HomeUiState(

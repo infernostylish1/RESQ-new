@@ -12,8 +12,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ConcatAdapter
+import com.resq.app.R
 import com.resq.app.databinding.FragmentDisastersBinding
 import com.resq.app.ui.adapter.DisasterAdapter
+import com.resq.app.ui.adapter.SectionHeaderAdapter
 import com.resq.app.ui.viewmodel.DisasterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -21,10 +24,16 @@ import kotlinx.coroutines.launch
 /**
  * Disasters list fragment.
  *
- * Fixes applied:
- * - Replaced SearchView with TextInputLayout/TextInputEditText (et_search)
- * - binding.tvEmptyState → binding.tvEmpty (matches fragment_disasters.xml id: tv_empty)
- * - binding.progressBar → binding.progressIndicator (matches id: progress_indicator)
+ * Changes from original:
+ * - Added two-section layout via ConcatAdapter:
+ *     Section 0: "For You" header + recommendedDisasters adapter
+ *     Section 1: "Other Disasters" header + otherDisasters adapter
+ * - Both section headers hide automatically when their list is empty
+ *   (no profile, search returns nothing in that bucket, etc.)
+ * - Search delegates to DisasterViewModel.searchDisasters() which
+ *   re-splits results across both flows — no fragment-side filtering needed.
+ * - All binding IDs unchanged (rv_disasters, et_search, tv_empty,
+ *   progress_indicator) — no layout file changes required.
  */
 @AndroidEntryPoint
 class DisastersFragment : Fragment() {
@@ -33,7 +42,14 @@ class DisastersFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: DisasterViewModel by viewModels()
-    private lateinit var disasterAdapter: DisasterAdapter
+
+    // Section 0 — profile-matched disasters
+    private lateinit var recommendedHeader: SectionHeaderAdapter
+    private lateinit var recommendedAdapter: DisasterAdapter
+
+    // Section 1 — everything else
+    private lateinit var otherHeader: SectionHeaderAdapter
+    private lateinit var otherAdapter: DisasterAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +68,7 @@ class DisastersFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        disasterAdapter = DisasterAdapter { disaster ->
+        val onItemClick: (com.resq.app.data.entity.DisasterEntity) -> Unit = { disaster ->
             val action = DisastersFragmentDirections
                 .actionDisastersToDetail(
                     disasterId   = disaster.id,
@@ -60,11 +76,27 @@ class DisastersFragment : Fragment() {
                 )
             findNavController().navigate(action)
         }
-        binding.rvDisasters.adapter = disasterAdapter
+
+        recommendedHeader  = SectionHeaderAdapter(getString(R.string.disasters_section_for_you))
+        recommendedAdapter = DisasterAdapter(onItemClick)
+
+        otherHeader  = SectionHeaderAdapter(getString(R.string.disasters_section_other))
+        otherAdapter = DisasterAdapter(onItemClick)
+
+        val concatAdapter = ConcatAdapter(
+            ConcatAdapter.Config.Builder()
+                .setIsolateViewTypes(true) // both DisasterAdapters share ViewHolder types
+                .build(),
+            recommendedHeader,
+            recommendedAdapter,
+            otherHeader,
+            otherAdapter
+        )
+
+        binding.rvDisasters.adapter = concatAdapter
     }
 
     private fun setupSearch() {
-        // Layout uses TextInputLayout + TextInputEditText, not SearchView
         binding.etSearch.addTextChangedListener { editable ->
             val query = editable?.toString().orEmpty().trim()
             if (query.isEmpty()) {
@@ -80,17 +112,32 @@ class DisastersFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 launch {
-                    viewModel.disasters.collect { disasters ->
-                        disasterAdapter.submitList(disasters)
-                        // Correct ID: tv_empty (not tvEmptyState)
-                        binding.tvEmpty.isVisible = disasters.isEmpty()
-                        binding.rvDisasters.isVisible = disasters.isNotEmpty()
+                    viewModel.recommendedDisasters.collect { recommended ->
+                        recommendedAdapter.submitList(recommended)
+                        // Hide the "For You" header when the section is empty
+                        // (no profile, or search produced no matches in this bucket).
+                        recommendedHeader.setVisible(recommended.isNotEmpty())
+                    }
+                }
+
+                launch {
+                    viewModel.otherDisasters.collect { other ->
+                        otherAdapter.submitList(other)
+                        otherHeader.setVisible(other.isNotEmpty())
+                    }
+                }
+
+                // Empty state: show only when BOTH sections are empty.
+                launch {
+                    viewModel.disasters.collect { all ->
+                        val isEmpty = all.isEmpty()
+                        binding.tvEmpty.isVisible      = isEmpty
+                        binding.rvDisasters.isVisible  = !isEmpty
                     }
                 }
 
                 launch {
                     viewModel.isLoading.collect { loading ->
-                        // Correct ID: progress_indicator (not progressBar)
                         binding.progressIndicator.isVisible = loading
                     }
                 }

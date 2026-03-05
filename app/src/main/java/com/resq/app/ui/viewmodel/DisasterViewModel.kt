@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.data.entity.DisasterInfoEntity
 import com.resq.app.data.entity.DisasterPreparationEntity
+import com.resq.app.data.entity.UserProfileEntity          // CHANGED: new import
 import com.resq.app.data.model.SituationType
 import com.resq.app.data.repository.DisasterRepository
+import com.resq.app.data.repository.UserProfileRepository  // CHANGED: new import
 import com.resq.app.data.repository.UserSettingsRepository
+import com.resq.app.util.ProfileSituationMapper             // CHANGED: new import
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,20 +22,27 @@ import javax.inject.Inject
 @HiltViewModel
 class DisasterViewModel @Inject constructor(
     private val disasterRepository: DisasterRepository,
-    private val userSettingsRepository: UserSettingsRepository
+    private val userSettingsRepository: UserSettingsRepository,
+    private val userProfileRepository: UserProfileRepository  // CHANGED: injected
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DisasterUiState())
     val uiState: StateFlow<DisasterUiState> = _uiState.asStateFlow()
 
-    // --- Individual flows expected by DisastersFragment ---
+    // Flat list used by search — contains ALL disasters regardless of section.
     private val _disasters = MutableStateFlow<List<DisasterEntity>>(emptyList())
     val disasters: StateFlow<List<DisasterEntity>> = _disasters.asStateFlow()
+
+    // CHANGED: two sectioned flows consumed by DisastersFragment via ConcatAdapter.
+    private val _recommendedDisasters = MutableStateFlow<List<DisasterEntity>>(emptyList())
+    val recommendedDisasters: StateFlow<List<DisasterEntity>> = _recommendedDisasters.asStateFlow()
+
+    private val _otherDisasters = MutableStateFlow<List<DisasterEntity>>(emptyList())
+    val otherDisasters: StateFlow<List<DisasterEntity>> = _otherDisasters.asStateFlow()
 
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // --- Detail flows expected by DisasterDetailFragment ---
     private val _selectedDisaster = MutableStateFlow<DisasterEntity?>(null)
     val selectedDisaster: StateFlow<DisasterEntity?> = _selectedDisaster.asStateFlow()
 
@@ -42,51 +52,83 @@ class DisasterViewModel @Inject constructor(
     private val _preparations = MutableStateFlow<List<DisasterPreparationEntity>>(emptyList())
     val preparations: StateFlow<List<DisasterPreparationEntity>> = _preparations.asStateFlow()
 
+    // CHANGED: hold the profile so search can re-split correctly.
+    private var cachedProfile: UserProfileEntity? = null
+
     init {
         loadDisasters()
     }
 
     private fun loadDisasters() {
         viewModelScope.launch {
-            _isLoading.value = true
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _isLoading.value  = true
+            _uiState.value    = _uiState.value.copy(isLoading = true)
 
             try {
-                val settings = userSettingsRepository.getSettings().first()
+                val settings     = userSettingsRepository.getSettings().first()
                 val languageCode = settings?.preferredLanguage ?: "en"
 
+                // CHANGED: load profile once alongside disasters.
+                val profile = userProfileRepository.getUserProfile().first()
+                cachedProfile   = profile
+
                 disasterRepository.getAllDisasters().collect { disasterList ->
-                    _disasters.value = disasterList
-                    _isLoading.value = false
+                    _disasters.value  = disasterList
+                    _isLoading.value  = false
+
+                    // CHANGED: split into recommended / other using the mapper.
+                    val recommended = if (profile != null) {
+                        ProfileSituationMapper.filterRecommended(disasterList, profile)
+                    } else {
+                        disasterList   // no profile yet — show everything as recommended
+                    }
+                    val other = if (profile != null) {
+                        ProfileSituationMapper.filterOther(disasterList, profile)
+                    } else {
+                        emptyList()
+                    }
+
+                    _recommendedDisasters.value = recommended
+                    _otherDisasters.value       = other
+
                     _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        disasters = disasterList,
+                        isLoading         = false,
+                        disasters         = disasterList,
                         filteredDisasters = disasterList,
-                        languageCode = languageCode
+                        languageCode      = languageCode
                     )
                 }
             } catch (e: Exception) {
                 _isLoading.value = false
-                _uiState.value = _uiState.value.copy(
+                _uiState.value   = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to load disasters: ${e.message}"
+                    error     = "Failed to load disasters: ${e.message}"
                 )
             }
         }
     }
 
-    /** Called by DisastersFragment when the search box is cleared. */
+    // CHANGED: restore both sections when search is cleared.
     fun loadAllDisasters() {
         viewModelScope.launch {
-            _disasters.value = _uiState.value.disasters
+            val all     = _uiState.value.disasters
+            val profile = cachedProfile
+
+            _disasters.value = all
+            _recommendedDisasters.value = if (profile != null) {
+                ProfileSituationMapper.filterRecommended(all, profile)
+            } else { all }
+            _otherDisasters.value = if (profile != null) {
+                ProfileSituationMapper.filterOther(all, profile)
+            } else { emptyList() }
+
             _uiState.value = _uiState.value.copy(
-                filteredDisasters = _uiState.value.disasters,
-                searchQuery = ""
+                filteredDisasters = all,
+                searchQuery       = ""
             )
         }
     }
 
-    /** Called by DisasterDetailFragment to load a specific disaster. */
     fun loadDisaster(disasterId: Long) {
         viewModelScope.launch {
             try {
@@ -101,19 +143,13 @@ class DisasterViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Called by DisasterDetailFragment to load preparations filtered by temporal phase.
-     * Filters on the `phase` String column (e.g. "Before", "During", "After"),
-     * using case-insensitive comparison to be safe.
-     */
     fun loadPreparationsByPhase(disasterId: Long, phase: String) {
         viewModelScope.launch {
             try {
                 disasterRepository.getPreparationByDisasterId(disasterId).collect { preps ->
-                    val filtered = preps.filter {
+                    _preparations.value = preps.filter {
                         it.phase.equals(phase, ignoreCase = true)
                     }
-                    _preparations.value = filtered
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -126,81 +162,68 @@ class DisasterViewModel @Inject constructor(
     fun selectDisaster(disasterId: Long) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoadingDetails = true)
-
             try {
                 disasterRepository.getDisasterById(disasterId).collect { disaster ->
                     _selectedDisaster.value = disaster
                 }
-
                 disasterRepository.getInfoByDisasterId(disasterId).collect { info ->
                     _disasterInfo.value = info
                 }
-
                 disasterRepository.getPreparationByDisasterId(disasterId).collect { preps ->
                     _preparations.value = preps
                 }
-
                 _uiState.value = _uiState.value.copy(isLoadingDetails = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoadingDetails = false,
-                    error = "Failed to load disaster details: ${e.message}"
+                    error            = "Failed to load disaster details: ${e.message}"
                 )
             }
         }
     }
 
-    /**
-     * Filters disaster list by location-based SituationType.
-     * Used by DisastersFragment, NOT by DisasterDetailFragment.
-     */
     fun filterBySituationType(situationType: SituationType?) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(selectedSituationType = situationType)
-
-            if (situationType == null) {
-                _uiState.value = _uiState.value.copy(
-                    filteredDisasters = _uiState.value.disasters
-                )
-            } else {
-                val allDisasters = _uiState.value.disasters
-                _uiState.value = _uiState.value.copy(filteredDisasters = allDisasters)
-            }
+            val all = _uiState.value.disasters
+            _uiState.value = _uiState.value.copy(filteredDisasters = all)
         }
     }
 
-    /**
-     * Returns preparations filtered by location-based SituationType.
-     * Useful for showing location-specific tips on the list screen.
-     */
-    fun getPreparationsBySituation(situationType: SituationType): List<DisasterPreparationEntity> {
-        return _preparations.value.filter { it.situationType == situationType }
-    }
+    fun getPreparationsBySituation(situationType: SituationType): List<DisasterPreparationEntity> =
+        _preparations.value.filter { it.situationType == situationType }
 
+    // CHANGED: search filters the flat _disasters list and re-splits the result
+    // so both section adapters update correctly during search.
     fun searchDisasters(query: String) {
         viewModelScope.launch {
             if (query.isBlank()) {
-                _disasters.value = _uiState.value.disasters
+                loadAllDisasters()
+                return@launch
+            }
+            disasterRepository.searchDisasters(query).collect { results ->
+                val profile = cachedProfile
+                _disasters.value = results
+
+                _recommendedDisasters.value = if (profile != null) {
+                    ProfileSituationMapper.filterRecommended(results, profile)
+                } else { results }
+                _otherDisasters.value = if (profile != null) {
+                    ProfileSituationMapper.filterOther(results, profile)
+                } else { emptyList() }
+
                 _uiState.value = _uiState.value.copy(
-                    filteredDisasters = _uiState.value.disasters,
-                    searchQuery = ""
+                    filteredDisasters = results,
+                    searchQuery       = query
                 )
-            } else {
-                disasterRepository.searchDisasters(query).collect { results ->
-                    _disasters.value = results
-                    _uiState.value = _uiState.value.copy(
-                        filteredDisasters = results,
-                        searchQuery = query
-                    )
-                }
             }
         }
     }
 
     fun clearSelection() {
         _selectedDisaster.value = null
-        _disasterInfo.value = emptyList()
-        _preparations.value = emptyList()
+        _disasterInfo.value     = emptyList()
+        _preparations.value     = emptyList()
     }
 
     fun clearError() {
@@ -208,25 +231,19 @@ class DisasterViewModel @Inject constructor(
     }
 
     fun getContentForTTS(): String {
-        val disaster = _selectedDisaster.value ?: return ""
-        val info = _disasterInfo.value
-        val isTagalog = _uiState.value.languageCode == "tl"
-
-        val builder = StringBuilder()
+        val disaster   = _selectedDisaster.value ?: return ""
+        val info       = _disasterInfo.value
+        val isTagalog  = _uiState.value.languageCode == "tl"
+        val builder    = StringBuilder()
         if (isTagalog) {
             builder.append("${disaster.nameTagalog}. ")
             builder.append("${disaster.descriptionTagalog} ")
-            info.forEach { item ->
-                builder.append("${item.titleTagalog}: ${item.contentTagalog} ")
-            }
+            info.forEach { builder.append("${it.titleTagalog}: ${it.contentTagalog} ") }
         } else {
             builder.append("${disaster.name}. ")
             builder.append("${disaster.description} ")
-            info.forEach { item ->
-                builder.append("${item.title}: ${item.content} ")
-            }
+            info.forEach { builder.append("${it.title}: ${it.content} ") }
         }
-
         return builder.toString()
     }
 }
