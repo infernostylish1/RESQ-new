@@ -272,4 +272,8 @@
     <string name="tips_recommended">Recommended</string>
     <string name="tips_all_tips">All Tips</string>
 
+    <!-- Disasters tab labels -->
+    <string name="disasters_tab_recommended">Recommended</string>
+    <string name="disasters_tab_all">All Disasters</string>
+
 </resources>

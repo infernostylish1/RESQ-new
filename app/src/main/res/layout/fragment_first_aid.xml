@@ -35,12 +35,11 @@
         android:clipToPadding="false"
         android:paddingHorizontal="@dimen/screen_margin_horizontal"
         android:paddingBottom="@dimen/spacing_lg"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_search"
-        app:spanCount="2"
         tools:itemCount="6"
         tools:listitem="@layout/item_first_aid_category" />
 

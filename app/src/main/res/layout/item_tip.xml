@@ -6,7 +6,9 @@
     style="@style/Widget.RESQ.CardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_md">
+    android:layout_marginBottom="@dimen/spacing_md"
+    android:clickable="false"
+    android:focusable="false">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,25 +16,47 @@
 
         <ImageView
             android:id="@+id/iv_tip_icon"
-            android:layout_width="@dimen/icon_size_md"
-            android:layout_height="@dimen/icon_size_md"
+            android:layout_width="@dimen/icon_size_xl"
+            android:layout_height="@dimen/icon_size_xl"
             android:contentDescription="@string/cd_tip_icon"
-            android:src="@android:drawable/ic_menu_info_details"
+            android:scaleType="centerInside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary" />
+            app:tint="@color/primary"
+            tools:src="@android:drawable/ic_menu_info_details" />
 
         <TextView
             android:id="@+id/tv_tip_category"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_sm"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
-            android:textColor="@color/primary"
-            app:layout_constraintBottom_toBottomOf="@id/iv_tip_icon"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+            app:layout_constraintBottom_toTopOf="@id/tv_tip_content"
+            app:layout_constraintEnd_toStartOf="@id/btn_favorite"
             app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
-            app:layout_constraintTop_toTopOf="@id/iv_tip_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="Earthquake" />
+
+        <TextView
+            android:id="@+id/tv_tip_content"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintBottom_toTopOf="@id/btn_share"
+            app:layout_constraintEnd_toStartOf="@id/btn_favorite"
+            app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
+            app:layout_constraintTop_toBottomOf="@id/tv_tip_category"
+            tools:text="Keep an emergency kit with water, food, flashlight, and first aid supplies ready at all times." />
 
         <ImageButton
             android:id="@+id/btn_favorite"
@@ -44,27 +68,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tv_tip_content"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
-            android:layout_marginEnd="@dimen/spacing_md"
-            android:textAppearance="@style/TextAppearance.RESQ.Body"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_tip_icon"
-            tools:text="Keep an emergency kit with water, food, flashlight, and first aid supplies ready at all times." />
-
         <ImageButton
             android:id="@+id/btn_share"
             android:layout_width="@dimen/icon_size_lg"
             android:layout_height="@dimen/icon_size_lg"
+            android:layout_marginStart="@dimen/spacing_md"
             android:layout_marginTop="@dimen/spacing_sm"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_share_button"
             android:src="@android:drawable/ic_menu_share"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
             app:layout_constraintTop_toBottomOf="@id/tv_tip_content" />
 
         <ImageButton
@@ -76,6 +90,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cd_read_aloud_button"
             android:src="@android:drawable/ic_btn_speak_now"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/btn_share"
             app:layout_constraintTop_toBottomOf="@id/tv_tip_content" />
 

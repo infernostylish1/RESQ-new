@@ -272,4 +272,9 @@
     <string name="tips_recommended">Para Sayo</string>
     <string name="tips_all_tips">Lahat ng Tip</string>
 
+    <!-- Disasters tab labels -->
+    <string name="disasters_tab_recommended">Para Sayo</string>
+    <string name="disasters_tab_all">Lahat ng Sakuna</string>
+
+
 </resources>

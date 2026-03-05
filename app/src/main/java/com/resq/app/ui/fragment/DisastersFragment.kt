@@ -13,7 +13,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ConcatAdapter
+import com.google.android.material.tabs.TabLayout
 import com.resq.app.R
+import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.databinding.FragmentDisastersBinding
 import com.resq.app.ui.adapter.DisasterAdapter
 import com.resq.app.ui.adapter.SectionHeaderAdapter
@@ -21,20 +23,6 @@ import com.resq.app.ui.viewmodel.DisasterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-/**
- * Disasters list fragment.
- *
- * Changes from original:
- * - Added two-section layout via ConcatAdapter:
- *     Section 0: "For You" header + recommendedDisasters adapter
- *     Section 1: "Other Disasters" header + otherDisasters adapter
- * - Both section headers hide automatically when their list is empty
- *   (no profile, search returns nothing in that bucket, etc.)
- * - Search delegates to DisasterViewModel.searchDisasters() which
- *   re-splits results across both flows — no fragment-side filtering needed.
- * - All binding IDs unchanged (rv_disasters, et_search, tv_empty,
- *   progress_indicator) — no layout file changes required.
- */
 @AndroidEntryPoint
 class DisastersFragment : Fragment() {
 
@@ -43,13 +31,14 @@ class DisastersFragment : Fragment() {
 
     private val viewModel: DisasterViewModel by viewModels()
 
-    // Section 0 — profile-matched disasters
     private lateinit var recommendedHeader: SectionHeaderAdapter
     private lateinit var recommendedAdapter: DisasterAdapter
-
-    // Section 1 — everything else
     private lateinit var otherHeader: SectionHeaderAdapter
     private lateinit var otherAdapter: DisasterAdapter
+    private lateinit var allAdapter: DisasterAdapter
+
+    // true = Recommended tab, false = All Disasters tab
+    private var isRecommendedTab = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -63,37 +52,64 @@ class DisastersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupTabLayout()
         setupSearch()
         observeViewModel()
     }
 
     private fun setupRecyclerView() {
-        val onItemClick: (com.resq.app.data.entity.DisasterEntity) -> Unit = { disaster ->
-            val action = DisastersFragmentDirections
-                .actionDisastersToDetail(
-                    disasterId   = disaster.id,
-                    disasterName = disaster.name
-                )
+        val onItemClick: (DisasterEntity) -> Unit = { disaster ->
+            val action = DisastersFragmentDirections.actionDisastersToDetail(
+                disasterId   = disaster.id,
+                disasterName = disaster.name
+            )
             findNavController().navigate(action)
         }
 
         recommendedHeader  = SectionHeaderAdapter(getString(R.string.disasters_section_for_you))
         recommendedAdapter = DisasterAdapter(onItemClick)
+        otherHeader        = SectionHeaderAdapter(getString(R.string.disasters_section_other))
+        otherAdapter       = DisasterAdapter(onItemClick)
+        allAdapter         = DisasterAdapter(onItemClick)
 
-        otherHeader  = SectionHeaderAdapter(getString(R.string.disasters_section_other))
-        otherAdapter = DisasterAdapter(onItemClick)
+        showRecommendedTab()
+    }
 
+    private fun showRecommendedTab() {
+        isRecommendedTab = true
         val concatAdapter = ConcatAdapter(
-            ConcatAdapter.Config.Builder()
-                .setIsolateViewTypes(true) // both DisasterAdapters share ViewHolder types
-                .build(),
+            ConcatAdapter.Config.Builder().setIsolateViewTypes(true).build(),
             recommendedHeader,
             recommendedAdapter,
             otherHeader,
             otherAdapter
         )
-
         binding.rvDisasters.adapter = concatAdapter
+    }
+
+    private fun showAllTab() {
+        isRecommendedTab = false
+        binding.rvDisasters.adapter = allAdapter
+    }
+
+    private fun setupTabLayout() {
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                binding.etSearch.text?.clear()
+                when (tab?.position) {
+                    0 -> {
+                        showRecommendedTab()
+                        viewModel.loadAllDisasters()
+                    }
+                    1 -> {
+                        showAllTab()
+                        viewModel.loadAllDisasters()
+                    }
+                }
+            }
+            override fun onTabUnselected(tab: TabLayout.Tab?) = Unit
+            override fun onTabReselected(tab: TabLayout.Tab?) = Unit
+        })
     }
 
     private fun setupSearch() {
@@ -114,8 +130,6 @@ class DisastersFragment : Fragment() {
                 launch {
                     viewModel.recommendedDisasters.collect { recommended ->
                         recommendedAdapter.submitList(recommended)
-                        // Hide the "For You" header when the section is empty
-                        // (no profile, or search produced no matches in this bucket).
                         recommendedHeader.setVisible(recommended.isNotEmpty())
                     }
                 }
@@ -127,12 +141,12 @@ class DisastersFragment : Fragment() {
                     }
                 }
 
-                // Empty state: show only when BOTH sections are empty.
                 launch {
                     viewModel.disasters.collect { all ->
+                        allAdapter.submitList(all)
                         val isEmpty = all.isEmpty()
-                        binding.tvEmpty.isVisible      = isEmpty
-                        binding.rvDisasters.isVisible  = !isEmpty
+                        binding.tvEmpty.isVisible     = isEmpty
+                        binding.rvDisasters.isVisible = !isEmpty
                     }
                 }
 

@@ -7,14 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/spacing_md"
-    android:layout_marginEnd="@dimen/spacing_sm"
     android:clickable="true"
     android:focusable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="120dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_category_icon"
@@ -22,39 +20,55 @@
             android:layout_height="@dimen/icon_size_xl"
             android:contentDescription="@string/cd_firstaid_icon"
             android:scaleType="centerInside"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/secondary"
+            app:tint="@color/primary"
             tools:src="@android:drawable/ic_menu_help" />
 
         <TextView
             android:id="@+id/tv_category_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginEnd="@dimen/spacing_sm"
             android:ellipsize="end"
-            android:gravity="center"
-            android:maxLines="2"
+            android:maxLines="1"
             android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
             app:layout_constraintBottom_toTopOf="@id/tv_step_count"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/iv_category_icon"
+            app:layout_constraintEnd_toStartOf="@id/iv_arrow"
+            app:layout_constraintStart_toEndOf="@id/iv_category_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed"
             tools:text="CPR" />
 
         <TextView
             android:id="@+id/tv_step_count"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/spacing_md"
             android:layout_marginTop="@dimen/spacing_xs"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
+            android:layout_marginEnd="@dimen/spacing_sm"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
             android:textColor="@color/text_secondary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iv_arrow"
+            app:layout_constraintStart_toEndOf="@id/iv_category_icon"
             app:layout_constraintTop_toBottomOf="@id/tv_category_name"
             tools:text="5 steps" />
+
+        <ImageView
+            android:id="@+id/iv_arrow"
+            android:layout_width="@dimen/icon_size_sm"
+            android:layout_height="@dimen/icon_size_sm"
+            android:contentDescription="@string/cd_next_button"
+            android:src="@android:drawable/ic_media_play"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/text_secondary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
