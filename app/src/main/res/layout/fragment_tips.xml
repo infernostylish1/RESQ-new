@@ -30,6 +30,7 @@
 
     </com.google.android.material.tabs.TabLayout>
 
+    <!-- Search is kept but scoped to filter disaster cards by name -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search"
         style="@style/Widget.RESQ.TextInputLayout.Search"
@@ -50,6 +51,19 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Loading indicator -->
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/til_search" />
+
+    <!-- Disaster group cards — one card per disaster type -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_tips"
         android:layout_width="0dp"
@@ -63,8 +77,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_search"
-        tools:itemCount="10"
-        tools:listitem="@layout/item_tip" />
+        tools:itemCount="6"
+        tools:listitem="@layout/item_tip_disaster" />
 
     <LinearLayout
         android:id="@+id/empty_state"
@@ -82,23 +96,15 @@
             android:layout_width="@dimen/icon_size_xxl"
             android:layout_height="@dimen/icon_size_xxl"
             android:contentDescription="@string/tips_no_favorites"
-            android:src="@android:drawable/btn_star_big_off"
+            android:src="@android:drawable/ic_menu_info_details"
             app:tint="@color/text_disabled" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
-            android:text="@string/tips_no_favorites"
+            android:text="@string/tips_empty"
             android:textAppearance="@style/TextAppearance.RESQ.Body" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
-            android:text="@string/tips_add_favorites_hint"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
-            android:textColor="@color/text_secondary" />
 
     </LinearLayout>
 

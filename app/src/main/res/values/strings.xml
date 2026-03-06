@@ -264,6 +264,13 @@
         <item quantity="other">%d steps</item>
     </plurals>
 
+    <string name="tips_empty">No tips available</string>
+
+    <plurals name="tip_count">
+        <item quantity="one">%d tip available</item>
+        <item quantity="other">%d tips available</item>
+    </plurals>
+
     <!-- Disasters screen section headers -->
     <string name="disasters_section_for_you">For You</string>
     <string name="disasters_section_other">Other Disasters</string>

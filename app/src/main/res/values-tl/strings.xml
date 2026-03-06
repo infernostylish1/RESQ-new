@@ -264,6 +264,13 @@
         <item quantity="other">%d hakbang</item>
     </plurals>
 
+    <string name="tips_empty">Walang tips na meron</string>
+
+    <plurals name="tip_count">
+        <item quantity="one">%d tip na meron</item>
+        <item quantity="other">%d tips na meron</item>
+    </plurals>
+
     <!-- Disasters screen section headers -->
     <string name="disasters_section_for_you">Para Sayo</string>
     <string name="disasters_section_other">Ibang Sakuna</string>

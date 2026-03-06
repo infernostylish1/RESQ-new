@@ -4,29 +4,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph">
 
-    <!-- ── Onboarding ────────────────────────────────────────────────────── -->
     <fragment
         android:id="@+id/nav_onboarding"
         android:name="com.resq.app.ui.fragment.OnboardingFragment"
         android:label="Welcome"
         tools:layout="@layout/fragment_onboarding">
-
         <action
             android:id="@+id/action_onboarding_to_home"
             app:destination="@id/nav_home"
             app:popUpTo="@id/nav_onboarding"
             app:popUpToInclusive="true" />
-
     </fragment>
 
-    <!-- ── Home ──────────────────────────────────────────────────────────── -->
     <fragment
         android:id="@+id/nav_home"
         android:name="com.resq.app.ui.fragment.HomeFragment"
         android:label="@string/nav_home"
         tools:layout="@layout/fragment_home">
-
-        <!-- Navigate to disaster detail from quick-access card -->
         <action
             android:id="@+id/action_home_to_disaster_detail"
             app:destination="@id/nav_disaster_detail"
@@ -34,8 +28,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
-        <!-- Navigate to first aid detail from quick-access card -->
         <action
             android:id="@+id/action_home_to_first_aid_detail"
             app:destination="@id/nav_first_aid_detail"
@@ -43,8 +35,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
-        <!-- Navigate to emergency contacts card tap -->
         <action
             android:id="@+id/action_home_to_emergency_contacts"
             app:destination="@id/nav_emergency_contacts"
@@ -52,8 +42,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
-        <!-- Navigate to disasters tab (bottom nav switch) -->
         <action
             android:id="@+id/action_home_to_disasters"
             app:destination="@id/nav_disasters"
@@ -61,8 +49,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
-        <!-- Navigate to first aid tab (bottom nav switch) -->
         <action
             android:id="@+id/action_home_to_first_aid"
             app:destination="@id/nav_first_aid"
@@ -70,8 +56,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
-        <!-- Navigate to tips tab (bottom nav switch) -->
         <action
             android:id="@+id/action_home_to_tips"
             app:destination="@id/nav_tips"
@@ -79,16 +63,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
     </fragment>
 
-    <!-- ── Disasters ──────────────────────────────────────────────────────── -->
     <fragment
         android:id="@+id/nav_disasters"
         android:name="com.resq.app.ui.fragment.DisastersFragment"
         android:label="@string/nav_disasters"
         tools:layout="@layout/fragment_disasters">
-
         <action
             android:id="@+id/action_disasters_to_detail"
             app:destination="@id/nav_disaster_detail"
@@ -96,35 +77,27 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
     </fragment>
 
-    <!-- ── Disaster Detail ────────────────────────────────────────────────── -->
-    <!-- disasterId is Long to match entity primary key type -->
     <fragment
         android:id="@+id/nav_disaster_detail"
         android:name="com.resq.app.ui.fragment.DisasterDetailFragment"
         android:label="{disasterName}"
         tools:layout="@layout/fragment_disaster_detail">
-
         <argument
             android:name="disasterId"
             app:argType="long" />
-
         <argument
             android:name="disasterName"
             android:defaultValue="Disaster"
             app:argType="string" />
-
     </fragment>
 
-    <!-- ── First Aid ──────────────────────────────────────────────────────── -->
     <fragment
         android:id="@+id/nav_first_aid"
         android:name="com.resq.app.ui.fragment.FirstAidFragment"
         android:label="@string/nav_first_aid"
         tools:layout="@layout/fragment_first_aid">
-
         <action
             android:id="@+id/action_first_aid_to_detail"
             app:destination="@id/nav_first_aid_detail"
@@ -132,26 +105,20 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
     </fragment>
 
-    <!-- ── First Aid Detail ───────────────────────────────────────────────── -->
-    <!-- categoryId is Long to match entity primary key type -->
     <fragment
         android:id="@+id/nav_first_aid_detail"
         android:name="com.resq.app.ui.fragment.FirstAidDetailFragment"
         android:label="{categoryName}"
         tools:layout="@layout/fragment_first_aid_detail">
-
         <argument
             android:name="categoryId"
             app:argType="long" />
-
         <argument
             android:name="categoryName"
             android:defaultValue="First Aid"
             app:argType="string" />
-
     </fragment>
 
     <!-- ── Tips ───────────────────────────────────────────────────────────── -->
@@ -159,26 +126,12 @@
         android:id="@+id/nav_tips"
         android:name="com.resq.app.ui.fragment.TipsFragment"
         android:label="@string/nav_tips"
-        tools:layout="@layout/fragment_tips" />
+        tools:layout="@layout/fragment_tips">
 
-    <!-- ── Settings ───────────────────────────────────────────────────────── -->
-    <fragment
-        android:id="@+id/nav_settings"
-        android:name="com.resq.app.ui.fragment.SettingsFragment"
-        android:label="@string/nav_settings"
-        tools:layout="@layout/fragment_settings">
-
+        <!-- NEW: navigate to tip detail (disaster tips list) -->
         <action
-            android:id="@+id/action_settings_to_emergency_contacts"
-            app:destination="@id/nav_emergency_contacts"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/action_settings_to_about"
-            app:destination="@id/nav_about"
+            android:id="@+id/action_tips_to_tip_detail"
+            app:destination="@id/nav_tip_detail"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -186,14 +139,51 @@
 
     </fragment>
 
-    <!-- ── Emergency Contacts (not in bottom nav) ─────────────────────────── -->
+    <!-- NEW: Tip Detail — shows all tips for a specific disaster -->
+    <fragment
+        android:id="@+id/nav_tip_detail"
+        android:name="com.resq.app.ui.fragment.TipDetailFragment"
+        android:label="{disasterName}"
+        tools:layout="@layout/fragment_tip_detail">
+
+        <argument
+            android:name="disasterId"
+            app:argType="long" />
+
+        <argument
+            android:name="disasterName"
+            android:defaultValue="Tips"
+            app:argType="string" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.resq.app.ui.fragment.SettingsFragment"
+        android:label="@string/nav_settings"
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_settings_to_emergency_contacts"
+            app:destination="@id/nav_emergency_contacts"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_settings_to_about"
+            app:destination="@id/nav_about"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
     <fragment
         android:id="@+id/nav_emergency_contacts"
         android:name="com.resq.app.ui.fragment.EmergencyContactsFragment"
         android:label="@string/contacts_title"
         tools:layout="@layout/fragment_emergency_contacts" />
 
-    <!-- ── About (not in bottom nav) ──────────────────────────────────────── -->
     <fragment
         android:id="@+id/nav_about"
         android:name="com.resq.app.ui.fragment.AboutFragment"

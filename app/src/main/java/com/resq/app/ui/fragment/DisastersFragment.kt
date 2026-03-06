@@ -12,13 +12,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.ConcatAdapter
 import com.google.android.material.tabs.TabLayout
-import com.resq.app.R
 import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.databinding.FragmentDisastersBinding
 import com.resq.app.ui.adapter.DisasterAdapter
-import com.resq.app.ui.adapter.SectionHeaderAdapter
 import com.resq.app.ui.viewmodel.DisasterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -31,10 +28,10 @@ class DisastersFragment : Fragment() {
 
     private val viewModel: DisasterViewModel by viewModels()
 
-    private lateinit var recommendedHeader: SectionHeaderAdapter
+    // Recommended tab — single adapter, no "Other Disasters" section
     private lateinit var recommendedAdapter: DisasterAdapter
-    private lateinit var otherHeader: SectionHeaderAdapter
-    private lateinit var otherAdapter: DisasterAdapter
+
+    // All Disasters tab — flat list of every disaster
     private lateinit var allAdapter: DisasterAdapter
 
     // true = Recommended tab, false = All Disasters tab
@@ -66,25 +63,18 @@ class DisastersFragment : Fragment() {
             findNavController().navigate(action)
         }
 
-        recommendedHeader  = SectionHeaderAdapter(getString(R.string.disasters_section_for_you))
         recommendedAdapter = DisasterAdapter(onItemClick)
-        otherHeader        = SectionHeaderAdapter(getString(R.string.disasters_section_other))
-        otherAdapter       = DisasterAdapter(onItemClick)
         allAdapter         = DisasterAdapter(onItemClick)
 
+        // Start on Recommended tab with no headers or "Other" section
         showRecommendedTab()
     }
 
     private fun showRecommendedTab() {
         isRecommendedTab = true
-        val concatAdapter = ConcatAdapter(
-            ConcatAdapter.Config.Builder().setIsolateViewTypes(true).build(),
-            recommendedHeader,
-            recommendedAdapter,
-            otherHeader,
-            otherAdapter
-        )
-        binding.rvDisasters.adapter = concatAdapter
+        // Plain single adapter — ConcatAdapter, recommendedHeader,
+        // otherHeader, and otherAdapter are removed entirely from this tab
+        binding.rvDisasters.adapter = recommendedAdapter
     }
 
     private fun showAllTab() {
@@ -98,8 +88,9 @@ class DisastersFragment : Fragment() {
                 binding.etSearch.text?.clear()
                 when (tab?.position) {
                     0 -> {
+                        // Recommended list is already live from ViewModel init —
+                        // no need to call loadAllDisasters() here
                         showRecommendedTab()
-                        viewModel.loadAllDisasters()
                     }
                     1 -> {
                         showAllTab()
@@ -127,26 +118,25 @@ class DisastersFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
+                // Recommended tab: only profile-matched disasters, no "Other" section
                 launch {
                     viewModel.recommendedDisasters.collect { recommended ->
                         recommendedAdapter.submitList(recommended)
-                        recommendedHeader.setVisible(recommended.isNotEmpty())
+                        if (isRecommendedTab) {
+                            binding.tvEmpty.isVisible     = recommended.isEmpty()
+                            binding.rvDisasters.isVisible = recommended.isNotEmpty()
+                        }
                     }
                 }
 
-                launch {
-                    viewModel.otherDisasters.collect { other ->
-                        otherAdapter.submitList(other)
-                        otherHeader.setVisible(other.isNotEmpty())
-                    }
-                }
-
+                // All Disasters tab: every disaster, flat list
                 launch {
                     viewModel.disasters.collect { all ->
                         allAdapter.submitList(all)
-                        val isEmpty = all.isEmpty()
-                        binding.tvEmpty.isVisible     = isEmpty
-                        binding.rvDisasters.isVisible = !isEmpty
+                        if (!isRecommendedTab) {
+                            binding.tvEmpty.isVisible     = all.isEmpty()
+                            binding.rvDisasters.isVisible = all.isNotEmpty()
+                        }
                     }
                 }
 

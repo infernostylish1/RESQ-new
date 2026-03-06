@@ -2,11 +2,12 @@ package com.resq.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.data.entity.DisasterTipEntity
-import com.resq.app.data.entity.UserProfileEntity          // CHANGED: new import
+import com.resq.app.data.entity.UserProfileEntity
 import com.resq.app.data.repository.DisasterRepository
 import com.resq.app.data.repository.DisasterTipRepository
-import com.resq.app.data.repository.UserProfileRepository  // CHANGED: new import
+import com.resq.app.data.repository.UserProfileRepository
 import com.resq.app.data.repository.UserSettingsRepository
 import com.resq.app.ui.adapter.TipAdapter.TipWithCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,12 +18,22 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class DisasterTipGroup(
+    val disasterId: Long,
+    val disasterName: String,
+    val disasterNameTagalog: String,
+    val disasterDescription: String,
+    val disasterDescriptionTagalog: String,
+    val iconResName: String,
+    val tipCount: Int
+)
+
 @HiltViewModel
 class DisasterTipsViewModel @Inject constructor(
     private val disasterTipRepository: DisasterTipRepository,
     private val disasterRepository: DisasterRepository,
     private val userSettingsRepository: UserSettingsRepository,
-    private val userProfileRepository: UserProfileRepository  // CHANGED: injected
+    private val userProfileRepository: UserProfileRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DisasterTipsUiState())
@@ -34,14 +45,27 @@ class DisasterTipsViewModel @Inject constructor(
     private val _tipsWithCategory = MutableStateFlow<List<TipWithCategory>>(emptyList())
     val tipsWithCategory: StateFlow<List<TipWithCategory>> = _tipsWithCategory.asStateFlow()
 
+    // Disaster group cards for TipsFragment list screen
+    private val _recommendedDisasterGroups = MutableStateFlow<List<DisasterTipGroup>>(emptyList())
+    val recommendedDisasterGroups: StateFlow<List<DisasterTipGroup>> =
+        _recommendedDisasterGroups.asStateFlow()
+
+    private val _allDisasterGroups = MutableStateFlow<List<DisasterTipGroup>>(emptyList())
+    val allDisasterGroups: StateFlow<List<DisasterTipGroup>> =
+        _allDisasterGroups.asStateFlow()
+
+    // Tips for one specific disaster — consumed by TipDetailFragment
+    private val _tipsForDisaster = MutableStateFlow<List<DisasterTipEntity>>(emptyList())
+    val tipsForDisaster: StateFlow<List<DisasterTipEntity>> = _tipsForDisaster.asStateFlow()
+
+    // ── Disaster detail for TipDetailFragment header ──────────────────────────
+    private val _disasterDetail = MutableStateFlow<DisasterEntity?>(null)
+    val disasterDetail: StateFlow<DisasterEntity?> = _disasterDetail.asStateFlow()
+
     private var currentTipIndex = 0
     private var allTipsList: List<DisasterTipEntity> = emptyList()
 
-    // CHANGED: track which tab is active using a clear enum instead of a boolean.
     private var activeTab = Tab.RECOMMENDED
-
-    // CHANGED: cache the profile so loadRecommendedTips() can be called without
-    // hitting the DB every time the tab is re-selected or search is cleared.
     private var cachedProfile: UserProfileEntity? = null
 
     private enum class Tab { RECOMMENDED, ALL }
@@ -50,7 +74,8 @@ class DisasterTipsViewModel @Inject constructor(
         loadInitialData()
     }
 
-    // CHANGED: load profile and settings together before splitting tip loading.
+    // ── Initial load ──────────────────────────────────────────────────────────
+
     private fun loadInitialData() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
@@ -62,10 +87,10 @@ class DisasterTipsViewModel @Inject constructor(
 
                 _uiState.value = _uiState.value.copy(languageCode = languageCode)
 
-                // Start on the Recommended tab.
+                buildDisasterGroups(profile)
+
                 loadRecommendedTips()
 
-                // Pre-load all tips into allTipsList for getNextTip / getPreviousTip.
                 val all = disasterTipRepository.getAllTipsOnce()
                 allTipsList = all
                 _uiState.value = _uiState.value.copy(allTips = all)
@@ -80,10 +105,53 @@ class DisasterTipsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Maps tips to TipWithCategory by joining against the disaster list.
-     * Identical logic to the original — extracted here for reuse.
-     */
+    // ── Disaster group building ───────────────────────────────────────────────
+
+    private suspend fun buildDisasterGroups(profile: UserProfileEntity?) {
+        val disasters = disasterRepository.getAllDisasters().first()
+        val allTips   = disasterTipRepository.getAllTipsOnce()
+
+        val tipCountByDisaster = allTips.groupBy { it.disasterId }
+            .mapValues { it.value.size }
+
+        val disastersWithTips = disasters.filter { (tipCountByDisaster[it.id] ?: 0) > 0 }
+
+        fun toGroup(d: DisasterEntity) = DisasterTipGroup(
+            disasterId                 = d.id,
+            disasterName               = d.name,
+            disasterNameTagalog        = d.nameTagalog,
+            disasterDescription        = d.description,
+            disasterDescriptionTagalog = d.descriptionTagalog,
+            iconResName                = d.iconResName,
+            tipCount                   = tipCountByDisaster[d.id] ?: 0
+        )
+
+        _allDisasterGroups.value = disastersWithTips
+            .sortedBy { it.displayOrder }
+            .map { toGroup(it) }
+
+        val recommended = if (profile == null) {
+            disastersWithTips
+        } else {
+            disastersWithTips.filter { d ->
+                d.isUniversal ||
+                        (profile.isNearWater        && d.isRecommendedNearWater)   ||
+                        (profile.isInMountainousArea && d.isRecommendedMountainous) ||
+                        (profile.isInLandslideProne  && d.isRecommendedLandslide)  ||
+                        (profile.isInFloodProne      && d.isRecommendedFlood)       ||
+                        (profile.isNearVolcano       && d.isRecommendedVolcano)     ||
+                        (profile.isInUrbanArea       && d.isRecommendedUrban)       ||
+                        (profile.isInCoastalArea     && d.isRecommendedCoastal)
+            }
+        }
+
+        _recommendedDisasterGroups.value = recommended
+            .sortedBy { it.displayOrder }
+            .map { toGroup(it) }
+    }
+
+    // ── Tip loading helpers ───────────────────────────────────────────────────
+
     private suspend fun mapToTipWithCategory(tips: List<DisasterTipEntity>): List<TipWithCategory> {
         val disasters   = disasterRepository.getAllDisasters().first()
         val disasterMap = disasters.associateBy { it.id }
@@ -95,8 +163,6 @@ class DisasterTipsViewModel @Inject constructor(
         }
     }
 
-    // CHANGED: new primary loader — fetches tips recommended for the user profile.
-    // Falls back to random tips when no profile exists (pre-onboarding).
     private suspend fun loadRecommendedTips() {
         val profile = cachedProfile
         val tips = if (profile != null) {
@@ -106,8 +172,8 @@ class DisasterTipsViewModel @Inject constructor(
         }
         _tipsWithCategory.value = mapToTipWithCategory(tips)
         _uiState.value = _uiState.value.copy(
-            isLoading     = false,
-            filteredTips  = tips
+            isLoading    = false,
+            filteredTips = tips
         )
     }
 
@@ -116,18 +182,17 @@ class DisasterTipsViewModel @Inject constructor(
             try {
                 val tips = disasterTipRepository.getRandomTips(1)
                 if (tips.isNotEmpty()) {
-                    _currentTip.value  = tips.first()
-                    currentTipIndex    = allTipsList.indexOfFirst { it.id == tips.first().id }
+                    _currentTip.value = tips.first()
+                    currentTipIndex   = allTipsList.indexOfFirst { it.id == tips.first().id }
                 }
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = "Failed to load tip: ${e.message}"
-                )
+                _uiState.value = _uiState.value.copy(error = "Failed to load tip: ${e.message}")
             }
         }
     }
 
-    // CHANGED: "All Tips" tab — tab 1 in the layout.
+    // ── Public tab switchers ──────────────────────────────────────────────────
+
     fun loadAllTips() {
         activeTab = Tab.ALL
         viewModelScope.launch {
@@ -142,13 +207,38 @@ class DisasterTipsViewModel @Inject constructor(
         }
     }
 
-    // CHANGED: "Recommended" tab — tab 0 in the layout.
     fun loadRecommendedTipsForTab() {
         activeTab = Tab.RECOMMENDED
+        viewModelScope.launch { loadRecommendedTips() }
+    }
+
+    // ── Tips for a specific disaster (TipDetailFragment) ─────────────────────
+
+    fun loadTipsForDisaster(disasterId: Long) {
         viewModelScope.launch {
-            loadRecommendedTips()
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            disasterTipRepository.getTipsByDisasterId(disasterId).collect { tips ->
+                _tipsForDisaster.value = tips
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
         }
     }
+
+    fun loadDisasterDetail(disasterId: Long) {
+        viewModelScope.launch {
+            try {
+                disasterRepository.getDisasterById(disasterId).collect { disaster ->
+                    _disasterDetail.value = disaster
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to load disaster detail: ${e.message}"
+                )
+            }
+        }
+    }
+
+    // ── Favorite / share / TTS ────────────────────────────────────────────────
 
     fun toggleFavorite(tip: DisasterTipEntity) {
         viewModelScope.launch {
@@ -159,7 +249,10 @@ class DisasterTipsViewModel @Inject constructor(
             val allUpdated = _uiState.value.allTips.map { if (it.id == tip.id) updated else it }
             _uiState.value = _uiState.value.copy(allTips = allUpdated)
 
-            // Refresh displayed list in whichever tab is active.
+            _tipsForDisaster.value = _tipsForDisaster.value.map {
+                if (it.id == tip.id) updated else it
+            }
+
             if (activeTab == Tab.RECOMMENDED) {
                 loadRecommendedTips()
             } else {
@@ -184,10 +277,7 @@ class DisasterTipsViewModel @Inject constructor(
     fun searchTips(query: String) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(searchQuery = query)
-
-            // Search within whichever tab is currently active.
             val source = _uiState.value.filteredTips
-
             val filtered = if (query.isBlank()) source else {
                 source.filter { tip ->
                     tip.tipText.contains(query, ignoreCase = true) ||

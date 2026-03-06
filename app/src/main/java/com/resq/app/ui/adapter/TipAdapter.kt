@@ -1,6 +1,7 @@
 package com.resq.app.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -11,7 +12,11 @@ import com.resq.app.databinding.ItemTipBinding
 class TipAdapter(
     private val onFavoriteClick: (DisasterTipEntity) -> Unit,
     private val onShareClick: (DisasterTipEntity) -> Unit,
-    private val onReadAloudClick: (DisasterTipEntity) -> Unit
+    private val onReadAloudClick: (DisasterTipEntity) -> Unit,
+    // false in TipDetailFragment — the disaster name is already in the toolbar title,
+    // so showing it again inside every card row is redundant.
+    // Defaults to true so all existing call sites compile without changes.
+    private val showCategory: Boolean = true
 ) : ListAdapter<TipAdapter.TipWithCategory, TipAdapter.TipViewHolder>(TipDiffCallback()) {
 
     data class TipWithCategory(
@@ -61,7 +66,11 @@ class TipAdapter(
 
         fun bind(item: TipWithCategory) {
             binding.apply {
-                tvTipCategory.text = item.categoryName
+                // Toggle visibility before setting text so the constraint
+                // chain collapses and tv_tip_content fills the freed space
+                tvTipCategory.visibility = if (showCategory) View.VISIBLE else View.GONE
+                tvTipCategory.text       = item.categoryName
+
                 tvTipContent.text = item.tip.tipText
 
                 val favoriteIcon = if (item.tip.isFavorite) {
