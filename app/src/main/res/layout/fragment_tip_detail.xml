@@ -41,7 +41,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:navigationIcon="@drawable/ic_launcher_foreground" />
+                app:navigationIcon="@drawable/ic_arrow_back"
+                app:navigationContentDescription="@string/cd_back_button" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
