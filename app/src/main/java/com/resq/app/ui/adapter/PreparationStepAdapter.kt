@@ -3,6 +3,7 @@ package com.resq.app.ui.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -32,10 +33,19 @@ class PreparationStepAdapter : ListAdapter<DisasterPreparationEntity, Preparatio
 
         fun bind(preparation: DisasterPreparationEntity, stepNumber: Int) {
             binding.apply {
-                tvStepNumber.text = stepNumber.toString()
-                tvStepTitle.text = preparation.title
+                tvStepNumber.text      = stepNumber.toString()
+                tvStepTitle.text       = preparation.title
                 tvStepDescription.text = preparation.content
 
+                // Media placeholder — mirrors FirstAidStepAdapter exactly.
+                // Shown when DisasterPreparationEntity.mediaResName is non-null/non-blank.
+                val hasMedia = !preparation.mediaResName.isNullOrBlank()
+                cardMedia.isVisible = hasMedia
+                if (hasMedia) {
+                    tvMediaLabel.text = preparation.mediaResName
+                }
+
+                // Tip card — unchanged from original.
                 if (!preparation.tip.isNullOrBlank()) {
                     cardTip.visibility = View.VISIBLE
                     tvTip.text = preparation.tip
@@ -50,15 +60,11 @@ class PreparationStepAdapter : ListAdapter<DisasterPreparationEntity, Preparatio
         override fun areItemsTheSame(
             oldItem: DisasterPreparationEntity,
             newItem: DisasterPreparationEntity
-        ): Boolean {
-            return oldItem.id == newItem.id
-        }
+        ): Boolean = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
             oldItem: DisasterPreparationEntity,
             newItem: DisasterPreparationEntity
-        ): Boolean {
-            return oldItem == newItem
-        }
+        ): Boolean = oldItem == newItem
     }
 }

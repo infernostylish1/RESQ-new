@@ -13,9 +13,15 @@ import com.resq.app.databinding.ItemPreparationStepBinding
  * Adapter for TipDetailFragment.
  * Binds [DisasterTipEntity] items into [ItemPreparationStepBinding].
  *
- * [DisasterTipEntity] has no separate title field — only tipText/tipTextTagalog.
- * [tvStepTitle] is hidden so the full tip text is shown once in [tvStepDescription] only,
- * matching the same pattern used by [PreparationStepAdapter] where title != content.
+ * [DisasterTipEntity] has no title field — [tvStepTitle] is hidden so the full
+ * tip text appears once in [tvStepDescription] only.
+ *
+ * [DisasterTipEntity] has no mediaResName field — [cardMedia] is always hidden.
+ * The explicit hide is intentional: item_preparation_step.xml uses
+ * tools:visibility="visible" on card_media for design-time preview, so we
+ * must set GONE at runtime ourselves rather than relying on the XML default.
+ *
+ * [DisasterTipEntity] has no secondary tip field — [cardTip] is always hidden.
  */
 class TipDetailAdapter(
     private var languageCode: String = "en"
@@ -48,13 +54,15 @@ class TipDetailAdapter(
 
             binding.tvStepNumber.text = stepNumber.toString()
 
-            // DisasterTipEntity has no title field — hide the title view entirely
-            // so the tip text is not duplicated across tvStepTitle and tvStepDescription.
+            // No title field on DisasterTipEntity — hide to avoid blank space.
             binding.tvStepTitle.visibility = View.GONE
 
             binding.tvStepDescription.text = fullText
 
-            // DisasterTipEntity has no secondary tip field — keep card hidden.
+            // No mediaResName field on DisasterTipEntity — always hide.
+            binding.cardMedia.visibility = View.GONE
+
+            // No secondary tip field on DisasterTipEntity — always hide.
             binding.cardTip.visibility = View.GONE
         }
     }
