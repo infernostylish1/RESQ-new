@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -12,9 +11,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.resq.app.R
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.resq.app.databinding.FragmentFirstAidDetailBinding
-import com.resq.app.data.entity.FirstAidContentEntity
+import com.resq.app.ui.adapter.FirstAidStepAdapter
 import com.resq.app.ui.viewmodel.FirstAidViewModel
 import com.resq.app.util.TextToSpeechManager
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,17 +21,17 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * First Aid detail fragment — step-by-step pager view.
+ * First Aid detail fragment — scrollable list of all steps for a category.
  *
- * Fixes applied:
- * - Complete rewrite to match fragment_first_aid_detail.xml structure:
- *   Layout has: tv_step_indicator, progress_steps, tv_step_title,
- *   tv_step_description, card_warning, tv_warning,
- *   navigation_container with btn_previous / btn_read_aloud / btn_next
- * - No RecyclerView in this layout — uses manual step index navigation
- * - No FAB in this layout — read aloud is btn_read_aloud in navigation_container
- * - No tvCategoryDescription in layout — removed
- * - categoryId argument is now Long (nav_graph updated)
+ * Layout: fragment_first_aid_detail.xml
+ *   CoordinatorLayout
+ *     AppBarLayout → CollapsingToolbarLayout (iv_header, scrim, toolbar)
+ *     NestedScrollView
+ *       tv_description   — category description
+ *       rv_steps         — all steps via FirstAidStepAdapter
+ *     fab_read_aloud     — reads all steps aloud via TTS
+ *
+ * No step-pager logic. No prev/next buttons. Mirrors DisasterDetailFragment.
  */
 @AndroidEntryPoint
 class FirstAidDetailFragment : Fragment() {
@@ -46,8 +45,7 @@ class FirstAidDetailFragment : Fragment() {
     @Inject
     lateinit var ttsManager: TextToSpeechManager
 
-    private var steps: List<FirstAidContentEntity> = emptyList()
-    private var currentStepIndex: Int = 0
+    private lateinit var stepAdapter: FirstAidStepAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,98 +59,72 @@ class FirstAidDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupToolbar()
-        setupNavigationButtons()
+        setupRecyclerView()
+        setupFab()
         viewModel.loadCategory(args.categoryId)
         observeViewModel()
     }
 
     private fun setupToolbar() {
-        binding.toolbar.title = args.categoryName
+        // Set initial title from nav arg so the toolbar is not blank
+        // while the DB load completes. The observer will update it.
+        binding.collapsingToolbar.title = args.categoryName
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
     }
 
-    private fun setupNavigationButtons() {
-        binding.btnPrevious.setOnClickListener {
-            if (currentStepIndex > 0) {
-                currentStepIndex--
-                displayCurrentStep()
-            }
-        }
-
-        binding.btnNext.setOnClickListener {
-            if (currentStepIndex < steps.lastIndex) {
-                currentStepIndex++
-                displayCurrentStep()
-            }
-        }
-
-        // btn_read_aloud is inside navigation_container (not a FAB)
-        binding.btnReadAloud.setOnClickListener {
-            readCurrentStepAloud()
+    private fun setupRecyclerView() {
+        stepAdapter = FirstAidStepAdapter()
+        binding.rvSteps.adapter = stepAdapter
+        // Defensive: XML already sets LinearLayoutManager via app:layoutManager,
+        // but this guard ensures it is never null if that attribute is ever
+        // removed or overridden during a layout refactor.
+        if (binding.rvSteps.layoutManager == null) {
+            binding.rvSteps.layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
-    private fun displayCurrentStep() {
-        if (steps.isEmpty()) return
-
-        val step      = steps[currentStepIndex]
-        val total     = steps.size
-        val stepNum   = currentStepIndex + 1
-
-        // tv_step_indicator: e.g. "Step 1 of 5"
-        binding.tvStepIndicator.text =
-            getString(R.string.firstaid_step, stepNum, total)
-
-        // progress_steps: LinearProgressIndicator
-        binding.progressSteps.max      = total
-        binding.progressSteps.progress = stepNum
-
-        // tv_step_title + tv_step_description
-        binding.tvStepTitle.text       = step.title
-        binding.tvStepDescription.text = step.content
-
-        // card_warning — show only when sectionTitle contains "warning" or "important"
-        val hasWarning = step.sectionTitle
-            .lowercase()
-            .let { it.contains("warning") || it.contains("important") }
-
-        binding.cardWarning.isVisible = hasWarning
-        if (hasWarning) {
-            binding.tvWarning.text = step.sectionTitle
+    private fun setupFab() {
+        binding.fabReadAloud.setOnClickListener {
+            val text = viewModel.getContentForTTS()
+            if (text.isNotBlank()) {
+                ttsManager.speak(text)
+            }
         }
-
-        // Button states
-        binding.btnPrevious.isEnabled = currentStepIndex > 0
-        binding.btnNext.isEnabled     = currentStepIndex < steps.lastIndex
-    }
-
-    private fun readCurrentStepAloud() {
-        if (steps.isEmpty()) return
-        val step = steps[currentStepIndex]
-        val text = "Step ${currentStepIndex + 1} of ${steps.size}. " +
-                "${step.title}. ${step.content}"
-        ttsManager.speak(text)
     }
 
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
+                // Update collapsing toolbar title, description, and header image
+                // once the category entity arrives from the DB.
                 launch {
                     viewModel.selectedCategory.collect { category ->
-                        category?.let {
-                            binding.toolbar.title = it.name
+                        category ?: return@collect
+
+                        binding.collapsingToolbar.title = category.name
+                        binding.tvDescription.text      = category.description
+
+                        // Resolve imageResName to a drawable resource ID.
+                        // Falls back gracefully — iv_header just shows the scrim
+                        // colour if no matching drawable exists yet.
+                        val resId = requireContext().resources.getIdentifier(
+                            category.imageResName,
+                            "drawable",
+                            requireContext().packageName
+                        )
+                        if (resId != 0) {
+                            binding.ivHeader.setImageResource(resId)
                         }
                     }
                 }
 
+                // Submit the full step list to the adapter whenever it changes.
                 launch {
-                    viewModel.categorySteps.collect { contentList ->
-                        steps             = contentList
-                        currentStepIndex  = 0
-                        displayCurrentStep()
+                    viewModel.categorySteps.collect { steps ->
+                        stepAdapter.submitList(steps)
                     }
                 }
             }

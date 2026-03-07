@@ -98,17 +98,28 @@ class FirstAidViewModel @Inject constructor(
             _currentStepIndex.value = 0
 
             try {
-                firstAidRepository.getCategoryById(categoryId).collect { category ->
-                    _selectedCategory.value = category
+                // ✅ Each collector runs in its own child coroutine so neither
+                //    blocks the other. Room Flows never complete on their own,
+                //    so sequential collect calls would starve every call after
+                //    the first one — both must run concurrently.
+                launch {
+                    firstAidRepository.getCategoryById(categoryId).collect { category ->
+                        _selectedCategory.value = category
+                    }
                 }
 
-                firstAidRepository.getContentByCategoryId(categoryId).collect { content ->
-                    val sorted = content.sortedBy { it.displayOrder }
-                    _categoryContent.value = sorted
-                    _categorySteps.value = sorted
+                launch {
+                    firstAidRepository.getContentByCategoryId(categoryId).collect { content ->
+                        val sorted = content.sortedBy { it.displayOrder }
+                        _categoryContent.value = sorted
+                        _categorySteps.value = sorted
+                        // ✅ Moved inside the collector so isLoadingContent clears
+                        //    only after real data has arrived, not just after the
+                        //    two child coroutines are launched.
+                        _uiState.value = _uiState.value.copy(isLoadingContent = false)
+                    }
                 }
 
-                _uiState.value = _uiState.value.copy(isLoadingContent = false)
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoadingContent = false,
