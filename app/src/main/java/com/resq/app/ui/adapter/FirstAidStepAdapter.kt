@@ -1,74 +1,99 @@
 package com.resq.app.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.resq.app.data.entity.FirstAidContentEntity
 import com.resq.app.databinding.ItemFirstAidStepBinding
+import com.resq.app.util.MediaLoader
 
-class FirstAidStepAdapter : ListAdapter<FirstAidContentEntity, FirstAidStepAdapter.FirstAidStepViewHolder>(
-    StepDiffCallback()
-) {
+class FirstAidStepAdapter :
+    ListAdapter<FirstAidContentEntity, FirstAidStepAdapter.StepViewHolder>(DiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FirstAidStepViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepViewHolder {
         val binding = ItemFirstAidStepBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
+            LayoutInflater.from(parent.context), parent, false
         )
-        return FirstAidStepViewHolder(binding)
+        return StepViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: FirstAidStepViewHolder, position: Int) {
-        holder.bind(getItem(position), position + 1)
+    override fun onBindViewHolder(holder: StepViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
-    class FirstAidStepViewHolder(
+    override fun onViewRecycled(holder: StepViewHolder) {
+        super.onViewRecycled(holder)
+        holder.releasePlayer()
+    }
+
+    inner class StepViewHolder(
         private val binding: ItemFirstAidStepBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(step: FirstAidContentEntity, stepNumber: Int) {
-            binding.apply {
-                // Step number, title, description — always shown
-                tvStepNumber.text      = stepNumber.toString()
-                tvStepTitle.text       = step.title
-                tvStepDescription.text = step.content
+        /**
+         * Holds the active ExoPlayer for VIDEO items.
+         * Null for IMAGE, GIF, TEXT, or when no media is present.
+         * Released in onViewRecycled() via releasePlayer().
+         */
+        private var player: ExoPlayer? = null
 
-                // Media placeholder — show only when a media resource name is present.
-                // Replace tv_media_label text with the resource name so a developer
-                // can easily identify which asset belongs here.
-                val hasMedia = !step.mediaResName.isNullOrBlank()
-                cardMedia.isVisible = hasMedia
-                if (hasMedia) {
-                    tvMediaLabel.text = step.mediaResName
-                }
+        fun bind(entity: FirstAidContentEntity) {
+            // Release any player from a previously bound VIDEO item before
+            // binding new content. This covers rebind without recycle (e.g.
+            // submitList on same ViewHolder position).
+            releasePlayer()
 
-                // Warning card — show when sectionTitle signals a warning or
-                // important notice. Uses sectionTitle as the displayed message
-                // because FirstAidContentEntity has no separate tip/warning field.
-                val sectionLower = step.sectionTitle.lowercase()
-                val hasWarning   = sectionLower.contains("warning") ||
-                        sectionLower.contains("important")
-                cardWarning.isVisible = hasWarning
-                if (hasWarning) {
-                    tvWarning.text = step.sectionTitle
-                }
+            // Media card — MediaLoader owns all visibility decisions.
+            // Returns a non-null ExoPlayer only when mediaType is VIDEO.
+            player = MediaLoader.bind(
+                context      = binding.root.context,
+                cardMedia    = binding.cardMedia,
+                ivStepMedia  = binding.ivStepMedia,
+                pvStepMedia  = binding.pvStepMedia,
+                mediaResName = entity.mediaResName,
+                mediaType    = entity.mediaType
+            )
+
+            // Step number — displayOrder is the ordering field on this entity.
+            binding.tvStepNumber.text = entity.displayOrder.toString()
+
+            // Title
+            binding.tvStepTitle.text = entity.title
+
+            // Body text — content is the body field on FirstAidContentEntity.
+            binding.tvStepDescription.text = entity.content
+
+            // Warning card — driven by sectionTitle.
+            // sectionTitle is non-null on this entity; no ?. needed.
+            val sectionLower = entity.sectionTitle.lowercase()
+            if (sectionLower.contains("warning") || sectionLower.contains("important")) {
+                binding.cardWarning.visibility = View.VISIBLE
+                binding.tvWarning.text = entity.sectionTitle
+            } else {
+                binding.cardWarning.visibility = View.GONE
             }
+        }
+
+        /** Stops and releases the ExoPlayer held by this ViewHolder. Safe to call when null. */
+        fun releasePlayer() {
+            MediaLoader.releasePlayer(player)
+            player = null
         }
     }
 
-    private class StepDiffCallback : DiffUtil.ItemCallback<FirstAidContentEntity>() {
+    private class DiffCallback : DiffUtil.ItemCallback<FirstAidContentEntity>() {
         override fun areItemsTheSame(
             oldItem: FirstAidContentEntity,
             newItem: FirstAidContentEntity
-        ): Boolean = oldItem.id == newItem.id
+        ) = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
             oldItem: FirstAidContentEntity,
             newItem: FirstAidContentEntity
-        ): Boolean = oldItem == newItem
+        ) = oldItem == newItem
     }
 }

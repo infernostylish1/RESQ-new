@@ -233,7 +233,8 @@ object PreloadedDisasterData {
             titleTagalog = "Maghanda ng Emergency Kit",
             content = "Prepare a Go Bag with water, food, flashlight, first aid kit, important documents, and medications. Keep it in an easily accessible location.",
             contentTagalog = "Maghanda ng Go Bag na may tubig, pagkain, flashlight, first aid kit, mahahalagang dokumento, at gamot. Ilagay ito sa lugar na madaling makuha.",
-            mediaType = MediaType.TEXT,
+            mediaResName = "img_earthquake_kit",
+            mediaType = MediaType.IMAGE,
             displayOrder = 1
         ),
         DisasterPreparationEntity(

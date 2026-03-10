@@ -76,7 +76,7 @@ class DisasterDetailFragment : Fragment() {
                 checkedIds.contains(R.id.chip_before) -> PHASE_BEFORE
                 checkedIds.contains(R.id.chip_during) -> PHASE_DURING
                 checkedIds.contains(R.id.chip_after)  -> PHASE_AFTER
-                else -> PHASE_BEFORE
+                else                                  -> PHASE_BEFORE
             }
             viewModel.loadPreparationsByPhase(args.disasterId, currentPhase)
         }
@@ -94,7 +94,7 @@ class DisasterDetailFragment : Fragment() {
     }
 
     private fun readCurrentContentAloud() {
-        val disaster = viewModel.selectedDisaster.value ?: return
+        val disaster     = viewModel.selectedDisaster.value ?: return
         val preparations = viewModel.preparations.value
 
         val sb = StringBuilder()
@@ -112,11 +112,12 @@ class DisasterDetailFragment : Fragment() {
 
                 launch {
                     viewModel.selectedDisaster.collect { disaster ->
-                        disaster?.let {
-                            binding.tvDescription.text = it.description
-                            binding.collapsingToolbar.title = it.name
-                            viewModel.loadPreparationsByPhase(args.disasterId, currentPhase)
-                        }
+                        disaster ?: return@collect
+
+                        binding.collapsingToolbar.title = disaster.name
+                        binding.tvDescription.text      = disaster.description
+                        loadHeaderImage(disaster.imageResName)
+                        viewModel.loadPreparationsByPhase(args.disasterId, currentPhase)
                     }
                 }
 
@@ -129,6 +130,18 @@ class DisasterDetailFragment : Fragment() {
         }
     }
 
+    // ── Header image ──────────────────────────────────────────────────────────
+
+    private fun loadHeaderImage(imageResName: String) {
+        val context = requireContext()
+        val resId   = context.resources.getIdentifier(
+            imageResName, "drawable", context.packageName
+        )
+        if (resId != 0) {
+            binding.ivHeader.setImageResource(resId)
+        }
+    }
+
     override fun onDestroyView() {
         ttsManager.stop()
         super.onDestroyView()
@@ -136,9 +149,8 @@ class DisasterDetailFragment : Fragment() {
     }
 
     companion object {
-        /** Phase string constants — must match values stored in the `phase` DB column. */
         const val PHASE_BEFORE = "Before"
         const val PHASE_DURING = "During"
-        const val PHASE_AFTER = "After"
+        const val PHASE_AFTER  = "After"
     }
 }

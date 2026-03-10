@@ -101,6 +101,14 @@ dependencies {
     // Splash Screen
     implementation(libs.androidx.splashscreen)
 
+    // Glide — image loading (IMAGE, GIF)
+    implementation(libs.glide.core)
+    ksp(libs.glide.compiler)
+
+    // Media3 ExoPlayer — video playback
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.ui)
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

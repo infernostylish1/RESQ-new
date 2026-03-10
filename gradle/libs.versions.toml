@@ -38,6 +38,12 @@ navigationSafeArgs = "2.7.7"
 # Splash Screen
 splashscreen = "1.0.1"
 
+# Glide
+glide = "4.16.0"
+
+# Media3 ExoPlayer
+media3 = "1.3.1"
+
 # Testing
 junit = "4.13.2"
 junitExt = "1.1.5"
@@ -82,6 +88,14 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 
 # Splash Screen
 androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
+
+# Glide
+glide-core = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-compiler = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "glide" }
+
+# Media3 ExoPlayer
+media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 
 # Testing
 junit = { group = "junit", name = "junit", version.ref = "junit" }

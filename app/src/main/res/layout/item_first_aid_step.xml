@@ -9,10 +9,12 @@
     android:orientation="vertical">
 
     <!--
-        Media placeholder card.
-        Visible only when FirstAidContentEntity.mediaResName is non-null.
-        Replace this card's contents with an actual ImageView/GifView/VideoView
-        once real media assets are available.
+        Media card. Visibility is controlled exclusively by MediaLoader.bind().
+        Shown when FirstAidContentEntity.mediaResName is non-null/non-blank.
+        Hidden (GONE) otherwise. Do not set visibility here; MediaLoader owns it.
+
+        Inside this card, exactly ONE of iv_step_media or pv_step_media is
+        VISIBLE at any time. MediaLoader sets both before returning.
     -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_media"
@@ -24,34 +26,37 @@
         app:cardBackgroundColor="@color/surface_variant"
         tools:visibility="visible">
 
-        <LinearLayout
+        <!--
+            IMAGE and GIF — Glide loads into this view.
+            GONE when mediaType is VIDEO.
+        -->
+        <ImageView
+            android:id="@+id/iv_step_media"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:padding="@dimen/spacing_lg">
+            android:layout_height="@dimen/media_card_height"
+            android:contentDescription="@string/cd_firstaid_icon"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            tools:src="@android:drawable/ic_menu_report_image"
+            tools:visibility="visible" />
 
-            <ImageView
-                android:layout_width="@dimen/icon_size_xxl"
-                android:layout_height="@dimen/icon_size_xxl"
-                android:contentDescription="@string/cd_firstaid_icon"
-                android:src="@android:drawable/ic_menu_report_image"
-                app:tint="@color/text_secondary" />
-
-            <TextView
-                android:id="@+id/tv_media_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xs"
-                android:textAppearance="@style/TextAppearance.RESQ.Caption"
-                android:textColor="@color/text_secondary"
-                tools:text="img_cpr" />
-
-        </LinearLayout>
+        <!--
+            VIDEO — ExoPlayer's PlayerView renders here.
+            GONE when mediaType is IMAGE or GIF.
+            use_controller="true" shows play/pause/seek bar for the user.
+            Set to false if you want silent auto-looping with no controls.
+        -->
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/pv_step_media"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/media_card_height"
+            android:visibility="gone"
+            app:use_controller="true"
+            tools:visibility="gone" />
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Step row: number circle + title/description -->
+    <!-- Step row: number circle + title/description — unchanged -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -90,11 +95,6 @@
                 android:textColor="@color/text_secondary"
                 tools:text="Tap the person's shoulder and ask loudly, 'Are you okay?'" />
 
-            <!--
-                Warning/tip card.
-                Visible when sectionTitle contains "warning" or "important".
-                Displays the sectionTitle text as the warning message.
-            -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_warning"
                 style="@style/Widget.RESQ.CardView"
