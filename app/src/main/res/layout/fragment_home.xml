@@ -121,21 +121,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_md"
                     android:textAppearance="@style/TextAppearance.RESQ.Body"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Always keep an emergency kit ready with essentials like water, food, and first aid supplies." />
-
-                <ImageButton
-                    android:id="@+id/btn_favorite_tip"
-                    android:layout_width="@dimen/icon_size_lg"
-                    android:layout_height="@dimen/icon_size_lg"
-                    android:layout_marginTop="@dimen/spacing_sm"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/cd_favorite_button"
-                    android:src="@android:drawable/btn_star_big_off"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_tip_content" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

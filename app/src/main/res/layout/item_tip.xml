@@ -30,12 +30,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_md"
-            android:layout_marginEnd="@dimen/spacing_sm"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
             app:layout_constraintBottom_toTopOf="@id/tv_tip_content"
-            app:layout_constraintEnd_toStartOf="@id/btn_favorite"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
@@ -47,26 +46,15 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_md"
             android:layout_marginTop="@dimen/spacing_xs"
-            android:layout_marginEnd="@dimen/spacing_sm"
             android:ellipsize="end"
             android:maxLines="3"
             android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
             android:textColor="@color/text_secondary"
             app:layout_constraintBottom_toTopOf="@id/btn_share"
-            app:layout_constraintEnd_toStartOf="@id/btn_favorite"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
             app:layout_constraintTop_toBottomOf="@id/tv_tip_category"
             tools:text="Keep an emergency kit with water, food, flashlight, and first aid supplies ready at all times." />
-
-        <ImageButton
-            android:id="@+id/btn_favorite"
-            android:layout_width="@dimen/icon_size_lg"
-            android:layout_height="@dimen/icon_size_lg"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/cd_favorite_button"
-            android:src="@android:drawable/btn_star_big_off"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
             android:id="@+id/btn_share"

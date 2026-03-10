@@ -11,7 +11,7 @@ import com.resq.app.data.repository.DisasterTipRepository
 import com.resq.app.data.repository.UserProfileRepository
 import com.resq.app.data.repository.UserSettingsRepository
 import com.resq.app.util.DateTimeHelper
-import com.resq.app.util.ProfileSituationMapper          // CHANGED: new import
+import com.resq.app.util.ProfileSituationMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,9 +49,6 @@ class HomeViewModel @Inject constructor(
 
     private var allTipsList: List<DisasterTipEntity> = emptyList()
     private var allDisastersList: List<DisasterEntity> = emptyList()
-
-    // CHANGED: track the recommended subset separately so search can filter
-    // within it rather than within the full list.
     private var recommendedDisastersList: List<DisasterEntity> = emptyList()
 
     private var currentTipIndex = 0
@@ -65,21 +62,18 @@ class HomeViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             try {
-                val profile  = userProfileRepository.getUserProfile().first()
-                val settings = userSettingsRepository.getSettings().first()
+                val profile      = userProfileRepository.getUserProfile().first()
+                val settings     = userSettingsRepository.getSettings().first()
                 val disasterList = disasterRepository.getAllDisasters().first()
-                val tips = disasterTipRepository.getRandomTips(10)
+                val tips         = disasterTipRepository.getRandomTips(10)
 
                 allTipsList      = tips
                 allDisastersList = disasterList
-                val tip = tips.firstOrNull()
+                val tip          = tips.firstOrNull()
 
-                // CHANGED: compute the recommended subset once at load time.
-                // If there is no profile yet (first launch before onboarding),
-                // fall back to showing all disasters so the strip is never empty.
                 recommendedDisastersList = if (profile != null) {
                     ProfileSituationMapper.filterRecommended(disasterList, profile)
-                        .ifEmpty { disasterList }   // guard: never show empty strip
+                        .ifEmpty { disasterList }
                 } else {
                     disasterList
                 }
@@ -92,42 +86,27 @@ class HomeViewModel @Inject constructor(
                 _safetyMessage.value = safetyText
                 _currentTip.value    = tip
                 _userProfile.value   = profile
-
-                // CHANGED: publish the recommended subset (capped at 5 in the
-                // fragment, consistent with the existing .take(5) call there).
-                _disasters.value = recommendedDisastersList
+                _disasters.value     = recommendedDisastersList
 
                 _uiState.value = _uiState.value.copy(
-                    isLoading    = false,
-                    userProfile  = profile,
-                    userSettings = settings,
-                    disasters    = recommendedDisastersList, // CHANGED
-                    currentTip   = tip,
-                    greeting     = greetingText,
-                    currentDate  = dateTimeHelper.getCurrentDateFormatted(languageCode),
+                    isLoading     = false,
+                    userProfile   = profile,
+                    userSettings  = settings,
+                    disasters     = recommendedDisastersList,
+                    currentTip    = tip,
+                    greeting      = greetingText,
+                    currentDate   = dateTimeHelper.getCurrentDateFormatted(languageCode),
                     safetyMessage = safetyText
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to load data: ${e.message}"
+                    error     = "Failed to load data: ${e.message}"
                 )
             }
         }
     }
 
-    fun toggleTipFavorite() {
-        viewModelScope.launch {
-            val tip     = _currentTip.value ?: return@launch
-            val updated = tip.copy(isFavorite = !tip.isFavorite)
-            disasterTipRepository.updateTip(updated)
-            _currentTip.value = updated
-            _uiState.value    = _uiState.value.copy(currentTip = updated)
-        }
-    }
-
-    // CHANGED: search filters within the recommended subset, not the full list,
-    // so the quick-access strip stays contextually relevant during search.
     fun onSearchQueryChanged(query: String) {
         viewModelScope.launch {
             _disasters.value = if (query.isBlank()) {

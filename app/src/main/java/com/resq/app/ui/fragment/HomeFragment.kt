@@ -17,17 +17,6 @@ import com.resq.app.ui.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-/**
- * Home screen fragment.
- *
- * Fixes applied:
- * - tvDailyTip → tvTipContent (matches fragment_home.xml)
- * - Removed non-existent card IDs (cardDisasterGuide, cardFirstAid, cardTips)
- * - card_emergency_contacts navigates to emergency contacts
- * - Quick access RecyclerView handles disaster navigation
- * - Uses etSearch.addTextChangedListener (layout has til_search/et_search, not SearchView)
- * - Removed .name reference on UserProfileEntity (entity has no name field)
- */
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
@@ -67,16 +56,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Emergency contacts card — the only card click in this layout
         binding.cardEmergencyContacts.setOnClickListener {
             findNavController().navigate(
                 HomeFragmentDirections.actionHomeToEmergencyContacts()
             )
-        }
-
-        // Favorite button on the daily tip card
-        binding.btnFavoriteTip.setOnClickListener {
-            viewModel.toggleTipFavorite()
         }
     }
 
@@ -105,7 +88,6 @@ class HomeFragment : Fragment() {
 
                 launch {
                     viewModel.disasters.collect { disasters ->
-                        // Show up to 5 in the quick access horizontal strip
                         quickAccessAdapter.submitList(disasters.take(5))
                     }
                 }
@@ -113,14 +95,7 @@ class HomeFragment : Fragment() {
                 launch {
                     viewModel.currentTip.collect { tip ->
                         tip?.let {
-                            // Correct ID from layout: tv_tip_content
                             binding.tvTipContent.text = it.tipText
-                            val starIcon = if (it.isFavorite) {
-                                android.R.drawable.btn_star_big_on
-                            } else {
-                                android.R.drawable.btn_star_big_off
-                            }
-                            binding.btnFavoriteTip.setImageResource(starIcon)
                         }
                     }
                 }

@@ -52,25 +52,12 @@ interface DisasterTipDao {
         limit: Int
     ): List<DisasterTipEntity>
 
-    /** Single tip by ID — required for updateFavoriteStatus */
-    @Query("SELECT * FROM disaster_tips WHERE id = :tipId LIMIT 1")
-    suspend fun getTipById(tipId: Long): DisasterTipEntity?
-
-    /** Full row update — required for updateFavoriteStatus */
-    @Update
-    suspend fun updateTip(tip: DisasterTipEntity)
-
-    /** Favorite tips as Flow */
-    @Query("SELECT * FROM disaster_tips WHERE is_favorite = 1 ORDER BY id ASC")
-    fun getFavoriteTips(): Flow<List<DisasterTipEntity>>
-
-    /** Search tips by text */
     @Query("""
-        SELECT * FROM disaster_tips
-        WHERE tip_text LIKE '%' || :query || '%'
-           OR tip_text_tagalog LIKE '%' || :query || '%'
-        ORDER BY id ASC
-    """)
+    SELECT * FROM disaster_tips
+    WHERE tip_text LIKE '%' || :query || '%'
+       OR tip_text_tagalog LIKE '%' || :query || '%'
+    ORDER BY id ASC
+""")
     fun searchTips(query: String): Flow<List<DisasterTipEntity>>
 
     @Query("SELECT COUNT(*) FROM disaster_tips")

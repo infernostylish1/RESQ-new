@@ -6,10 +6,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * Entity representing quick disaster tips.
- * Used for the Disaster Tips module with random/recommended display.
- */
 @Entity(
     tableName = "disaster_tips",
     foreignKeys = [
@@ -37,8 +33,5 @@ data class DisasterTipEntity(
     val tipTextTagalog: String,
 
     @ColumnInfo(name = "source")
-    val source: String? = null,
-
-    @ColumnInfo(name = "is_favorite", defaultValue = "0")
-    val isFavorite: Boolean = false
+    val source: String? = null
 )

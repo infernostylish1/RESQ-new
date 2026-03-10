@@ -238,29 +238,7 @@ class DisasterTipsViewModel @Inject constructor(
         }
     }
 
-    // ── Favorite / share / TTS ────────────────────────────────────────────────
-
-    fun toggleFavorite(tip: DisasterTipEntity) {
-        viewModelScope.launch {
-            val updated   = tip.copy(isFavorite = !tip.isFavorite)
-            disasterTipRepository.updateTip(updated)
-
-            allTipsList = allTipsList.map { if (it.id == tip.id) updated else it }
-            val allUpdated = _uiState.value.allTips.map { if (it.id == tip.id) updated else it }
-            _uiState.value = _uiState.value.copy(allTips = allUpdated)
-
-            _tipsForDisaster.value = _tipsForDisaster.value.map {
-                if (it.id == tip.id) updated else it
-            }
-
-            if (activeTab == Tab.RECOMMENDED) {
-                loadRecommendedTips()
-            } else {
-                _tipsWithCategory.value = mapToTipWithCategory(allUpdated)
-                _uiState.value = _uiState.value.copy(filteredTips = allUpdated)
-            }
-        }
-    }
+    // ── Share / TTS ────────────────────────────────────────────────
 
     fun clearSearch() {
         _uiState.value = _uiState.value.copy(searchQuery = "")
