@@ -38,7 +38,6 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        setupClickListeners()
         setupSearch()
         observeViewModel()
     }
@@ -53,14 +52,6 @@ class HomeFragment : Fragment() {
             findNavController().navigate(action)
         }
         binding.rvQuickAccess.adapter = quickAccessAdapter
-    }
-
-    private fun setupClickListeners() {
-        binding.cardEmergencyContacts.setOnClickListener {
-            findNavController().navigate(
-                HomeFragmentDirections.actionHomeToEmergencyContacts()
-            )
-        }
     }
 
     private fun setupSearch() {

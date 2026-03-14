@@ -283,4 +283,6 @@
     <string name="disasters_tab_recommended">Recommended</string>
     <string name="disasters_tab_all">All Disasters</string>
 
+    <string name="cd_emergency_fab">Open Emergency Hotlines</string>
+
 </resources>

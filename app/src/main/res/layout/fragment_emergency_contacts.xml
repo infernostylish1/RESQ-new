@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_launcher_foreground"
+        app:navigationIcon="@drawable/ic_arrow_back"
         app:title="@string/contacts_title" />
 
     <com.google.android.material.textfield.TextInputLayout

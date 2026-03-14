@@ -131,50 +131,6 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_emergency_contacts"
-            style="@style/Widget.RESQ.CardView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xl"
-            app:cardBackgroundColor="@color/error"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_daily_tip">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:layout_width="@dimen/icon_size_lg"
-                    android:layout_height="@dimen/icon_size_lg"
-                    android:contentDescription="@string/cd_call_button"
-                    android:src="@android:drawable/ic_menu_call"
-                    app:tint="@color/on_error" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_md"
-                    android:layout_weight="1"
-                    android:text="@string/contacts_hotlines"
-                    android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
-                    android:textColor="@color/on_error" />
-
-                <ImageView
-                    android:layout_width="@dimen/icon_size_md"
-                    android:layout_height="@dimen/icon_size_md"
-                    android:contentDescription="@string/cd_next_button"
-                    android:src="@android:drawable/ic_media_play"
-                    app:tint="@color/on_error" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.core.widget.NestedScrollView>

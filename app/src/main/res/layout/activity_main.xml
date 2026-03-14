@@ -39,17 +39,33 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- Voice command FAB — bottom END, above bottom nav -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_voice_command"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:layout_marginBottom="96dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/bottom_nav_height"
         android:contentDescription="@string/cd_voice_icon"
         android:src="@android:drawable/ic_btn_speak_now"
         android:visibility="gone"
         app:backgroundTint="@color/primary"
+        app:tint="@color/on_primary"
+        tools:visibility="visible" />
+
+    <!-- Emergency hotline FAB — bottom END, stacked above voice FAB -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_emergency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="152dp"
+        android:contentDescription="@string/cd_emergency_fab"
+        android:src="@drawable/ic_emergency_hotline"
+        android:visibility="gone"
+        app:backgroundTint="@color/error"
         app:tint="@color/on_primary"
         tools:visibility="visible" />
 

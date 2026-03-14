@@ -190,4 +190,13 @@
         android:label="@string/about_title"
         tools:layout="@layout/fragment_about" />
 
+    <!-- Global action — used by the persistent emergency FAB in MainActivity -->
+    <action
+        android:id="@+id/action_global_emergency_contacts"
+        app:destination="@id/nav_emergency_contacts"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
 </navigation>

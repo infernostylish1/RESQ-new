@@ -25,6 +25,13 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var userSettingsRepository: UserSettingsRepository
 
+    // Destinations where the emergency FAB must NOT appear
+    private val fabHiddenDestinations = setOf(
+        R.id.nav_onboarding,
+        R.id.nav_settings,
+        R.id.nav_emergency_contacts
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -38,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupNavigation()
+        setupEmergencyFab() // NEW
     }
 
     private fun setupNavigation() {
@@ -56,6 +64,24 @@ class MainActivity : AppCompatActivity() {
 
             binding.bottomNavigation.setupWithNavController(navController)
 
+            // Override item selected so bottom nav works even when on Emergency Contacts
+            binding.bottomNavigation.setOnItemSelectedListener { item ->
+                val currentDestination = navController.currentDestination?.id
+
+                if (currentDestination == R.id.nav_emergency_contacts) {
+                    // Pop Emergency Contacts off the back stack first, then navigate
+                    navController.popBackStack()
+                }
+
+                if (item.itemId == navController.currentDestination?.id) {
+                    // Already on that destination, do nothing
+                    true
+                } else {
+                    navController.navigate(item.itemId)
+                    true
+                }
+            }
+
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 when (destination.id) {
                     R.id.nav_onboarding -> {
@@ -64,36 +90,39 @@ class MainActivity : AppCompatActivity() {
                     else -> {
                         binding.bottomNavigation.visibility = View.VISIBLE
 
-                        // Resolve which tab owns this destination so the
-                        // correct nav icon stays highlighted on detail screens
                         val ownerTabId = resolveOwnerTab(destination.id)
                         if (ownerTabId != null) {
-                            // Silence the re-selection listener so switching the
-                            // selected item programmatically does not trigger
-                            // a navigation event and duplicate back stack entries
-                            binding.bottomNavigation.setOnItemSelectedListener(null)
-                            binding.bottomNavigation.selectedItemId = ownerTabId
-                            // Restore setupWithNavController behaviour
-                            binding.bottomNavigation.setupWithNavController(navController)
+                            binding.bottomNavigation.menu.findItem(ownerTabId)?.isChecked = true
                         }
                     }
                 }
+
+                updateEmergencyFabVisibility(destination.id)
             }
         }
     }
 
-    /**
-     * Maps every detail/sub-screen destination back to the tab that owns it.
-     * Returns null for top-level destinations that setupWithNavController already
-     * handles correctly on its own.
-     */
+    private fun setupEmergencyFab() {
+        binding.fabEmergency.setOnClickListener {
+            if (navController.currentDestination?.id != R.id.nav_emergency_contacts) {
+                navController.navigate(R.id.nav_emergency_contacts)
+            }
+        }
+    }
+
+    // NEW — show with animation on allowed screens, hide on excluded ones
+    private fun updateEmergencyFabVisibility(destinationId: Int) {
+        if (destinationId in fabHiddenDestinations) {
+            binding.fabEmergency.hide()
+        } else {
+            binding.fabEmergency.show()
+        }
+    }
+
     private fun resolveOwnerTab(destinationId: Int): Int? = when (destinationId) {
-        R.id.nav_disaster_detail -> R.id.nav_disasters
-        R.id.nav_tip_detail      -> R.id.nav_tips
+        R.id.nav_disaster_detail  -> R.id.nav_disasters
+        R.id.nav_tip_detail       -> R.id.nav_tips
         R.id.nav_first_aid_detail -> R.id.nav_first_aid
-        // nav_emergency_contacts can be reached from both Home and Settings,
-        // so we do not force a tab highlight for it — leave it as-is.
-        // Add any future detail fragments here following the same pattern.
         else -> null
     }
 
