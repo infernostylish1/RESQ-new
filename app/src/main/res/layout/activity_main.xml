@@ -18,7 +18,6 @@
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            app:defaultNavHost="true"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
             app:layout_constraintStart_toStartOf="parent"
@@ -39,34 +38,96 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Voice command FAB — bottom END, above bottom nav -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_voice_command"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="@dimen/bottom_nav_height"
-        android:contentDescription="@string/cd_voice_icon"
-        android:src="@android:drawable/ic_btn_speak_now"
+    <!-- ── Scrim ───────────────────────────────────────────────────────────── -->
+    <View
+        android:id="@+id/fab_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/scrim"
         android:visibility="gone"
-        app:backgroundTint="@color/primary"
-        app:tint="@color/on_primary"
-        tools:visibility="visible" />
+        android:clickable="true"
+        android:focusable="true" />
 
-    <!-- Emergency hotline FAB — bottom END, stacked above voice FAB -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_emergency"
+    <!-- ── Emergency contact child row ───────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/fab_emergency_row"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_child_emergency_margin_bottom"
         android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="152dp"
-        android:contentDescription="@string/cd_emergency_fab"
-        android:src="@drawable/ic_emergency_hotline"
-        android:visibility="gone"
-        app:backgroundTint="@color/error"
-        app:tint="@color/on_primary"
-        tools:visibility="visible" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/fab_emergency_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/fab_label_margin_end"
+            android:background="@drawable/bg_fab_label"
+            android:elevation="6dp"
+            android:paddingHorizontal="@dimen/fab_label_padding_horizontal"
+            android:paddingVertical="@dimen/fab_label_padding_vertical"
+            android:text="@string/contacts_title"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_body_small" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_emergency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/contacts_title"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_emergency_hotline" />
+
+    </LinearLayout>
+
+    <!-- ── Voice command child row ────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/fab_voice_row"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_child_voice_margin_bottom"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/fab_voice_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/fab_label_margin_end"
+            android:background="@drawable/bg_fab_label"
+            android:elevation="6dp"
+            android:paddingHorizontal="@dimen/fab_label_padding_horizontal"
+            android:paddingVertical="@dimen/fab_label_padding_vertical"
+            android:text="@string/settings_voice_command"
+            android:textColor="@color/text_primary"
+            android:textSize="@dimen/text_size_body_small" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_voice_command"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/settings_voice_command"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_mic" />
+
+    </LinearLayout>
+
+    <!-- ── Main trigger FAB ───────────────────────────────────────────────── -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_main_margin_bottom"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:contentDescription="@string/action_close"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_fab_menu" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

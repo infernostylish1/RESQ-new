@@ -34,6 +34,13 @@
     <dimen name="fab_mini_size">40dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
+    <dimen name="fab_main_margin_bottom">116dp</dimen>
+    <dimen name="fab_child_voice_margin_bottom">200dp</dimen>
+    <dimen name="fab_child_emergency_margin_bottom">272dp</dimen>
+    <dimen name="fab_label_padding_horizontal">10dp</dimen>
+    <dimen name="fab_label_padding_vertical">6dp</dimen>
+    <dimen name="fab_label_margin_end">12dp</dimen>
+
     <!-- Icon Sizes -->
     <dimen name="icon_size_xs">16dp</dimen>
     <dimen name="icon_size_sm">20dp</dimen>

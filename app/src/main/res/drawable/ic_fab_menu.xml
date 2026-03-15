@@ -1,0 +1,12 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Horizontal bar -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M19,11H13V5a1,1 0,0 0,-2 0V11H5a1,1 0,0 0,0 2H11V19a1,1 0,0 0,2 0V13H19a1,1 0,0 0,0 -2Z" />
+
+</vector>

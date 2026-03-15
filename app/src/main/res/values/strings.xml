@@ -195,14 +195,6 @@
     <string name="language_english">English</string>
     <string name="language_tagalog">Tagalog</string>
 
-    <!-- Voice Commands -->
-    <string name="voice_listening">Listening...</string>
-    <string name="voice_processing">Processing...</string>
-    <string name="voice_tap_to_speak">Tap to speak</string>
-    <string name="voice_command_recognized">Command: %1$s</string>
-    <string name="voice_command_unknown">Sorry, I didn\'t understand that.</string>
-    <string name="voice_permission_required">Microphone permission is required for voice commands.</string>
-
     <!-- TTS -->
     <string name="tts_reading">Reading...</string>
     <string name="tts_stopped">Reading stopped</string>
@@ -284,5 +276,18 @@
     <string name="disasters_tab_all">All Disasters</string>
 
     <string name="cd_emergency_fab">Open Emergency Hotlines</string>
+
+    <!-- Voice command bottom sheet -->
+    <string name="voice_command_title">Voice Command</string>
+    <string name="voice_command_hint">Say something like "open earthquake" or "show first aid"</string>
+    <string name="voice_tap_to_speak">Tap the button below and speak</string>
+    <string name="voice_starting">Starting…</string>
+    <string name="voice_start">Start Listening</string>
+    <string name="voice_retry">Try Again</string>
+    <string name="voice_heard_format">I heard: "%s"</string>
+    <string name="voice_permission_denied">Microphone permission is required for voice commands</string>
+
+    <string name="voice_listening">Listening… speak now</string>
+    <string name="voice_processing">Processing…</string>
 
 </resources>

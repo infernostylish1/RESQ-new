@@ -81,14 +81,4 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_read_aloud"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:contentDescription="@string/cd_read_aloud_button"
-        android:src="@android:drawable/ic_btn_speak_now"
-        app:backgroundTint="@color/secondary" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

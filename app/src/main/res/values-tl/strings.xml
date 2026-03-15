@@ -195,14 +195,6 @@
     <string name="language_english">English</string>
     <string name="language_tagalog">Tagalog</string>
 
-    <!-- Voice Commands -->
-    <string name="voice_listening">Nakikinig...</string>
-    <string name="voice_processing">Pinoproseso...</string>
-    <string name="voice_tap_to_speak">I-tap para magsalita</string>
-    <string name="voice_command_recognized">Utos: %1$s</string>
-    <string name="voice_command_unknown">Paumanhin, hindi ko naintindihan iyon.</string>
-    <string name="voice_permission_required">Kailangan ang permiso sa mikropono para sa mga voice command.</string>
-
     <!-- TTS -->
     <string name="tts_reading">Binabasa...</string>
     <string name="tts_stopped">Natigil ang pagbasa</string>
@@ -284,5 +276,19 @@
     <string name="disasters_tab_all">Lahat ng Sakuna</string>
 
     <string name="cd_emergency_fab">Buksan ang Emergency Hotlines</string>
+
+    <!-- Voice command bottom sheet -->
+    <string name="voice_command_title">Voice Command</string>
+    <string name="voice_command_hint">Magsalita katulad ng "Buksan ang lindol", "Ipakita ang first aid"</string>
+    <string name="voice_tap_to_speak">Pindutin ang button at magsalita</string>
+    <string name="voice_starting">Nagsisimula…</string>
+    <string name="voice_start">Magsimulang pakinggan</string>
+    <string name="voice_retry">Ulitin</string>
+    <string name="voice_heard_format">Narinig ko ay: "%s"</string>
+    <string name="voice_permission_denied">Kailangan ng Microphone permission para sa voice commands</string>
+
+    <string name="voice_listening">Nakikinig… Magsalita na</string>
+    <string name="voice_processing">Prinoproseso…</string>
+
 
 </resources>

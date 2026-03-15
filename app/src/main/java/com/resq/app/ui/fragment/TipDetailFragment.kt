@@ -46,7 +46,6 @@ class TipDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupToolbar()
         setupRecyclerView()
-        setupFab()
         viewModel.loadDisasterDetail(args.disasterId)
         viewModel.loadTipsForDisaster(args.disasterId)
         observeViewModel()
@@ -67,29 +66,6 @@ class TipDetailFragment : Fragment() {
     private fun setupRecyclerView() {
         tipDetailAdapter = TipDetailAdapter()
         binding.rvTips.adapter = tipDetailAdapter
-    }
-
-    // ── FAB read aloud ────────────────────────────────────────────────────────
-
-    private fun setupFab() {
-        binding.fabReadAloud.setOnClickListener {
-            readCurrentContentAloud()
-        }
-    }
-
-    private fun readCurrentContentAloud() {
-        val tips = viewModel.tipsForDisaster.value
-        val languageCode = viewModel.uiState.value.languageCode
-        if (tips.isEmpty()) return
-
-        val sb = StringBuilder()
-        sb.append(args.disasterName)
-        sb.append(". ")
-        tips.forEachIndexed { index, tip ->
-            val text = if (languageCode == "tl") tip.tipTextTagalog else tip.tipText
-            sb.append("Tip ${index + 1}: $text. ")
-        }
-        ttsManager.speak(sb.toString())
     }
 
     // ── Observation ───────────────────────────────────────────────────────────

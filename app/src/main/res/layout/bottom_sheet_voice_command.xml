@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_marginBottom="24dp"
+        android:background="?attr/colorOnSurfaceVariant" />
+
+    <TextView
+        android:id="@+id/tv_voice_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/voice_command_title"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tv_voice_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/voice_command_hint"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <!--
+        Mic pulse icon — animates with a repeating scale in/out
+        while listening. Controlled in VoiceCommandBottomSheet.kt
+        via startMicAnimation() / stopMicAnimation().
+    -->
+    <ImageView
+        android:id="@+id/iv_mic_pulse"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_mic"
+        android:visibility="invisible"
+        android:contentDescription="@string/cd_voice_icon"
+        android:padding="16dp"
+        android:backgroundTint="?attr/colorPrimaryContainer"
+        android:background="@drawable/bg_circle"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/tv_voice_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/voice_tap_to_speak"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:gravity="center"
+        android:minLines="2"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btn_start_listening"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/voice_start"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/action_cancel"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_marginBottom="8dp" />
+
+</LinearLayout>

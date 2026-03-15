@@ -57,7 +57,6 @@ class DisasterDetailFragment : Fragment() {
         setupToolbar()
         setupChipGroup()
         setupRecyclerView()
-        setupFab()
         viewModel.loadDisaster(args.disasterId)
         observeViewModel()
     }
@@ -85,25 +84,6 @@ class DisasterDetailFragment : Fragment() {
     private fun setupRecyclerView() {
         preparationAdapter = PreparationStepAdapter()
         binding.rvPreparations.adapter = preparationAdapter
-    }
-
-    private fun setupFab() {
-        binding.fabReadAloud.setOnClickListener {
-            readCurrentContentAloud()
-        }
-    }
-
-    private fun readCurrentContentAloud() {
-        val disaster     = viewModel.selectedDisaster.value ?: return
-        val preparations = viewModel.preparations.value
-
-        val sb = StringBuilder()
-        sb.append(disaster.name)
-        sb.append(". $currentPhase. ")
-        preparations.forEachIndexed { index, step ->
-            sb.append("Step ${index + 1}: ${step.title}. ${step.content}. ")
-        }
-        ttsManager.speak(sb.toString())
     }
 
     private fun observeViewModel() {

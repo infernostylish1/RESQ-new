@@ -60,7 +60,6 @@ class FirstAidDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupToolbar()
         setupRecyclerView()
-        setupFab()
         viewModel.loadCategory(args.categoryId)
         observeViewModel()
     }
@@ -82,15 +81,6 @@ class FirstAidDetailFragment : Fragment() {
         // removed or overridden during a layout refactor.
         if (binding.rvSteps.layoutManager == null) {
             binding.rvSteps.layoutManager = LinearLayoutManager(requireContext())
-        }
-    }
-
-    private fun setupFab() {
-        binding.fabReadAloud.setOnClickListener {
-            val text = viewModel.getContentForTTS()
-            if (text.isNotBlank()) {
-                ttsManager.speak(text)
-            }
         }
     }
 
