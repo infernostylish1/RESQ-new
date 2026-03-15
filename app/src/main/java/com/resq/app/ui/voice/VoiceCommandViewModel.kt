@@ -7,7 +7,6 @@ import com.resq.app.util.RecognitionState
 import com.resq.app.util.VoiceCommand
 import com.resq.app.util.VoiceCommandManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,18 +16,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VoiceCommandViewModel @Inject constructor(
-    private val voiceCommandManager: VoiceCommandManager,
-    @ApplicationContext private val context: Context
+    private val voiceCommandManager: VoiceCommandManager
 ) : ViewModel() {
 
     val recognitionState: StateFlow<RecognitionState> =
         voiceCommandManager.recognitionState
 
-    // One-shot events consumed by MainActivity
+    // One-shot events consumed by MainActivity (or whoever hosts the bottom sheet)
     private val _commandEvent = MutableSharedFlow<VoiceCommand>()
     val commandEvent: SharedFlow<VoiceCommand> = _commandEvent.asSharedFlow()
 
-    init {
+    /**
+     * Must be called from a Fragment/Activity with a valid window context.
+     * SpeechRecognizer requires a context attached to a window on the main thread.
+     */
+    fun initialize(context: Context) {
         voiceCommandManager.initialize(context)
     }
 
