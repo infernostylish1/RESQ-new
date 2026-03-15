@@ -1,6 +1,5 @@
 package com.resq.app
 
-import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
@@ -17,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.resq.app.data.repository.UserSettingsRepository
 import com.resq.app.databinding.ActivityMainBinding
+import com.resq.app.ui.fragment.DisastersFragmentDirections
 import com.resq.app.ui.voice.VoiceCommandBottomSheet
 import com.resq.app.ui.voice.VoiceCommandViewModel
 import com.resq.app.util.VoiceCommand
@@ -35,10 +35,8 @@ class MainActivity : AppCompatActivity() {
 
     private val voiceViewModel: VoiceCommandViewModel by viewModels()
 
-    // Tracks whether the FAB speed-dial menu is open
     private var isFabMenuOpen = false
 
-    // Destinations where ALL fabs (including main trigger) are hidden
     private val fabHiddenDestinations = setOf(
         R.id.nav_onboarding,
         R.id.nav_settings
@@ -88,27 +86,18 @@ class MainActivity : AppCompatActivity() {
             }
 
             navController.addOnDestinationChangedListener { _, destination, _ ->
-                // Always collapse the FAB menu when navigating anywhere
                 collapseFabMenu()
 
-                val isHiddenDest = destination.id in fabHiddenDestinations
+                val isHiddenDest    = destination.id in fabHiddenDestinations
                 val isOnContactsScreen = destination.id == R.id.nav_emergency_contacts
 
-                // Bottom nav
                 binding.bottomNavigation.visibility =
                     if (destination.id == R.id.nav_onboarding) View.GONE else View.VISIBLE
 
-                // Main trigger FAB — hide only on hidden destinations
                 binding.fabMain.visibility =
                     if (isHiddenDest) View.GONE else View.VISIBLE
 
-                // Emergency child row — hide when on contacts screen or hidden destinations
-                binding.fabEmergencyRow.visibility =
-                    if (isHiddenDest || isOnContactsScreen) View.GONE else View.GONE
-                // Note: child rows start GONE and are shown only when menu is open;
-                // we just update the flag so openFabMenu() respects it.
                 updateEmergencyRowAvailability(isOnContactsScreen)
-
                 syncBottomNavSelection(destination.id)
             }
         }
@@ -118,21 +107,18 @@ class MainActivity : AppCompatActivity() {
         val ownerTab = when (destinationId) {
             R.id.nav_home -> R.id.nav_home
             R.id.nav_disasters,
-            R.id.nav_disaster_detail -> R.id.nav_disasters
+            R.id.nav_disaster_detail  -> R.id.nav_disasters
             R.id.nav_first_aid,
             R.id.nav_first_aid_detail -> R.id.nav_first_aid
             R.id.nav_tips,
-            R.id.nav_tip_detail -> R.id.nav_tips
+            R.id.nav_tip_detail       -> R.id.nav_tips
             else -> null
         }
-        ownerTab?.let {
-            binding.bottomNavigation.menu.findItem(it)?.isChecked = true
-        }
+        ownerTab?.let { binding.bottomNavigation.menu.findItem(it)?.isChecked = true }
     }
 
     // ── FAB speed-dial ────────────────────────────────────────────────────────
 
-    // True when the emergency row should NOT be shown even if menu opens
     private var emergencyRowSuppressed = false
 
     private fun updateEmergencyRowAvailability(onContactsScreen: Boolean) {
@@ -140,26 +126,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFabMenu() {
-        // Main trigger FAB toggles the speed-dial
         binding.fabMain.setOnClickListener {
             if (isFabMenuOpen) collapseFabMenu() else expandFabMenu()
         }
 
-        // Scrim tap collapses the menu
-        binding.fabScrim.setOnClickListener {
-            collapseFabMenu()
-        }
+        binding.fabScrim.setOnClickListener { collapseFabMenu() }
 
-        // Voice child FAB
         binding.fabVoiceCommand.setOnClickListener {
             collapseFabMenu()
             if (supportFragmentManager.findFragmentByTag(VoiceCommandBottomSheet.TAG) == null) {
-                VoiceCommandBottomSheet()
-                    .show(supportFragmentManager, VoiceCommandBottomSheet.TAG)
+                VoiceCommandBottomSheet().show(supportFragmentManager, VoiceCommandBottomSheet.TAG)
             }
         }
 
-        // Emergency child FAB
         binding.fabEmergency.setOnClickListener {
             collapseFabMenu()
             if (navController.currentDestination?.id != R.id.nav_emergency_contacts) {
@@ -170,21 +149,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun expandFabMenu() {
         isFabMenuOpen = true
-
-        // Rotate main FAB icon 45° to hint "close"
         binding.fabMain.animate().rotation(45f).setDuration(200).start()
-
-        // Show scrim
         binding.fabScrim.visibility = View.VISIBLE
         binding.fabScrim.animate().alpha(1f).setDuration(200).start()
-
-        // Always show voice row
         animateChildIn(binding.fabVoiceRow)
-
-        // Show emergency row only if not suppressed
-        if (!emergencyRowSuppressed) {
-            animateChildIn(binding.fabEmergencyRow)
-        }
+        if (!emergencyRowSuppressed) animateChildIn(binding.fabEmergencyRow)
     }
 
     private fun collapseFabMenu() {
@@ -193,16 +162,10 @@ class MainActivity : AppCompatActivity() {
             binding.fabEmergencyRow.visibility == View.GONE) return
 
         isFabMenuOpen = false
-
-        // Rotate main FAB icon back
         binding.fabMain.animate().rotation(0f).setDuration(200).start()
-
-        // Hide scrim
         binding.fabScrim.animate().alpha(0f).setDuration(200).withEndAction {
             binding.fabScrim.visibility = View.GONE
         }.start()
-
-        // Hide child rows
         animateChildOut(binding.fabVoiceRow)
         animateChildOut(binding.fabEmergencyRow)
     }
@@ -211,23 +174,14 @@ class MainActivity : AppCompatActivity() {
         row.visibility = View.VISIBLE
         row.alpha = 0f
         row.translationY = 24f
-        row.animate()
-            .alpha(1f)
-            .translationY(0f)
-            .setDuration(200)
-            .start()
+        row.animate().alpha(1f).translationY(0f).setDuration(200).start()
     }
 
     private fun animateChildOut(row: View) {
-        row.animate()
-            .alpha(0f)
-            .translationY(24f)
-            .setDuration(150)
-            .withEndAction {
-                row.visibility = View.GONE
-                row.translationY = 0f
-            }
-            .start()
+        row.animate().alpha(0f).translationY(24f).setDuration(150).withEndAction {
+            row.visibility = View.GONE
+            row.translationY = 0f
+        }.start()
     }
 
     // ── Voice command execution ───────────────────────────────────────────────
@@ -246,65 +200,57 @@ class MainActivity : AppCompatActivity() {
         when (command) {
 
             // ── Navigation ────────────────────────────────────────────────────
-            is VoiceCommand.NavigateHome -> {
-                navController.navigate(R.id.nav_home)
+            is VoiceCommand.NavigateHome      -> navController.navigate(R.id.nav_home)
+            is VoiceCommand.NavigateDisasters -> navController.navigate(R.id.nav_disasters)
+            is VoiceCommand.NavigateFirstAid  -> navController.navigate(R.id.nav_first_aid)
+            is VoiceCommand.NavigateTips      -> navController.navigate(R.id.nav_tips)
+            is VoiceCommand.NavigateSettings  -> navController.navigate(R.id.nav_settings)
+            is VoiceCommand.NavigateContacts  -> navController.navigate(R.id.nav_emergency_contacts)
+
+            // ── Deep-link: go directly to disaster detail ─────────────────────
+            // VoiceCommandViewModel has already resolved the id from the DB.
+            is VoiceCommand.OpenDisasterDetail -> {
+                val action = DisastersFragmentDirections.actionDisastersToDetail(
+                    disasterId   = command.disasterId,
+                    disasterName = command.disasterName
+                )
+                // Navigate to the list first if we're not already in the
+                // disasters back-stack, then to detail — or navigate directly
+                // using the global-safe approach below.
+                safeNavigateToDisasterDetail(command.disasterId, command.disasterName)
             }
-            is VoiceCommand.NavigateDisasters -> {
+
+            // ── Deep-link: go directly to first aid detail ────────────────────
+            is VoiceCommand.OpenFirstAidDetail -> {
+                safeNavigateToFirstAidDetail(command.categoryId, command.categoryName)
+            }
+
+            // ── Legacy list-level commands (fallback if DB lookup failed) ─────
+            // VoiceCommandViewModel already converts these before they reach here,
+            // but we keep the handlers in case of future code paths.
+            is VoiceCommand.OpenDisaster -> {
                 navController.navigate(R.id.nav_disasters)
             }
-            is VoiceCommand.NavigateFirstAid -> {
-                navController.navigate(R.id.nav_first_aid)
-            }
-            is VoiceCommand.NavigateTips -> {
-                navController.navigate(R.id.nav_tips)
-            }
-            is VoiceCommand.NavigateSettings -> {
-                navController.navigate(R.id.nav_settings)
-            }
-            is VoiceCommand.NavigateContacts -> {
-                navController.navigate(R.id.nav_emergency_contacts)
-            }
-
-            // ── Disaster deep-link ────────────────────────────────────────────
-            is VoiceCommand.OpenDisaster -> {
-                val bundle = Bundle().apply {
-                    putString(ARG_VOICE_QUERY, command.disasterName)
-                }
-                navController.navigate(R.id.nav_disasters, bundle)
-            }
-
-            // ── First-aid deep-link ───────────────────────────────────────────
             is VoiceCommand.OpenFirstAidCategory -> {
-                val bundle = Bundle().apply {
-                    putString(ARG_VOICE_QUERY, command.categoryName)
-                }
-                navController.navigate(R.id.nav_first_aid, bundle)
+                navController.navigate(R.id.nav_first_aid)
             }
 
             // ── Search ────────────────────────────────────────────────────────
             is VoiceCommand.SearchDisaster -> {
-                val bundle = Bundle().apply {
-                    putString(ARG_VOICE_QUERY, command.query)
-                }
+                val bundle = Bundle().apply { putString(ARG_VOICE_QUERY, command.query) }
                 navController.navigate(R.id.nav_disasters, bundle)
             }
             is VoiceCommand.SearchFirstAid -> {
-                val bundle = Bundle().apply {
-                    putString(ARG_VOICE_QUERY, command.query)
-                }
+                val bundle = Bundle().apply { putString(ARG_VOICE_QUERY, command.query) }
                 navController.navigate(R.id.nav_first_aid, bundle)
             }
             is VoiceCommand.GeneralSearch -> {
-                val bundle = Bundle().apply {
-                    putString(ARG_VOICE_QUERY, command.query)
-                }
+                val bundle = Bundle().apply { putString(ARG_VOICE_QUERY, command.query) }
                 navController.navigate(R.id.nav_disasters, bundle)
             }
 
             // ── App control ───────────────────────────────────────────────────
-            is VoiceCommand.GoBack -> {
-                navController.popBackStack()
-            }
+            is VoiceCommand.GoBack -> navController.popBackStack()
             is VoiceCommand.ScrollUp -> {
                 supportFragmentManager.setFragmentResult(
                     REQUEST_SCROLL, Bundle().apply { putString(KEY_SCROLL, SCROLL_UP) }
@@ -339,24 +285,76 @@ class MainActivity : AppCompatActivity() {
             }
 
             // ── Emergency / contacts ──────────────────────────────────────────
-            is VoiceCommand.CallEmergency -> {
-                navController.navigate(R.id.nav_emergency_contacts)
-            }
+            is VoiceCommand.CallEmergency -> navController.navigate(R.id.nav_emergency_contacts)
             is VoiceCommand.CallContact -> {
-                val bundle = Bundle().apply {
-                    putString(ARG_CONTACT_NAME, command.contactName)
-                }
+                val bundle = Bundle().apply { putString(ARG_CONTACT_NAME, command.contactName) }
                 navController.navigate(R.id.nav_emergency_contacts, bundle)
             }
 
             // ── Tips ──────────────────────────────────────────────────────────
             is VoiceCommand.GetRandomTip,
-            is VoiceCommand.GetNextTip -> {
-                navController.navigate(R.id.nav_tips)
-            }
+            is VoiceCommand.GetNextTip -> navController.navigate(R.id.nav_tips)
 
-            // ── Unknown — do nothing ──────────────────────────────────────────
+            // ── Unknown ───────────────────────────────────────────────────────
             is VoiceCommand.Unknown -> Unit
+        }
+    }
+
+    /**
+     * Navigates to [nav_disaster_detail] regardless of which screen is currently shown.
+     *
+     * Uses the global action if already in the disasters back-stack, otherwise
+     * navigates to the list first then immediately to detail so the back-stack
+     * is correct (Back → list → previous screen).
+     */
+    private fun safeNavigateToDisasterDetail(disasterId: Long, disasterName: String) {
+        val args = Bundle().apply {
+            putLong("disasterId", disasterId)
+            putString("disasterName", disasterName)
+        }
+        val currentDest = navController.currentDestination?.id
+
+        when (currentDest) {
+            // Already on the disasters list — navigate directly to detail
+            R.id.nav_disasters -> {
+                navController.navigate(R.id.action_disasters_to_detail, args)
+            }
+            // Already on a disaster detail — pop back to list then navigate
+            R.id.nav_disaster_detail -> {
+                navController.popBackStack(R.id.nav_disasters, false)
+                navController.navigate(R.id.action_disasters_to_detail, args)
+            }
+            // Anywhere else — go to disasters list first, then detail
+            else -> {
+                navController.navigate(R.id.nav_disasters)
+                navController.navigate(R.id.action_disasters_to_detail, args)
+            }
+        }
+    }
+
+    /**
+     * Navigates to [nav_first_aid_detail] regardless of which screen is currently shown.
+     * Same pattern as [safeNavigateToDisasterDetail].
+     */
+    private fun safeNavigateToFirstAidDetail(categoryId: Long, categoryName: String) {
+        val args = Bundle().apply {
+            putLong("categoryId", categoryId)
+            putString("categoryName", categoryName)
+        }
+        val currentDest = navController.currentDestination?.id
+
+        when (currentDest) {
+            R.id.nav_first_aid -> {
+                navController.navigate(R.id.action_first_aid_to_detail, args)
+            }
+            R.id.nav_first_aid_detail -> {
+                navController.popBackStack(R.id.nav_first_aid, false)
+                navController.navigate(R.id.action_first_aid_to_detail, args)
+            }
+            else -> {
+                navController.navigate(R.id.nav_first_aid)
+                navController.navigate(R.id.action_first_aid_to_detail, args)
+            }
         }
     }
 

@@ -6,10 +6,6 @@ import com.resq.app.data.entity.FirstAidCategoryEntity
 import com.resq.app.data.entity.FirstAidContentEntity
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Repository for first aid operations.
- * All ViewModel-facing method names are normalized here.
- */
 class FirstAidRepository(
     private val firstAidCategoryDao: FirstAidCategoryDao,
     private val firstAidContentDao: FirstAidContentDao
@@ -23,15 +19,18 @@ class FirstAidRepository(
     suspend fun getAllCategoriesOnce(): List<FirstAidCategoryEntity> =
         firstAidCategoryDao.getAllCategoriesOnce()
 
-    /**
-     * Primary method used by FirstAidViewModel.
-     * Returns Flow of a single category by ID.
-     */
     fun getCategoryById(categoryId: Long): Flow<FirstAidCategoryEntity?> =
         firstAidCategoryDao.getCategoryById(categoryId)
 
     suspend fun getCategoryByIdOnce(categoryId: Long): FirstAidCategoryEntity? =
         firstAidCategoryDao.getCategoryByIdOnce(categoryId)
+
+    /**
+     * One-shot lookup by name — used by VoiceCommandViewModel to resolve
+     * a spoken category name to its real DB id before navigating to detail.
+     */
+    suspend fun getCategoryByName(name: String): FirstAidCategoryEntity? =
+        firstAidCategoryDao.getCategoryByName(name)
 
     fun searchCategories(query: String): Flow<List<FirstAidCategoryEntity>> =
         firstAidCategoryDao.searchCategories(query)
@@ -41,14 +40,9 @@ class FirstAidRepository(
 
     // ─── Content operations ───────────────────────────────────────────────────
 
-    /**
-     * Primary method used by FirstAidViewModel.
-     * Alias: getCategoryContent(categoryId) maps to getContentByCategoryId.
-     */
     fun getCategoryContent(categoryId: Long): Flow<List<FirstAidContentEntity>> =
         firstAidContentDao.getContentByCategoryId(categoryId)
 
-    /** Legacy alias */
     fun getContentByCategoryId(categoryId: Long): Flow<List<FirstAidContentEntity>> =
         firstAidContentDao.getContentByCategoryId(categoryId)
 
@@ -70,10 +64,6 @@ class FirstAidRepository(
     fun searchContent(query: String): Flow<List<FirstAidContentEntity>> =
         firstAidContentDao.searchContent(query)
 
-    /**
-     * Returns the number of content/step entries for a given category.
-     * Used by FirstAidViewModel to build CategoryWithStepCount.
-     */
     suspend fun getContentCountByCategoryId(categoryId: Long): Int =
         firstAidContentDao.getContentCountByCategoryId(categoryId)
 }

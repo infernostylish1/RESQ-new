@@ -7,10 +7,6 @@ import androidx.room.Query
 import com.resq.app.data.entity.DisasterEntity
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Data Access Object for Disaster operations.
- * Handles disaster categories and recommendations based on user profile.
- */
 @Dao
 interface DisasterDao {
 
@@ -25,6 +21,18 @@ interface DisasterDao {
 
     @Query("SELECT * FROM disasters WHERE id = :disasterId")
     suspend fun getDisasterByIdOnce(disasterId: Long): DisasterEntity?
+
+    /**
+     * One-shot lookup used by VoiceCommandViewModel to resolve a spoken
+     * disaster name to its real DB id.  Uses LIKE for case-insensitive matching.
+     * Also matches the Tagalog name so Filipino queries work too.
+     */
+    @Query("""
+        SELECT * FROM disasters
+        WHERE name LIKE :name OR name_tagalog LIKE :name
+        LIMIT 1
+    """)
+    suspend fun getDisasterByName(name: String): DisasterEntity?
 
     @Query("""
         SELECT * FROM disasters 
@@ -51,7 +59,12 @@ interface DisasterDao {
     @Query("SELECT * FROM disasters WHERE is_universal = 1 ORDER BY display_order ASC")
     fun getUniversalDisasters(): Flow<List<DisasterEntity>>
 
-    @Query("SELECT * FROM disasters WHERE name LIKE '%' || :query || '%' OR name_tagalog LIKE '%' || :query || '%' ORDER BY display_order ASC")
+    @Query("""
+        SELECT * FROM disasters
+        WHERE name LIKE '%' || :query || '%'
+           OR name_tagalog LIKE '%' || :query || '%'
+        ORDER BY display_order ASC
+    """)
     fun searchDisasters(query: String): Flow<List<DisasterEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

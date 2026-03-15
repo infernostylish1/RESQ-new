@@ -7,10 +7,6 @@ import androidx.room.Query
 import com.resq.app.data.entity.FirstAidCategoryEntity
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Data Access Object for FirstAidCategory operations.
- * Handles first aid category management.
- */
 @Dao
 interface FirstAidCategoryDao {
 
@@ -25,6 +21,18 @@ interface FirstAidCategoryDao {
 
     @Query("SELECT * FROM first_aid_categories WHERE id = :categoryId")
     suspend fun getCategoryByIdOnce(categoryId: Long): FirstAidCategoryEntity?
+
+    /**
+     * One-shot lookup used by VoiceCommandViewModel.
+     * Matches on English name, Tagalog name, or a LIKE partial match so
+     * e.g. "CPR & Choking" is still found if the spoken key is "CPR & Choking".
+     */
+    @Query("""
+        SELECT * FROM first_aid_categories
+        WHERE name LIKE :name OR name_tagalog LIKE :name
+        LIMIT 1
+    """)
+    suspend fun getCategoryByName(name: String): FirstAidCategoryEntity?
 
     @Query("""
         SELECT * FROM first_aid_categories 

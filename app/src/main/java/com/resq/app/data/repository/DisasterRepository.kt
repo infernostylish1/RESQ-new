@@ -10,11 +10,6 @@ import com.resq.app.data.entity.UserProfileEntity
 import com.resq.app.data.model.SituationType
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Repository for disaster-related operations.
- * Handles disasters, info, and preparation content.
- * All ViewModel-facing method names are normalized here.
- */
 class DisasterRepository(
     private val disasterDao: DisasterDao,
     private val disasterInfoDao: DisasterInfoDao,
@@ -29,22 +24,29 @@ class DisasterRepository(
     suspend fun getAllDisastersOnce(): List<DisasterEntity> =
         disasterDao.getAllDisastersOnce()
 
-    /** Flow-based single disaster — used by ViewModels as getDisasterById */
     fun getDisasterById(disasterId: Long): Flow<DisasterEntity?> =
         disasterDao.getDisasterById(disasterId)
 
     suspend fun getDisasterByIdOnce(disasterId: Long): DisasterEntity? =
         disasterDao.getDisasterByIdOnce(disasterId)
 
+    /**
+     * One-shot lookup by name — used by VoiceCommandViewModel to resolve
+     * a spoken disaster name to its real DB id before navigating to detail.
+     * Passes the name as-is; DAO uses LIKE for case-insensitive matching.
+     */
+    suspend fun getDisasterByName(name: String): DisasterEntity? =
+        disasterDao.getDisasterByName(name)
+
     fun getRecommendedDisasters(profile: UserProfileEntity): Flow<List<DisasterEntity>> =
         disasterDao.getRecommendedDisasters(
-            nearWater    = profile.isNearWater,
-            mountainous  = profile.isInMountainousArea,
-            landslide    = profile.isInLandslideProne,
-            flood        = profile.isInFloodProne,
-            volcano      = profile.isNearVolcano,
-            urban        = profile.isInUrbanArea,
-            coastal      = profile.isInCoastalArea
+            nearWater   = profile.isNearWater,
+            mountainous = profile.isInMountainousArea,
+            landslide   = profile.isInLandslideProne,
+            flood       = profile.isInFloodProne,
+            volcano     = profile.isNearVolcano,
+            urban       = profile.isInUrbanArea,
+            coastal     = profile.isInCoastalArea
         )
 
     fun getUniversalDisasters(): Flow<List<DisasterEntity>> =
@@ -58,14 +60,9 @@ class DisasterRepository(
 
     // ─── Disaster Info ────────────────────────────────────────────────────────
 
-    /**
-     * Primary method used by DisasterViewModel.
-     * Alias kept consistent: getDisasterInfo(disasterId)
-     */
     fun getDisasterInfo(disasterId: Long): Flow<List<DisasterInfoEntity>> =
         disasterInfoDao.getInfoByDisasterId(disasterId)
 
-    /** Legacy alias — kept for any internal callers */
     fun getInfoByDisasterId(disasterId: Long): Flow<List<DisasterInfoEntity>> =
         disasterInfoDao.getInfoByDisasterId(disasterId)
 
@@ -80,23 +77,15 @@ class DisasterRepository(
 
     // ─── Disaster Preparation ─────────────────────────────────────────────────
 
-    /**
-     * Primary method used by DisasterViewModel.
-     * Returns all preparations for a disaster regardless of situation type.
-     */
     fun getDisasterPreparations(disasterId: Long): Flow<List<DisasterPreparationEntity>> =
         disasterPreparationDao.getPreparationByDisasterId(disasterId)
 
-    /**
-     * Filtered by SituationType — used when user selects Before/During/After chip.
-     */
     fun getDisasterPreparationsBySituation(
         disasterId: Long,
         situationType: SituationType
     ): Flow<List<DisasterPreparationEntity>> =
         disasterPreparationDao.getPreparationBySituation(disasterId, situationType)
 
-    /** Legacy alias */
     fun getPreparationByDisasterId(disasterId: Long): Flow<List<DisasterPreparationEntity>> =
         disasterPreparationDao.getPreparationByDisasterId(disasterId)
 

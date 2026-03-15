@@ -10,13 +10,19 @@ import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
  * Manages voice command recognition for RESQ.
- * Provides offline speech recognition with command parsing.
+ *
+ * parseCommand() now strips intent prefixes before keyword matching so natural
+ * questions like "what is an earthquake" or "paano ang lindol" resolve correctly.
+ *
+ * After parsing, OpenDisaster / OpenFirstAidCategory are emitted with the
+ * canonical Title-Case name that matches the DB.  VoiceCommandViewModel then
+ * does a one-shot DB lookup and re-emits OpenDisasterDetail / OpenFirstAidDetail
+ * with the real id so MainActivity can navigate directly to the detail screen.
  */
 @Singleton
 class VoiceCommandManager @Inject constructor() {
@@ -33,9 +39,8 @@ class VoiceCommandManager @Inject constructor() {
     private var currentLanguage: String = "en"
     private var commandCallback: ((VoiceCommand) -> Unit)? = null
 
-    /**
-     * Initialize speech recognizer
-     */
+    // ── Initialisation ────────────────────────────────────────────────────────
+
     fun initialize(context: Context) {
         if (!SpeechRecognizer.isRecognitionAvailable(context)) {
             _recognitionState.value = RecognitionState.Error("Speech recognition not available")
@@ -52,29 +57,21 @@ class VoiceCommandManager @Inject constructor() {
         Log.d(TAG, "Speech recognizer initialized")
     }
 
+    // ── Recognition listener ──────────────────────────────────────────────────
+
     private fun createRecognitionListener(): RecognitionListener {
         return object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
                 _recognitionState.value = RecognitionState.Listening
-                Log.d(TAG, "Ready for speech")
             }
 
-            override fun onBeginningOfSpeech() {
-                Log.d(TAG, "Speech started")
-            }
-
-            override fun onRmsChanged(rmsdB: Float) {
-                // Audio level changed - can be used for visual feedback
-            }
-
-            override fun onBufferReceived(buffer: ByteArray?) {
-                // Audio buffer received
-            }
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
 
             override fun onEndOfSpeech() {
                 _recognitionState.value = RecognitionState.Processing
                 isListening = false
-                Log.d(TAG, "Speech ended")
             }
 
             override fun onError(error: Int) {
@@ -93,11 +90,10 @@ class VoiceCommandManager @Inject constructor() {
                     _lastCommand.value = command
                     commandCallback?.invoke(command)
                     _recognitionState.value = RecognitionState.Result(recognizedText, command)
-                    Log.d(TAG, "Recognized: $recognizedText -> Command: $command")
+                    Log.d(TAG, "Recognized: \"$recognizedText\" → Command: $command")
                 } else {
                     _recognitionState.value = RecognitionState.Error("No speech recognized")
                 }
-
                 isListening = false
             }
 
@@ -109,21 +105,17 @@ class VoiceCommandManager @Inject constructor() {
                 }
             }
 
-            override fun onEvent(eventType: Int, params: Bundle?) {
-                Log.d(TAG, "Recognition event: $eventType")
-            }
+            override fun onEvent(eventType: Int, params: Bundle?) {}
         }
     }
 
-    /**
-     * Start listening for voice commands
-     */
+    // ── Listening control ─────────────────────────────────────────────────────
+
     fun startListening(callback: ((VoiceCommand) -> Unit)? = null) {
         if (isListening) {
             Log.w(TAG, "Already listening")
             return
         }
-
         if (speechRecognizer == null) {
             _recognitionState.value = RecognitionState.Error("Speech recognizer not initialized")
             return
@@ -150,162 +142,30 @@ class VoiceCommandManager @Inject constructor() {
         }
     }
 
-    /**
-     * Stop listening
-     */
     fun stopListening() {
         if (!isListening) return
-
         speechRecognizer?.stopListening()
         isListening = false
         _recognitionState.value = RecognitionState.Idle
     }
 
-    /**
-     * Cancel recognition
-     */
     fun cancel() {
         speechRecognizer?.cancel()
         isListening = false
         _recognitionState.value = RecognitionState.Idle
     }
 
-    /**
-     * Set recognition language
-     */
     fun setLanguage(languageCode: String) {
         currentLanguage = languageCode
     }
 
-    private fun getLocaleForLanguage(): String {
-        return when (currentLanguage.lowercase()) {
-            "tl", "fil", "tagalog" -> "fil-PH"
-            else -> "en-US"
-        }
+    private fun getLocaleForLanguage(): String = when (currentLanguage.lowercase()) {
+        "tl", "fil", "tagalog" -> "fil-PH"
+        else -> "en-US"
     }
 
-    /**
-     * Parse recognized text into a VoiceCommand
-     */
-    fun parseCommand(text: String): VoiceCommand {
-        val normalizedText = text.lowercase().trim()
-
-        // Navigation commands
-        when {
-            matchesAny(normalizedText, NAV_HOME_KEYWORDS) -> return VoiceCommand.NavigateHome
-            matchesAny(normalizedText, NAV_DISASTERS_KEYWORDS) -> return VoiceCommand.NavigateDisasters
-            matchesAny(normalizedText, NAV_FIRSTAID_KEYWORDS) -> return VoiceCommand.NavigateFirstAid
-            matchesAny(normalizedText, NAV_TIPS_KEYWORDS) -> return VoiceCommand.NavigateTips
-            matchesAny(normalizedText, NAV_SETTINGS_KEYWORDS) -> return VoiceCommand.NavigateSettings
-            matchesAny(normalizedText, NAV_CONTACTS_KEYWORDS) -> return VoiceCommand.NavigateContacts
-        }
-
-        // Back command
-        if (matchesAny(normalizedText, BACK_KEYWORDS)) {
-            return VoiceCommand.GoBack
-        }
-
-        // Scroll commands
-        if (matchesAny(normalizedText, SCROLL_UP_KEYWORDS)) {
-            return VoiceCommand.ScrollUp
-        }
-        if (matchesAny(normalizedText, SCROLL_DOWN_KEYWORDS)) {
-            return VoiceCommand.ScrollDown
-        }
-
-        // TTS commands
-        when {
-            matchesAny(normalizedText, READ_KEYWORDS) -> return VoiceCommand.ReadContent
-            matchesAny(normalizedText, STOP_KEYWORDS) -> return VoiceCommand.StopReading
-            matchesAny(normalizedText, PAUSE_KEYWORDS) -> return VoiceCommand.PauseReading
-            matchesAny(normalizedText, RESUME_KEYWORDS) -> return VoiceCommand.ResumeReading
-        }
-
-        // Tip commands
-        when {
-            matchesAny(normalizedText, RANDOM_TIP_KEYWORDS) -> return VoiceCommand.GetRandomTip
-            matchesAny(normalizedText, NEXT_TIP_KEYWORDS) -> return VoiceCommand.GetNextTip
-        }
-
-        // Emergency call
-        if (matchesAny(normalizedText, EMERGENCY_CALL_KEYWORDS)) {
-            return VoiceCommand.CallEmergency
-        }
-
-        // Call contact command
-        CALL_PATTERNS.forEach { pattern ->
-            val match = pattern.find(normalizedText)
-            if (match != null) {
-                val contactName = match.groupValues.getOrNull(1)?.trim()
-                if (!contactName.isNullOrEmpty()) {
-                    return VoiceCommand.CallContact(contactName)
-                }
-            }
-        }
-
-        // Search for specific disaster
-        for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
-            if (keywords.any { normalizedText.contains(it) }) {
-                return if (matchesAny(normalizedText, SEARCH_KEYWORDS)) {
-                    VoiceCommand.SearchDisaster(disasterKey)
-                } else {
-                    VoiceCommand.OpenDisaster(disasterKey)
-                }
-            }
-        }
-
-        // Search for specific first aid
-        for ((categoryKey, keywords) in VoiceCommand.FIRST_AID_KEYWORDS) {
-            if (keywords.any { normalizedText.contains(it) }) {
-                return if (matchesAny(normalizedText, SEARCH_KEYWORDS)) {
-                    VoiceCommand.SearchFirstAid(categoryKey)
-                } else {
-                    VoiceCommand.OpenFirstAidCategory(categoryKey)
-                }
-            }
-        }
-
-        // General search
-        SEARCH_PATTERNS.forEach { pattern ->
-            val match = pattern.find(normalizedText)
-            if (match != null) {
-                val query = match.groupValues.getOrNull(1)?.trim()
-                if (!query.isNullOrEmpty()) {
-                    return VoiceCommand.GeneralSearch(query)
-                }
-            }
-        }
-
-        return VoiceCommand.Unknown(text)
-    }
-
-    private fun matchesAny(text: String, keywords: List<String>): Boolean {
-        return keywords.any { text.contains(it) }
-    }
-
-    private fun getErrorMessage(errorCode: Int): String {
-        return when (errorCode) {
-            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
-            SpeechRecognizer.ERROR_CLIENT -> "Client side error"
-            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
-            SpeechRecognizer.ERROR_NETWORK -> "Network error"
-            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
-            SpeechRecognizer.ERROR_NO_MATCH -> "No speech match found"
-            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Recognition service busy"
-            SpeechRecognizer.ERROR_SERVER -> "Server error"
-            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input"
-            else -> "Unknown error: $errorCode"
-        }
-    }
-
-    /**
-     * Check if currently listening
-     */
     fun isCurrentlyListening(): Boolean = isListening
 
-    /**
-     * Release resources
-     */
     fun destroy() {
         speechRecognizer?.destroy()
         speechRecognizer = null
@@ -313,48 +173,228 @@ class VoiceCommandManager @Inject constructor() {
         _recognitionState.value = RecognitionState.Idle
     }
 
+    // ── Command parsing ───────────────────────────────────────────────────────
+
+    /**
+     * Converts raw recognized text into a [VoiceCommand].
+     *
+     * Strategy:
+     * 1. Normalize to lowercase.
+     * 2. Try exact navigation / control / TTS / tip / emergency keywords first
+     *    (these need no prefix stripping).
+     * 3. Strip intent prefixes ("what is", "paano ang", etc.) to get the subject.
+     * 4. Match the subject against disaster and first-aid keyword tables.
+     * 5. Fall back to general search patterns.
+     * 6. Emit Unknown if nothing matches.
+     *
+     * Note: This method emits [VoiceCommand.OpenDisaster] / [VoiceCommand.OpenFirstAidCategory]
+     * with the canonical Title-Case key (matching the DB name column).
+     * [VoiceCommandViewModel] will resolve these to [VoiceCommand.OpenDisasterDetail] /
+     * [VoiceCommand.OpenFirstAidDetail] via a one-shot DB lookup before forwarding to MainActivity.
+     */
+    fun parseCommand(text: String): VoiceCommand {
+        val normalized = text.lowercase().trim()
+
+        // ── 1. Hard navigation commands ───────────────────────────────────────
+        when {
+            matchesAny(normalized, NAV_HOME_KEYWORDS)     -> return VoiceCommand.NavigateHome
+            matchesAny(normalized, NAV_DISASTERS_KEYWORDS) -> return VoiceCommand.NavigateDisasters
+            matchesAny(normalized, NAV_FIRSTAID_KEYWORDS)  -> return VoiceCommand.NavigateFirstAid
+            matchesAny(normalized, NAV_TIPS_KEYWORDS)      -> return VoiceCommand.NavigateTips
+            matchesAny(normalized, NAV_SETTINGS_KEYWORDS)  -> return VoiceCommand.NavigateSettings
+            matchesAny(normalized, NAV_CONTACTS_KEYWORDS)  -> return VoiceCommand.NavigateContacts
+        }
+
+        // ── 2. App-control commands ───────────────────────────────────────────
+        if (matchesAny(normalized, BACK_KEYWORDS))        return VoiceCommand.GoBack
+        if (matchesAny(normalized, SCROLL_UP_KEYWORDS))   return VoiceCommand.ScrollUp
+        if (matchesAny(normalized, SCROLL_DOWN_KEYWORDS)) return VoiceCommand.ScrollDown
+
+        // ── 3. TTS commands ───────────────────────────────────────────────────
+        when {
+            matchesAny(normalized, READ_KEYWORDS)   -> return VoiceCommand.ReadContent
+            matchesAny(normalized, STOP_KEYWORDS)   -> return VoiceCommand.StopReading
+            matchesAny(normalized, PAUSE_KEYWORDS)  -> return VoiceCommand.PauseReading
+            matchesAny(normalized, RESUME_KEYWORDS) -> return VoiceCommand.ResumeReading
+        }
+
+        // ── 4. Tip commands ───────────────────────────────────────────────────
+        when {
+            matchesAny(normalized, RANDOM_TIP_KEYWORDS) -> return VoiceCommand.GetRandomTip
+            matchesAny(normalized, NEXT_TIP_KEYWORDS)   -> return VoiceCommand.GetNextTip
+        }
+
+        // ── 5. Emergency call ─────────────────────────────────────────────────
+        if (matchesAny(normalized, EMERGENCY_CALL_KEYWORDS)) return VoiceCommand.CallEmergency
+
+        // ── 6. Call a specific contact ────────────────────────────────────────
+        CALL_PATTERNS.forEach { pattern ->
+            val match = pattern.find(normalized)
+            val contactName = match?.groupValues?.getOrNull(1)?.trim()
+            if (!contactName.isNullOrEmpty()) return VoiceCommand.CallContact(contactName)
+        }
+
+        // ── 7. Strip intent prefix then match subject ─────────────────────────
+        val subject = stripIntentPrefix(normalized)
+
+        // 7a. Disaster keywords
+        for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
+            if (keywords.any { subject.contains(it) || normalized.contains(it) }) {
+                // disasterKey is already Title-Case (e.g. "Earthquake")
+                return VoiceCommand.OpenDisaster(disasterKey)
+            }
+        }
+
+        // 7b. First-aid keywords
+        for ((categoryKey, keywords) in VoiceCommand.FIRST_AID_KEYWORDS) {
+            if (keywords.any { subject.contains(it) || normalized.contains(it) }) {
+                // categoryKey is already Title-Case (e.g. "CPR & Choking")
+                return VoiceCommand.OpenFirstAidCategory(categoryKey)
+            }
+        }
+
+        // ── 8. General search patterns ────────────────────────────────────────
+        SEARCH_PATTERNS.forEach { pattern ->
+            val match = pattern.find(normalized)
+            val query = match?.groupValues?.getOrNull(1)?.trim()
+            if (!query.isNullOrEmpty()) return VoiceCommand.GeneralSearch(query)
+        }
+
+        // ── 9. Nothing matched ────────────────────────────────────────────────
+        return VoiceCommand.Unknown(text)
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private fun matchesAny(text: String, keywords: List<String>): Boolean =
+        keywords.any { text.contains(it) }
+
+    /**
+     * Removes the longest matching intent prefix from [text] and returns
+     * the remaining subject string, also stripped of leading filler articles.
+     *
+     * e.g. "what is an earthquake" → "earthquake"
+     *      "paano ang lindol"       → "lindol"
+     *      "how to treat burns"     → "burns"
+     */
+    private fun stripIntentPrefix(text: String): String {
+        // Sort longest-first so "what to do during" wins over "what"
+        val sortedPrefixes = VoiceCommand.INTENT_PREFIXES.sortedByDescending { it.length }
+        var stripped = text
+
+        for (prefix in sortedPrefixes) {
+            if (stripped.startsWith(prefix)) {
+                stripped = stripped.removePrefix(prefix).trim()
+                break
+            }
+        }
+
+        // Remove leading filler words/articles that may remain
+        val fillers = listOf("an", "a", "the", "ang", "yung", "mga", "about", "during", "ng", "sa")
+        var changed = true
+        while (changed) {
+            changed = false
+            for (filler in fillers) {
+                val withSpace = "$filler "
+                if (stripped.startsWith(withSpace)) {
+                    stripped = stripped.removePrefix(withSpace).trim()
+                    changed = true
+                }
+            }
+        }
+
+        return stripped
+    }
+
+    private fun getErrorMessage(errorCode: Int): String = when (errorCode) {
+        SpeechRecognizer.ERROR_AUDIO               -> "Audio recording error"
+        SpeechRecognizer.ERROR_CLIENT              -> "Client side error"
+        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
+        SpeechRecognizer.ERROR_NETWORK             -> "Network error"
+        SpeechRecognizer.ERROR_NETWORK_TIMEOUT     -> "Network timeout"
+        SpeechRecognizer.ERROR_NO_MATCH            -> "No speech match found"
+        SpeechRecognizer.ERROR_RECOGNIZER_BUSY     -> "Recognition service busy"
+        SpeechRecognizer.ERROR_SERVER              -> "Server error"
+        SpeechRecognizer.ERROR_SPEECH_TIMEOUT      -> "No speech input"
+        else                                       -> "Unknown error: $errorCode"
+    }
+
+    // ── Keyword tables ────────────────────────────────────────────────────────
+
     companion object {
         private const val TAG = "VoiceCommandManager"
 
         private val NAV_HOME_KEYWORDS = listOf(
-            "go home", "home", "main", "dashboard", "tahanan", "pangunahin"
+            "go home", "home screen", "go to home", "tahanan", "pangunahin",
+            "main screen", "main page"
         )
         private val NAV_DISASTERS_KEYWORDS = listOf(
-            "disasters", "disaster information", "go to disasters", "sakuna",
-            "disaster", "kalamidad", "show disasters"
+            "go to disasters", "open disasters", "show disasters",
+            "disaster list", "disaster module", "sakuna", "kalamidad",
+            "list of disasters"
         )
         private val NAV_FIRSTAID_KEYWORDS = listOf(
-            "first aid", "firstaid", "emergency response", "medical",
-            "pertolya", "go to first aid"
+            "go to first aid", "open first aid", "show first aid",
+            "first aid list", "first aid module", "pertolya",
+            "medical help", "first aid menu"
         )
         private val NAV_TIPS_KEYWORDS = listOf(
-            "tips", "disaster tips", "advice", "payo", "mga tip", "go to tips"
+            "go to tips", "open tips", "show tips",
+            "disaster tips", "mga tip", "payo", "tip list"
         )
         private val NAV_SETTINGS_KEYWORDS = listOf(
-            "settings", "preferences", "options", "configure", "setting", "mga setting"
+            "go to settings", "open settings", "settings menu",
+            "preferences", "configure", "mga setting", "setting"
         )
         private val NAV_CONTACTS_KEYWORDS = listOf(
-            "contacts", "emergency contacts", "hotlines", "numbers",
-            "mga contact", "emergency numbers"
+            "go to contacts", "open contacts", "emergency contacts",
+            "hotlines", "emergency numbers", "mga contact",
+            "contact list", "show contacts"
         )
 
-        private val BACK_KEYWORDS = listOf("go back", "back", "return", "balik", "previous")
-        private val SCROLL_UP_KEYWORDS = listOf("scroll up", "up", "taas", "pataas")
-        private val SCROLL_DOWN_KEYWORDS = listOf("scroll down", "down", "baba", "pababa")
+        // These are intentionally narrow — single words like "home", "tips",
+        // "disasters" alone are NOT in NAV_*_KEYWORDS because those same words
+        // appear in subject phrases like "what is a flood" or "tips about fire".
+        // The navigation keywords require an explicit navigation verb.
 
-        private val READ_KEYWORDS = listOf("read", "speak", "basahin", "sabihin", "read aloud")
-        private val STOP_KEYWORDS = listOf("stop", "tigil", "stop reading", "quiet", "silence")
-        private val PAUSE_KEYWORDS = listOf("pause", "sandali", "pause reading")
-        private val RESUME_KEYWORDS = listOf("resume", "continue", "ituloy", "resume reading")
+        private val BACK_KEYWORDS = listOf(
+            "go back", "back", "return", "balik", "previous", "bumalik"
+        )
+        private val SCROLL_UP_KEYWORDS = listOf(
+            "scroll up", "scroll to top", "taas", "pataas", "umakyat"
+        )
+        private val SCROLL_DOWN_KEYWORDS = listOf(
+            "scroll down", "scroll to bottom", "baba", "pababa", "bumaba"
+        )
 
-        private val RANDOM_TIP_KEYWORDS = listOf("random tip", "give tip", "tip please", "magbigay ng tip")
-        private val NEXT_TIP_KEYWORDS = listOf("next tip", "another tip", "susunod na tip")
+        private val READ_KEYWORDS = listOf(
+            "read", "read aloud", "read this", "speak", "basahin",
+            "sabihin", "read content", "read page"
+        )
+        private val STOP_KEYWORDS = listOf(
+            "stop reading", "stop", "tigil", "tumigil", "silence",
+            "quiet", "huwag basahin"
+        )
+        private val PAUSE_KEYWORDS = listOf(
+            "pause", "pause reading", "sandali", "maghintay"
+        )
+        private val RESUME_KEYWORDS = listOf(
+            "resume", "resume reading", "continue", "ituloy", "magpatuloy"
+        )
+
+        private val RANDOM_TIP_KEYWORDS = listOf(
+            "random tip", "give me a tip", "tip please",
+            "magbigay ng tip", "bigyan ng tip", "any tip"
+        )
+        private val NEXT_TIP_KEYWORDS = listOf(
+            "next tip", "another tip", "susunod na tip",
+            "iba pang tip", "show next tip"
+        )
 
         private val EMERGENCY_CALL_KEYWORDS = listOf(
-            "emergency", "call emergency", "911", "help", "tulong", "emergency call"
+            "call emergency", "emergency call", "call 911", "911",
+            "tulong", "help me", "call for help", "i need help"
         )
-
-        private val SEARCH_KEYWORDS = listOf("search", "find", "look for", "hanapin", "maghanap")
 
         private val CALL_PATTERNS = listOf(
             Regex("call\\s+(.+)"),
