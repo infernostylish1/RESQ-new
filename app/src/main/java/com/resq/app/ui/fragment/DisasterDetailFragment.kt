@@ -5,12 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.resq.app.MainActivity
 import com.resq.app.R
 import com.resq.app.databinding.FragmentDisasterDetailBinding
 import com.resq.app.ui.adapter.PreparationStepAdapter
@@ -20,12 +22,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * Disaster detail fragment — shows info + before/during/after preparation steps.
- *
- * Filters preparations by the `phase` String column in DisasterPreparationEntity
- * (values: "Before", "During", "After"), NOT by SituationType enum.
- */
 @AndroidEntryPoint
 class DisasterDetailFragment : Fragment() {
 
@@ -40,7 +36,6 @@ class DisasterDetailFragment : Fragment() {
 
     private lateinit var preparationAdapter: PreparationStepAdapter
 
-    /** Tracks the currently selected temporal phase as a String matching the DB column. */
     private var currentPhase: String = PHASE_BEFORE
 
     override fun onCreateView(
@@ -59,6 +54,16 @@ class DisasterDetailFragment : Fragment() {
         setupRecyclerView()
         viewModel.loadDisaster(args.disasterId)
         observeViewModel()
+        setupVoiceListeners()
+
+        // ── Voice phase from nav args ─────────────────────────────────────────
+        // When MainActivity navigates here via OpenDisasterPhaseResolved it packs
+        // the requested phase into the nav args as "voicePhase". We apply it here,
+        // synchronously, after chips are wired up — no FragmentResult race condition.
+        val voicePhase = arguments?.getString(MainActivity.ARG_VOICE_PHASE)
+        if (!voicePhase.isNullOrEmpty()) {
+            selectPhaseByLabel(voicePhase)
+        }
     }
 
     private fun setupToolbar() {
@@ -93,7 +98,6 @@ class DisasterDetailFragment : Fragment() {
                 launch {
                     viewModel.selectedDisaster.collect { disaster ->
                         disaster ?: return@collect
-
                         binding.collapsingToolbar.title = disaster.name
                         binding.tvDescription.text      = disaster.description
                         loadHeaderImage(disaster.imageResName)
@@ -110,6 +114,55 @@ class DisasterDetailFragment : Fragment() {
         }
     }
 
+    // ── Voice command listeners ───────────────────────────────────────────────
+
+    private fun setupVoiceListeners() {
+
+        // Scroll up / scroll down
+        setFragmentResultListener(MainActivity.REQUEST_SCROLL) { _, bundle ->
+            when (bundle.getString(MainActivity.KEY_SCROLL)) {
+                MainActivity.SCROLL_UP   -> binding.nestedScrollView.smoothScrollTo(0, 0)
+                MainActivity.SCROLL_DOWN -> binding.nestedScrollView.smoothScrollTo(
+                    0, binding.nestedScrollView.getChildAt(0).height
+                )
+            }
+        }
+
+        // Tab/phase switch — only fires when the user is ALREADY on this screen
+        // (VoiceCommand.SwitchTab). The OpenDisasterPhaseResolved path now uses
+        // nav args instead (read in onViewCreated above) to avoid the race condition
+        // where the result fires before this listener is registered.
+        setFragmentResultListener(MainActivity.REQUEST_SWITCH_TAB) { _, bundle ->
+            val label = bundle.getString(MainActivity.KEY_TAB_LABEL) ?: return@setFragmentResultListener
+            selectPhaseByLabel(label)
+        }
+    }
+
+    /**
+     * Maps a voice-command canonical phase label ("before", "during", "after")
+     * to the correct chip and triggers the phase load.
+     * Case-insensitive. Silently ignores unrecognized labels.
+     */
+    private fun selectPhaseByLabel(label: String) {
+        when (label.lowercase()) {
+            "before" -> {
+                binding.chipBefore.isChecked = true
+                currentPhase = PHASE_BEFORE
+                viewModel.loadPreparationsByPhase(args.disasterId, PHASE_BEFORE)
+            }
+            "during" -> {
+                binding.chipDuring.isChecked = true
+                currentPhase = PHASE_DURING
+                viewModel.loadPreparationsByPhase(args.disasterId, PHASE_DURING)
+            }
+            "after" -> {
+                binding.chipAfter.isChecked = true
+                currentPhase = PHASE_AFTER
+                viewModel.loadPreparationsByPhase(args.disasterId, PHASE_AFTER)
+            }
+        }
+    }
+
     // ── Header image ──────────────────────────────────────────────────────────
 
     private fun loadHeaderImage(imageResName: String) {
@@ -117,9 +170,7 @@ class DisasterDetailFragment : Fragment() {
         val resId   = context.resources.getIdentifier(
             imageResName, "drawable", context.packageName
         )
-        if (resId != 0) {
-            binding.ivHeader.setImageResource(resId)
-        }
+        if (resId != 0) binding.ivHeader.setImageResource(resId)
     }
 
     override fun onDestroyView() {

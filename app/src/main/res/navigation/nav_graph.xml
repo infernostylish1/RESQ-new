@@ -199,4 +199,13 @@
         app:popEnterAnim="@anim/slide_in_left"
         app:popExitAnim="@anim/slide_out_right" />
 
+    <!-- Global action — voice navigation directly to tip detail screen -->
+    <action
+        android:id="@+id/action_global_tip_detail"
+        app:destination="@id/nav_tip_detail"
+        app:enterAnim="@anim/slide_in_right"
+        app:exitAnim="@anim/slide_out_left"
+        app:popEnterAnim="@anim/slide_in_left"
+        app:popExitAnim="@anim/slide_out_right" />
+
 </navigation>

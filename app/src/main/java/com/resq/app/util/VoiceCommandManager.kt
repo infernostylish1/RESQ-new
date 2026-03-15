@@ -13,132 +13,104 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Manages voice command recognition for RESQ.
- *
- * parseCommand() now strips intent prefixes before keyword matching so natural
- * questions like "what is an earthquake" or "paano ang lindol" resolve correctly.
- *
- * After parsing, OpenDisaster / OpenFirstAidCategory are emitted with the
- * canonical Title-Case name that matches the DB.  VoiceCommandViewModel then
- * does a one-shot DB lookup and re-emits OpenDisasterDetail / OpenFirstAidDetail
- * with the real id so MainActivity can navigate directly to the detail screen.
- */
 @Singleton
 class VoiceCommandManager @Inject constructor() {
 
     private var speechRecognizer: SpeechRecognizer? = null
+    private var currentLanguage: String = "en"
     private var isListening = false
 
     private val _recognitionState = MutableStateFlow<RecognitionState>(RecognitionState.Idle)
     val recognitionState: StateFlow<RecognitionState> = _recognitionState.asStateFlow()
 
-    private val _lastCommand = MutableStateFlow<VoiceCommand?>(null)
-    val lastCommand: StateFlow<VoiceCommand?> = _lastCommand.asStateFlow()
-
-    private var currentLanguage: String = "en"
-    private var commandCallback: ((VoiceCommand) -> Unit)? = null
-
-    // ── Initialisation ────────────────────────────────────────────────────────
+    private var onCommandRecognized: ((VoiceCommand) -> Unit)? = null
 
     fun initialize(context: Context) {
         if (!SpeechRecognizer.isRecognitionAvailable(context)) {
             _recognitionState.value = RecognitionState.Error("Speech recognition not available")
-            Log.e(TAG, "Speech recognition not available on this device")
             return
         }
-
         speechRecognizer?.destroy()
         speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
             setRecognitionListener(createRecognitionListener())
         }
-
-        _recognitionState.value = RecognitionState.Ready
-        Log.d(TAG, "Speech recognizer initialized")
     }
 
-    // ── Recognition listener ──────────────────────────────────────────────────
-
-    private fun createRecognitionListener(): RecognitionListener {
-        return object : RecognitionListener {
-            override fun onReadyForSpeech(params: Bundle?) {
-                _recognitionState.value = RecognitionState.Listening
-            }
-
-            override fun onBeginningOfSpeech() {}
-            override fun onRmsChanged(rmsdB: Float) {}
-            override fun onBufferReceived(buffer: ByteArray?) {}
-
-            override fun onEndOfSpeech() {
-                _recognitionState.value = RecognitionState.Processing
-                isListening = false
-            }
-
-            override fun onError(error: Int) {
-                val errorMessage = getErrorMessage(error)
-                _recognitionState.value = RecognitionState.Error(errorMessage)
-                isListening = false
-                Log.e(TAG, "Recognition error: $errorMessage")
-            }
-
-            override fun onResults(results: Bundle?) {
-                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val recognizedText = matches?.firstOrNull() ?: ""
-
-                if (recognizedText.isNotEmpty()) {
-                    val command = parseCommand(recognizedText)
-                    _lastCommand.value = command
-                    commandCallback?.invoke(command)
-                    _recognitionState.value = RecognitionState.Result(recognizedText, command)
-                    Log.d(TAG, "Recognized: \"$recognizedText\" → Command: $command")
-                } else {
-                    _recognitionState.value = RecognitionState.Error("No speech recognized")
-                }
-                isListening = false
-            }
-
-            override fun onPartialResults(partialResults: Bundle?) {
-                val matches = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                val partialText = matches?.firstOrNull() ?: ""
-                if (partialText.isNotEmpty()) {
-                    _recognitionState.value = RecognitionState.PartialResult(partialText)
-                }
-            }
-
-            override fun onEvent(eventType: Int, params: Bundle?) {}
+    private fun createRecognitionListener() = object : RecognitionListener {
+        override fun onReadyForSpeech(params: Bundle?) {
+            _recognitionState.value = RecognitionState.Listening
         }
+        override fun onBeginningOfSpeech() {}
+        override fun onRmsChanged(rmsdB: Float) {}
+        override fun onBufferReceived(buffer: ByteArray?) {}
+        override fun onEndOfSpeech() {
+            _recognitionState.value = RecognitionState.Processing
+        }
+        override fun onError(error: Int) {
+            isListening = false
+            _recognitionState.value = RecognitionState.Error(getErrorMessage(error))
+        }
+        override fun onResults(results: Bundle?) {
+            isListening = false
+            val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+            if (!matches.isNullOrEmpty()) {
+                // Try all candidates — use the first that isn't Unknown
+                val command = matches
+                    .map { parseCommand(it) }
+                    .firstOrNull { it !is VoiceCommand.Unknown }
+                    ?: VoiceCommand.Unknown(matches.first())
+
+                val best = if (command is VoiceCommand.Unknown) matches.first() else matches.first()
+                _recognitionState.value = RecognitionState.Result(best, command)
+                onCommandRecognized?.invoke(command)
+            } else {
+                _recognitionState.value = RecognitionState.Error("No speech recognized")
+            }
+        }
+        override fun onPartialResults(partialResults: Bundle?) {
+            val partial = partialResults
+                ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                ?.firstOrNull()
+            if (!partial.isNullOrEmpty()) {
+                _recognitionState.value = RecognitionState.PartialResult(partial)
+            }
+        }
+        override fun onEvent(eventType: Int, params: Bundle?) {}
     }
 
-    // ── Listening control ─────────────────────────────────────────────────────
-
-    fun startListening(callback: ((VoiceCommand) -> Unit)? = null) {
-        if (isListening) {
-            Log.w(TAG, "Already listening")
-            return
-        }
-        if (speechRecognizer == null) {
-            _recognitionState.value = RecognitionState.Error("Speech recognizer not initialized")
-            return
-        }
-
-        commandCallback = callback
+    fun startListening(onCommand: (VoiceCommand) -> Unit) {
+        if (isListening) return
         isListening = true
+        onCommandRecognized = onCommand
 
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLocaleForLanguage())
+            putExtra(
+                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            )
+            // ── KEY FIX: supply both locales so STT understands Filipino ─────
+            // Primary  = Filipino/Tagalog
+            // Fallback = English
+            // The extra EXTRA_LANGUAGE_PREFERENCE lets the engine prefer fil-PH
+            // while EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE=false allows English too.
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fil-PH")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "fil-PH")
+            putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", arrayOf("en-US"))
+            putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false)
+            // Return up to 5 alternatives — we pick best non-Unknown parse
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1500L)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500L)
         }
-
         try {
             speechRecognizer?.startListening(intent)
             _recognitionState.value = RecognitionState.Starting
         } catch (e: Exception) {
-            _recognitionState.value = RecognitionState.Error("Failed to start listening: ${e.message}")
+            _recognitionState.value =
+                RecognitionState.Error("Failed to start listening: ${e.message}")
             isListening = false
-            Log.e(TAG, "Failed to start listening", e)
         }
     }
 
@@ -155,15 +127,7 @@ class VoiceCommandManager @Inject constructor() {
         _recognitionState.value = RecognitionState.Idle
     }
 
-    fun setLanguage(languageCode: String) {
-        currentLanguage = languageCode
-    }
-
-    private fun getLocaleForLanguage(): String = when (currentLanguage.lowercase()) {
-        "tl", "fil", "tagalog" -> "fil-PH"
-        else -> "en-US"
-    }
-
+    fun setLanguage(languageCode: String) { currentLanguage = languageCode }
     fun isCurrentlyListening(): Boolean = isListening
 
     fun destroy() {
@@ -173,31 +137,39 @@ class VoiceCommandManager @Inject constructor() {
         _recognitionState.value = RecognitionState.Idle
     }
 
-    // ── Command parsing ───────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Command parsing
+    // ══════════════════════════════════════════════════════════════════════════
 
     /**
-     * Converts raw recognized text into a [VoiceCommand].
+     * Parse steps (order matters):
      *
-     * Strategy:
-     * 1. Normalize to lowercase.
-     * 2. Try exact navigation / control / TTS / tip / emergency keywords first
-     *    (these need no prefix stripping).
-     * 3. Strip intent prefixes ("what is", "paano ang", etc.) to get the subject.
-     * 4. Match the subject against disaster and first-aid keyword tables.
-     * 5. Fall back to general search patterns.
-     * 6. Emit Unknown if nothing matches.
-     *
-     * Note: This method emits [VoiceCommand.OpenDisaster] / [VoiceCommand.OpenFirstAidCategory]
-     * with the canonical Title-Case key (matching the DB name column).
-     * [VoiceCommandViewModel] will resolve these to [VoiceCommand.OpenDisasterDetail] /
-     * [VoiceCommand.OpenFirstAidDetail] via a one-shot DB lookup before forwarding to MainActivity.
+     *  1.  Normalize.
+     *  2.  Apply phonetic Tagalog normalizer — converts common STT mis-
+     *      transcriptions into their canonical equivalents BEFORE any keyword
+     *      matching.  This fixes the "Filipino sounds like English" problem.
+     *  3.  Hard navigation (require explicit nav verb).
+     *  4.  App-control / TTS / tip browsing / emergency.
+     *  5.  Phase + disaster combo → OpenDisasterPhase.
+     *  6.  Tab-switch (user already on detail screen).
+     *  7.  Tip trigger phrases.
+     *  8.  Strip intent prefix → disaster keywords → OpenDisaster.
+     *  9.  Strip intent prefix → first-aid keywords → OpenFirstAidCategory.
+     * 10.  General search patterns.
+     * 11.  Unknown fallback.
      */
-    fun parseCommand(text: String): VoiceCommand {
-        val normalized = text.lowercase().trim()
+    fun parseCommand(rawText: String): VoiceCommand {
+        // Step 1 — lowercase
+        val lowered = rawText.lowercase().trim()
 
-        // ── 1. Hard navigation commands ───────────────────────────────────────
+        // Step 2 — phonetic normalization
+        val normalized = normalizeTagalog(lowered)
+
+        Log.d(TAG, "raw='$rawText'  normalized='$normalized'")
+
+        // ── Step 3: Hard navigation ───────────────────────────────────────────
         when {
-            matchesAny(normalized, NAV_HOME_KEYWORDS)     -> return VoiceCommand.NavigateHome
+            matchesAny(normalized, NAV_HOME_KEYWORDS)      -> return VoiceCommand.NavigateHome
             matchesAny(normalized, NAV_DISASTERS_KEYWORDS) -> return VoiceCommand.NavigateDisasters
             matchesAny(normalized, NAV_FIRSTAID_KEYWORDS)  -> return VoiceCommand.NavigateFirstAid
             matchesAny(normalized, NAV_TIPS_KEYWORDS)      -> return VoiceCommand.NavigateTips
@@ -205,12 +177,11 @@ class VoiceCommandManager @Inject constructor() {
             matchesAny(normalized, NAV_CONTACTS_KEYWORDS)  -> return VoiceCommand.NavigateContacts
         }
 
-        // ── 2. App-control commands ───────────────────────────────────────────
+        // ── Step 4: App-control ───────────────────────────────────────────────
         if (matchesAny(normalized, BACK_KEYWORDS))        return VoiceCommand.GoBack
         if (matchesAny(normalized, SCROLL_UP_KEYWORDS))   return VoiceCommand.ScrollUp
         if (matchesAny(normalized, SCROLL_DOWN_KEYWORDS)) return VoiceCommand.ScrollDown
 
-        // ── 3. TTS commands ───────────────────────────────────────────────────
         when {
             matchesAny(normalized, READ_KEYWORDS)   -> return VoiceCommand.ReadContent
             matchesAny(normalized, STOP_KEYWORDS)   -> return VoiceCommand.StopReading
@@ -218,120 +189,234 @@ class VoiceCommandManager @Inject constructor() {
             matchesAny(normalized, RESUME_KEYWORDS) -> return VoiceCommand.ResumeReading
         }
 
-        // ── 4. Tip commands ───────────────────────────────────────────────────
         when {
             matchesAny(normalized, RANDOM_TIP_KEYWORDS) -> return VoiceCommand.GetRandomTip
             matchesAny(normalized, NEXT_TIP_KEYWORDS)   -> return VoiceCommand.GetNextTip
         }
 
-        // ── 5. Emergency call ─────────────────────────────────────────────────
         if (matchesAny(normalized, EMERGENCY_CALL_KEYWORDS)) return VoiceCommand.CallEmergency
 
-        // ── 6. Call a specific contact ────────────────────────────────────────
         CALL_PATTERNS.forEach { pattern ->
             val match = pattern.find(normalized)
             val contactName = match?.groupValues?.getOrNull(1)?.trim()
             if (!contactName.isNullOrEmpty()) return VoiceCommand.CallContact(contactName)
         }
 
-        // ── 7. Strip intent prefix then match subject ─────────────────────────
+        // ── Step 5: Phase + disaster combo ───────────────────────────────────
+        // Detect a phase word first.  If we also find a disaster keyword the
+        // command is OpenDisasterPhase; if only a phase with NO disaster it
+        // becomes SwitchTab (user is already on a detail screen).
+        val detectedPhase: String? = VoiceCommand.PHASE_KEYWORDS.entries
+            .firstOrNull { (_, keywords) -> keywords.any { normalized.contains(it) } }
+            ?.key
+
+        if (detectedPhase != null) {
+            // Do we also have a disaster keyword?
+            for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
+                if (keywords.any { normalized.contains(it) }) {
+                    return VoiceCommand.OpenDisasterPhase(disasterKey, detectedPhase)
+                }
+            }
+            // Phase word present, no disaster → switch tab on current screen
+            return VoiceCommand.SwitchTab(detectedPhase)
+        }
+
+        // ── Step 6: Generic tab-switch (steps, symptoms, treatment, etc.) ─────
+        for ((tabLabel, keywords) in VoiceCommand.TAB_KEYWORD_MAP) {
+            if (keywords.any { normalized.contains(it) }) {
+                return VoiceCommand.SwitchTab(tabLabel)
+            }
+        }
+
+        // ── Step 7: Tip trigger phrases ───────────────────────────────────────
+        val hasTipTrigger = VoiceCommand.TIP_TRIGGER_PHRASES.any { normalized.contains(it) }
+        if (hasTipTrigger) {
+            for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
+                if (keywords.any { normalized.contains(it) }) {
+                    return VoiceCommand.OpenTipDetail(disasterKey)
+                }
+            }
+            return VoiceCommand.NavigateTips
+        }
+
+        // ── Steps 8–9: Strip prefix, match subject ────────────────────────────
         val subject = stripIntentPrefix(normalized)
 
-        // 7a. Disaster keywords
         for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
             if (keywords.any { subject.contains(it) || normalized.contains(it) }) {
-                // disasterKey is already Title-Case (e.g. "Earthquake")
                 return VoiceCommand.OpenDisaster(disasterKey)
             }
         }
 
-        // 7b. First-aid keywords
         for ((categoryKey, keywords) in VoiceCommand.FIRST_AID_KEYWORDS) {
             if (keywords.any { subject.contains(it) || normalized.contains(it) }) {
-                // categoryKey is already Title-Case (e.g. "CPR & Choking")
                 return VoiceCommand.OpenFirstAidCategory(categoryKey)
             }
         }
 
-        // ── 8. General search patterns ────────────────────────────────────────
+        // ── Step 10: General search ───────────────────────────────────────────
         SEARCH_PATTERNS.forEach { pattern ->
             val match = pattern.find(normalized)
             val query = match?.groupValues?.getOrNull(1)?.trim()
             if (!query.isNullOrEmpty()) return VoiceCommand.GeneralSearch(query)
         }
 
-        // ── 9. Nothing matched ────────────────────────────────────────────────
-        return VoiceCommand.Unknown(text)
+        return VoiceCommand.Unknown(rawText)
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Tagalog phonetic normalizer
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Google STT (English model) transcribes Filipino words phonetically.
+     * This function replaces the most common mis-transcriptions with the
+     * canonical Tagalog words so all keyword tables work correctly.
+     *
+     * Each pair is  phonetic → canonical.  Longer strings are checked first
+     * (the list is pre-sorted in [applyPhoneticReplacements]).
+     */
+    private fun normalizeTagalog(text: String): String {
+        var result = text
+
+        // ── Disaster-name phonetics ───────────────────────────────────────────
+        result = result
+            .replace("lin doll", "lindol")
+            .replace("lin-dol",  "lindol")
+            .replace("lean dol", "lindol")
+            .replace("lean doll","lindol")
+            .replace("lin dol",  "lindol")
+            .replace("lee-nol",  "lindol")
+            .replace("bag yo",   "bagyo")
+            .replace("bag-yo",   "bagyo")
+            .replace("ba huh",   "baha")
+            .replace("ba-ha",    "baha")
+            .replace("bool can", "bulkan")
+            .replace("bool-can", "bulkan")
+            .replace("bul can",  "bulkan")
+            .replace("goo ho",   "guho")
+            .replace("su nog",   "sunog")
+            .replace("su-nog",   "sunog")
+            .replace("tag tu yot","tagtuyot")
+            .replace("tag-tuyot","tagtuyot")
+
+        // ── Phase-word phonetics ──────────────────────────────────────────────
+        result = result
+            // "bago" → before
+            .replace("bag go",   "bago")
+            .replace("bag-go",   "bago")
+            .replace("ba-go",    "bago")
+            // "habang" → during
+            .replace("ha-bang",  "habang")
+            .replace("ha bang",  "habang")
+            .replace("hah bang", "habang")
+            .replace("habit ang","habang")
+            // "pagkatapos" → after
+            .replace("pag-ka-tapos","pagkatapos")
+            .replace("pag ka tapos","pagkatapos")
+            .replace("mag-ka-tapos","pagkatapos")
+            .replace("pagca tapos", "pagkatapos")
+            // "matapos" → after
+            .replace("ma-tapos",  "matapos")
+            .replace("ma tapos",  "matapos")
+            .replace("mata pos",  "matapos")
+            // "paghanda" → before/preparation
+            .replace("pag-handa", "paghanda")
+            .replace("pag handa", "paghanda")
+            .replace("pa-handa",  "paghanda")
+
+        // ── General Tagalog phonetics ─────────────────────────────────────────
+        result = result
+            .replace("pa-a-no",  "paano")
+            .replace("pa a no",  "paano")
+            .replace("paa-no",   "paano")
+            .replace("pa ano",   "paano")
+            .replace("ga-win",   "gawin")
+            .replace("ga win",   "gawin")
+            .replace("i-pa-ki-ta","ipakita")
+            .replace("i pa ki ta","ipakita")
+            .replace("i pakita", "ipakita")
+            .replace("pu-mun-ta","pumunta")
+            .replace("pu munta", "pumunta")
+            .replace("bu-ksan",  "buksan")
+            .replace("bu ksan",  "buksan")
+            .replace("sa-bi-hin","sabihin")
+            .replace("sa bi hin","sabihin")
+            .replace("ma-ram-ing","maraming")
+            .replace("i-ngat",   "ingat")
+            .replace("ha-na-pin","hanapin")
+            .replace("ha na pin","hanapin")
+            .replace("mga",      "mga")          // keep as-is (already correct)
+
+        // ── Scroll phonetics (Tagalog words for up/down) ──────────────────────
+        result = result
+            .replace("pa-ta-as", "pataas")
+            .replace("pa taas",  "pataas")
+            .replace("pa-ba-ba", "pababa")
+            .replace("pa baba",  "pababa")
+            .replace("u-ma-kyat","umakyat")
+            .replace("u makyat", "umakyat")
+            .replace("bu-ma-ba", "bumaba")
+            .replace("bu maba",  "bumaba")
+
+        return result
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Helpers
+    // ══════════════════════════════════════════════════════════════════════════
 
     private fun matchesAny(text: String, keywords: List<String>): Boolean =
         keywords.any { text.contains(it) }
 
-    /**
-     * Removes the longest matching intent prefix from [text] and returns
-     * the remaining subject string, also stripped of leading filler articles.
-     *
-     * e.g. "what is an earthquake" → "earthquake"
-     *      "paano ang lindol"       → "lindol"
-     *      "how to treat burns"     → "burns"
-     */
     private fun stripIntentPrefix(text: String): String {
-        // Sort longest-first so "what to do during" wins over "what"
         val sortedPrefixes = VoiceCommand.INTENT_PREFIXES.sortedByDescending { it.length }
         var stripped = text
-
         for (prefix in sortedPrefixes) {
             if (stripped.startsWith(prefix)) {
                 stripped = stripped.removePrefix(prefix).trim()
                 break
             }
         }
-
-        // Remove leading filler words/articles that may remain
-        val fillers = listOf("an", "a", "the", "ang", "yung", "mga", "about", "during", "ng", "sa")
+        val fillers = listOf("an", "a", "the", "ang", "yung", "mga",
+            "about", "during", "ng", "sa")
         var changed = true
         while (changed) {
             changed = false
             for (filler in fillers) {
-                val withSpace = "$filler "
-                if (stripped.startsWith(withSpace)) {
-                    stripped = stripped.removePrefix(withSpace).trim()
+                if (stripped.startsWith("$filler ")) {
+                    stripped = stripped.removePrefix("$filler ").trim()
                     changed = true
                 }
             }
         }
-
         return stripped
     }
 
     private fun getErrorMessage(errorCode: Int): String = when (errorCode) {
-        SpeechRecognizer.ERROR_AUDIO               -> "Audio recording error"
-        SpeechRecognizer.ERROR_CLIENT              -> "Client side error"
+        SpeechRecognizer.ERROR_AUDIO                    -> "Audio recording error"
+        SpeechRecognizer.ERROR_CLIENT                   -> "Client side error"
         SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
-        SpeechRecognizer.ERROR_NETWORK             -> "Network error"
-        SpeechRecognizer.ERROR_NETWORK_TIMEOUT     -> "Network timeout"
-        SpeechRecognizer.ERROR_NO_MATCH            -> "No speech match found"
-        SpeechRecognizer.ERROR_RECOGNIZER_BUSY     -> "Recognition service busy"
-        SpeechRecognizer.ERROR_SERVER              -> "Server error"
-        SpeechRecognizer.ERROR_SPEECH_TIMEOUT      -> "No speech input"
-        else                                       -> "Unknown error: $errorCode"
+        SpeechRecognizer.ERROR_NETWORK                  -> "Network error"
+        SpeechRecognizer.ERROR_NETWORK_TIMEOUT          -> "Network timeout"
+        SpeechRecognizer.ERROR_NO_MATCH                 -> "No speech match found"
+        SpeechRecognizer.ERROR_RECOGNIZER_BUSY          -> "Recognition service busy"
+        SpeechRecognizer.ERROR_SERVER                   -> "Server error"
+        SpeechRecognizer.ERROR_SPEECH_TIMEOUT           -> "No speech input"
+        else                                            -> "Unknown error: $errorCode"
     }
-
-    // ── Keyword tables ────────────────────────────────────────────────────────
 
     companion object {
         private const val TAG = "VoiceCommandManager"
 
         private val NAV_HOME_KEYWORDS = listOf(
-            "go home", "home screen", "go to home", "tahanan", "pangunahin",
-            "main screen", "main page"
+            "go home", "home screen", "go to home", "tahanan",
+            "pangunahin", "main screen", "main page"
         )
         private val NAV_DISASTERS_KEYWORDS = listOf(
             "go to disasters", "open disasters", "show disasters",
-            "disaster list", "disaster module", "sakuna", "kalamidad",
-            "list of disasters"
+            "disaster list", "sakuna", "kalamidad", "list of disasters",
+            "disaster module"
         )
         private val NAV_FIRSTAID_KEYWORDS = listOf(
             "go to first aid", "open first aid", "show first aid",
@@ -344,42 +429,39 @@ class VoiceCommandManager @Inject constructor() {
         )
         private val NAV_SETTINGS_KEYWORDS = listOf(
             "go to settings", "open settings", "settings menu",
-            "preferences", "configure", "mga setting", "setting"
+            "preferences", "configure", "mga setting"
         )
         private val NAV_CONTACTS_KEYWORDS = listOf(
             "go to contacts", "open contacts", "emergency contacts",
-            "hotlines", "emergency numbers", "mga contact",
-            "contact list", "show contacts"
+            "hotlines", "emergency numbers", "mga contact", "contact list"
         )
-
-        // These are intentionally narrow — single words like "home", "tips",
-        // "disasters" alone are NOT in NAV_*_KEYWORDS because those same words
-        // appear in subject phrases like "what is a flood" or "tips about fire".
-        // The navigation keywords require an explicit navigation verb.
 
         private val BACK_KEYWORDS = listOf(
             "go back", "back", "return", "balik", "previous", "bumalik"
         )
         private val SCROLL_UP_KEYWORDS = listOf(
-            "scroll up", "scroll to top", "taas", "pataas", "umakyat"
+            "scroll up", "scroll to top", "taas", "pataas", "umakyat",
+            "i-scroll pataas", "scroll pataas", "itaas", "up"
         )
         private val SCROLL_DOWN_KEYWORDS = listOf(
-            "scroll down", "scroll to bottom", "baba", "pababa", "bumaba"
+            "scroll down", "scroll to bottom", "baba", "pababa", "bumaba",
+            "i-scroll pababa", "scroll pababa", "ibaba", "down"
         )
 
         private val READ_KEYWORDS = listOf(
             "read", "read aloud", "read this", "speak", "basahin",
-            "sabihin", "read content", "read page"
+            "sabihin", "read content", "read page", "i-read"
         )
         private val STOP_KEYWORDS = listOf(
             "stop reading", "stop", "tigil", "tumigil", "silence",
-            "quiet", "huwag basahin"
+            "quiet", "huwag basahin", "itigil"
         )
         private val PAUSE_KEYWORDS = listOf(
-            "pause", "pause reading", "sandali", "maghintay"
+            "pause", "pause reading", "sandali", "maghintay", "i-pause"
         )
         private val RESUME_KEYWORDS = listOf(
-            "resume", "resume reading", "continue", "ituloy", "magpatuloy"
+            "resume", "resume reading", "continue", "ituloy",
+            "magpatuloy", "i-resume"
         )
 
         private val RANDOM_TIP_KEYWORDS = listOf(
@@ -393,7 +475,8 @@ class VoiceCommandManager @Inject constructor() {
 
         private val EMERGENCY_CALL_KEYWORDS = listOf(
             "call emergency", "emergency call", "call 911", "911",
-            "tulong", "help me", "call for help", "i need help"
+            "tulong", "help me", "call for help", "i need help",
+            "emergency"
         )
 
         private val CALL_PATTERNS = listOf(
@@ -410,18 +493,8 @@ class VoiceCommandManager @Inject constructor() {
             Regex("hanapin\\s+(.+)")
         )
     }
-}
 
-/**
- * Represents the current state of voice recognition
- */
-sealed class RecognitionState {
-    data object Idle : RecognitionState()
-    data object Ready : RecognitionState()
-    data object Starting : RecognitionState()
-    data object Listening : RecognitionState()
-    data object Processing : RecognitionState()
-    data class PartialResult(val text: String) : RecognitionState()
-    data class Result(val text: String, val command: VoiceCommand) : RecognitionState()
-    data class Error(val message: String) : RecognitionState()
+    fun resetToIdle() {
+        _recognitionState.value = RecognitionState.Idle
+    }
 }

@@ -58,7 +58,7 @@ class VoiceCommandBottomSheet : BottomSheetDialogFragment() {
 
         // Initialize here so SpeechRecognizer gets a proper window-attached context
         viewModel.initialize(requireContext())
-
+        viewModel.resetState()
         setupPulseAnimator()
         observeRecognitionState()
         setupButtons()

@@ -1,173 +1,252 @@
 package com.resq.app.util
 
-/**
- * Sealed class representing all possible voice commands in RESQ.
- * Used by VoiceCommandManager to parse and execute user voice input.
- */
 sealed class VoiceCommand {
 
-    // Navigation commands
-    data object NavigateHome : VoiceCommand()
+    // ── Navigation ────────────────────────────────────────────────────────────
+    data object NavigateHome      : VoiceCommand()
     data object NavigateDisasters : VoiceCommand()
-    data object NavigateFirstAid : VoiceCommand()
-    data object NavigateTips : VoiceCommand()
-    data object NavigateSettings : VoiceCommand()
-    data object NavigateContacts : VoiceCommand()
+    data object NavigateFirstAid  : VoiceCommand()
+    data object NavigateTips      : VoiceCommand()
+    data object NavigateSettings  : VoiceCommand()
+    data object NavigateContacts  : VoiceCommand()
 
-    // Search commands
-    data class SearchDisaster(val query: String) : VoiceCommand()
-    data class SearchFirstAid(val query: String) : VoiceCommand()
-    data class GeneralSearch(val query: String) : VoiceCommand()
+    // ── Deep-link: disaster detail + phase ────────────────────────────────────
+    data class OpenDisaster(val disasterName: String)                          : VoiceCommand()
+    data class OpenDisasterDetail(val disasterId: Long, val disasterName: String) : VoiceCommand()
 
-    // Specific disaster commands — name only (list-level, triggers DB lookup in ViewModel)
-    data class OpenDisaster(val disasterName: String) : VoiceCommand()
-    data class OpenFirstAidCategory(val categoryName: String) : VoiceCommand()
+    /**
+     * Navigate to a specific phase tab inside DisasterDetailFragment.
+     * [phase] is one of: "before", "during", "after"
+     */
+    data class OpenDisasterPhase(
+        val disasterName: String,
+        val phase: String              // "before" | "during" | "after"
+    ) : VoiceCommand()
 
-    // Deep-link commands — resolved by VoiceCommandViewModel after DB lookup
-    // These carry the real id + display name and are consumed directly by MainActivity
-    data class OpenDisasterDetail(
+    data class OpenDisasterPhaseResolved(
         val disasterId: Long,
-        val disasterName: String
+        val disasterName: String,
+        val phase: String              // "before" | "during" | "after"
     ) : VoiceCommand()
 
-    data class OpenFirstAidDetail(
-        val categoryId: Long,
-        val categoryName: String
-    ) : VoiceCommand()
+    // ── Deep-link: first aid detail ───────────────────────────────────────────
+    data class OpenFirstAidCategory(val categoryName: String)                       : VoiceCommand()
+    data class OpenFirstAidDetail(val categoryId: Long, val categoryName: String)   : VoiceCommand()
 
-    // Emergency contact commands
-    data class CallContact(val contactName: String) : VoiceCommand()
-    data object CallEmergency : VoiceCommand()
+    // ── Deep-link: tip detail ─────────────────────────────────────────────────
+    data class OpenTipDetail(val disasterName: String)                              : VoiceCommand()
+    data class OpenTipDetailResolved(val disasterId: Long, val disasterName: String): VoiceCommand()
 
-    // Tip commands
-    data object GetRandomTip : VoiceCommand()
-    data object GetNextTip : VoiceCommand()
+    // ── Tab navigation inside detail screens ──────────────────────────────────
+    /**
+     * Switch to a named tab while already inside a detail fragment.
+     * [tabLabel] is a canonical English label: "before", "during", "after",
+     * "steps", "symptoms", "treatment", etc.
+     */
+    data class SwitchTab(val tabLabel: String) : VoiceCommand()
 
-    // TTS commands
-    data object ReadContent : VoiceCommand()
-    data object StopReading : VoiceCommand()
-    data object PauseReading : VoiceCommand()
+    // ── Search ────────────────────────────────────────────────────────────────
+    data class SearchDisaster(val query: String)  : VoiceCommand()
+    data class SearchFirstAid(val query: String)  : VoiceCommand()
+    data class GeneralSearch(val query: String)   : VoiceCommand()
+
+    // ── App control ───────────────────────────────────────────────────────────
+    data object GoBack      : VoiceCommand()
+    data object ScrollUp    : VoiceCommand()
+    data object ScrollDown  : VoiceCommand()
+
+    // ── TTS ───────────────────────────────────────────────────────────────────
+    data object ReadContent   : VoiceCommand()
+    data object StopReading   : VoiceCommand()
+    data object PauseReading  : VoiceCommand()
     data object ResumeReading : VoiceCommand()
 
-    // App control
-    data object GoBack : VoiceCommand()
-    data object ScrollUp : VoiceCommand()
-    data object ScrollDown : VoiceCommand()
+    // ── Tips ──────────────────────────────────────────────────────────────────
+    data object GetRandomTip : VoiceCommand()
+    data object GetNextTip   : VoiceCommand()
 
-    // Unknown command
-    data class Unknown(val rawInput: String) : VoiceCommand()
+    // ── Emergency ────────────────────────────────────────────────────────────
+    data object CallEmergency : VoiceCommand()
+    data class  CallContact(val contactName: String) : VoiceCommand()
+
+    // ── Unknown ───────────────────────────────────────────────────────────────
+    data class Unknown(val text: String) : VoiceCommand()
+
+    // ═════════════════════════════════════════════════════════════════════════
+    //  Shared keyword tables (used by VoiceCommandManager)
+    // ═════════════════════════════════════════════════════════════════════════
 
     companion object {
-        /**
-         * Keys must match DisasterEntity.name exactly (Title Case) so the
-         * DB lookup via getAllDisastersOnce() can find them with name.equals(key, ignoreCase=true).
-         *
-         * Value lists are the spoken keywords that map to each disaster.
-         * Tagalog equivalents are included so Filipino users are covered.
-         */
-        val DISASTER_KEYWORDS = mapOf(
+
+        // ── Disaster keywords ─────────────────────────────────────────────────
+        // Key = canonical name stored in DB
+        val DISASTER_KEYWORDS: Map<String, List<String>> = mapOf(
             "Earthquake" to listOf(
-                "earthquake", "lindol", "quake", "seismic", "tremor",
-                "ground shaking", "pagyanig", "yumanig"
-            ),
-            "Typhoon" to listOf(
-                "typhoon", "bagyo", "storm", "cyclone", "hurricane",
-                "tropical storm", "signal", "bagyong"
+                "earthquake", "quake", "seismic", "tremor", "lindol", "linog",
+                "yanig", "pagyanig"
             ),
             "Flood" to listOf(
-                "flood", "baha", "flooding", "flash flood", "tubig baha",
-                "pag-apaw", "bumabaha"
+                "flood", "flooding", "baha", "pagbaha", "tubig-baha", "inundation"
             ),
-            "Landslide" to listOf(
-                "landslide", "guho", "mudslide", "rockslide",
-                "pagguho", "pagguho ng lupa", "mud flow"
+            "Typhoon" to listOf(
+                "typhoon", "storm", "cyclone", "hurricane", "bagyo", "unos",
+                "bagyong", "tropical storm"
             ),
             "Volcanic Eruption" to listOf(
-                "volcano", "volcanic", "bulkan", "eruption", "lava",
-                "ashfall", "abo ng bulkan", "pagsabog", "bulkaniko",
-                "volcanic eruption", "erupting"
+                "volcano", "volcanic", "eruption", "lava", "bulkan", "bulkang",
+                "pagsabog", "ash fall", "ashfall", "lahar"
+            ),
+            "Landslide" to listOf(
+                "landslide", "mudslide", "rockslide", "avalanche",
+                "guho", "pagguho", "mud flow", "mudflow"
             ),
             "Tsunami" to listOf(
-                "tsunami", "tidal wave", "daluyong", "malaking alon",
-                "ocean wave", "seismic wave"
+                "tsunami", "tidal wave", "seismic wave", "tsikamo",
+                "alon", "malaking alon"
             ),
             "Fire" to listOf(
-                "fire", "sunog", "blaze", "burning", "nasusunog",
-                "apoy", "nagliliyab", "house fire"
+                "fire", "wildfire", "blaze", "sunog", "apoy", "pagsunog",
+                "house fire", "building fire"
             ),
-            "Storm Surge" to listOf(
-                "storm surge", "daluyong ng bagyo", "surge",
-                "coastal flooding", "storm wave", "tidal surge"
+            "Drought" to listOf(
+                "drought", "dry spell", "water shortage", "tagtuyot",
+                "pagkaupos ng tubig", "kakulangan ng tubig"
             )
         )
 
-        /**
-         * Keys must match FirstAidCategoryEntity.name exactly (Title Case).
-         */
-        val FIRST_AID_KEYWORDS = mapOf(
-            "CPR & Choking" to listOf(
-                "cpr", "choking", "cardiac", "heart attack", "resuscitation",
-                "heimlich", "cardiac arrest", "heart stopped", "chest compression",
-                "nabubulungan", "bulungan", "walang tibok", "pagkabulunan"
+        // ── Phase keywords ────────────────────────────────────────────────────
+        // Maps raw spoken words → canonical phase name
+        val PHASE_KEYWORDS: Map<String, List<String>> = mapOf(
+            "before" to listOf(
+                // English
+                "before", "prior", "preparation", "prepare", "preparedness",
+                "before the", "prior to", "bago",
+                // Tagalog phonetic transcriptions (what STT returns)
+                "bago ang", "paghahanda", "paghanda", "ihanda",
+                "bago pa", "bago mangyari",
+                // common mis-transcriptions
+                "bag-o", "bagong", "pag-handa"
             ),
-            "Wounds & Bleeding" to listOf(
-                "wound", "bleeding", "cut", "laceration", "sugat", "dugo",
-                "nagdurugo", "hiwa", "gash", "open wound", "blood"
+            "during" to listOf(
+                // English
+                "during", "while", "when it happens", "at the time",
+                "in the middle of", "ongoing",
+                // Tagalog
+                "habang", "sa panahon ng", "sa oras ng", "nang mangyari",
+                "during the", "habang nangyayari", "ngayong",
+                // common mis-transcriptions
+                "habit ang", "ha bang", "sa panahon"
+            ),
+            "after" to listOf(
+                // English
+                "after", "following", "post", "recovery", "aftermath",
+                "after the", "once it",
+                // Tagalog
+                "pagkatapos", "matapos", "pagkatapos ng", "matapos ang",
+                "kapag tapos na", "recovery", "pagbangon",
+                // common mis-transcriptions
+                "pag-ka-tapos", "mata pos", "mag-ka-tapos"
+            )
+        )
+
+        // ── Tip trigger phrases ───────────────────────────────────────────────
+        val TIP_TRIGGER_PHRASES: List<String> = listOf(
+            // English
+            "tips for", "tips on", "tips about", "tip for", "tip on",
+            "what to do", "what should i do", "how to survive",
+            "how to prepare", "how to handle", "guide for", "guide on",
+            "advice for", "advice on", "safety tips", "survival tips",
+            // Tagalog — exact as typed by STT
+            "mga tip", "mga tips", "payo para sa", "payo tungkol sa",
+            "paano harapin", "paano ang", "paano kung", "ano ang dapat",
+            "ano ang gagawin", "ano gagawin", "gagawin sa",
+            "paano mag-ingat", "paano mag ingat", "kung paano",
+            // Phonetic Tagalog transcriptions that STT produces
+            "mag tip", "mag tips", "pa yo", "payo",
+            "pa a no", "paa no", "gawin sa", "dapat gawin"
+        )
+
+        // ── Tab labels for detail fragments ───────────────────────────────────
+        // These map what the user says → the canonical tab label in the UI
+        val TAB_KEYWORD_MAP: Map<String, List<String>> = mapOf(
+            "before" to listOf(
+                "before", "bago", "paghanda", "preparation", "prepare", "prior",
+                "paghahanda", "ihanda", "bago ang", "before ang"
+            ),
+            "during" to listOf(
+                "during", "habang", "sa panahon", "while", "ongoing",
+                "habang nangyayari", "during the", "sa oras"
+            ),
+            "after" to listOf(
+                "after", "pagkatapos", "matapos", "recovery", "aftermath",
+                "post", "pagbangon", "after the", "kapag tapos"
+            ),
+            "steps" to listOf(
+                "steps", "how to", "procedure", "instructions",
+                "hakbang", "paraan", "proseso"
+            ),
+            "symptoms" to listOf(
+                "symptoms", "signs", "sintomas", "palatandaan", "mga sintomas"
+            ),
+            "treatment" to listOf(
+                "treatment", "remedy", "cure", "lunas", "gamot", "paggamot"
+            ),
+            "overview" to listOf(
+                "overview", "info", "information", "about", "tungkol",
+                "impormasyon", "pangkalahatang"
+            )
+        )
+
+        // ── First aid keywords ────────────────────────────────────────────────
+        val FIRST_AID_KEYWORDS: Map<String, List<String>> = mapOf(
+            "CPR" to listOf(
+                "cpr", "cardiopulmonary", "resuscitation", "heart attack",
+                "cardiac", "puso", "atake sa puso", "cardiac arrest"
+            ),
+            "Bleeding" to listOf(
+                "bleeding", "blood", "wound", "cut", "hemorrhage",
+                "dugo", "sugat", "pagdurugo", "hematoma"
             ),
             "Burns" to listOf(
-                "burn", "scald", "paso", "thermal", "nasunog na balat",
-                "nasunog", "sinunog", "hot water burn", "fire burn"
+                "burn", "burns", "scald", "fire injury", "paso", "nasunog",
+                "sunburn", "thermal"
             ),
-            "Fractures & Sprains" to listOf(
-                "fracture", "broken bone", "sprain", "bali", "pilay",
-                "nabali", "napilay", "broken arm", "broken leg", "joint"
+            "Choking" to listOf(
+                "choke", "choking", "heimlich", "airway", "suffocate",
+                "inumin", "nailagan", "nasamid", "samid"
             ),
-            "Heat & Cold Emergencies" to listOf(
-                "heat stroke", "hypothermia", "cold emergency", "heatstroke",
-                "frostbite", "heat exhaustion", "overheating", "nalasing sa init",
-                "sobrang init", "sobrang lamig", "heat", "cold emergency"
+            "Fracture" to listOf(
+                "fracture", "broken bone", "break", "sprain",
+                "bali", "nabali", "broken", "buto"
+            ),
+            "Poisoning" to listOf(
+                "poison", "poisoning", "toxic", "overdose", "ingestion",
+                "lason", "nalason", "nakakalason"
+            ),
+            "Stroke" to listOf(
+                "stroke", "brain attack", "paralysis",
+                "atake sa utak", "paralisis", "brain stroke"
             ),
             "Drowning" to listOf(
-                "drowning", "drown", "nalunod", "water rescue", "underwater",
-                "hindi makahinga sa tubig", "water emergency", "lunod"
+                "drowning", "drown", "water rescue", "submerged",
+                "nalunod", "lunod", "pagkalunod"
             )
         )
 
-        /**
-         * Question/intent prefixes that signal the user wants info or help
-         * about something — used to strip the intent and extract the subject.
-         * e.g. "what is an earthquake" → "earthquake"
-         *      "what to do during flood" → "flood"
-         *      "paano ang lindol" → "lindol"
-         */
-        val INTENT_PREFIXES = listOf(
-            // English informational
-            "what is", "what are", "what causes", "tell me about",
-            "show me", "open", "explain", "info about", "information about",
-            "learn about", "i want to know about",
-            // English action/procedural
-            "what to do", "what should i do", "how to", "how do i",
-            "steps for", "guide for", "help with", "i need help with",
-            "what happens during", "how to survive",
-            // Tagalog informational
-            "ano ang", "ano ba ang", "paano ang", "paano ba ang",
-            "ipakita", "buksan", "alamin ang", "impormasyon tungkol sa",
-            "kwentuhan mo ako tungkol sa",
-            // Tagalog action/procedural
-            "paano kung", "ano ang gagawin", "ano gagawin", "tulong sa",
-            "paano harapin", "paano malalaman", "gabay sa",
-            // Articles/fillers to strip after prefix removal
-            "an", "a", "the", "ang", "yung", "mga", "about"
+        // ── Intent prefixes (stripped before subject matching) ────────────────
+        val INTENT_PREFIXES: List<String> = listOf(
+            // English
+            "show me", "open", "go to", "navigate to", "take me to",
+            "i want to see", "i want to know about", "tell me about",
+            "what is", "what are", "how do i", "how do you", "how to",
+            "search for", "find", "look for", "give me", "display",
+            "show information about", "information about", "info about",
+            // Tagalog
+            "ipakita", "buksan", "pumunta sa", "dalhin ako sa",
+            "gusto kong malaman", "ano ang", "paano ang", "sabihin mo",
+            "hanapin", "ibigay sa akin", "ipakita sa akin",
+            // Phonetic transcriptions
+            "i pak ita", "bu ksan", "pu munta"
         )
     }
-}
-
-/**
- * Result of voice command execution
- */
-sealed class VoiceCommandResult {
-    data class Success(val message: String) : VoiceCommandResult()
-    data class Error(val message: String) : VoiceCommandResult()
-    data class NavigationRequired(val destination: String) : VoiceCommandResult()
-    data class ActionRequired(val action: String, val data: Any? = null) : VoiceCommandResult()
 }

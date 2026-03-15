@@ -42,32 +42,25 @@ class VoiceCommandViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Resolves [VoiceCommand.OpenDisaster] and [VoiceCommand.OpenFirstAidCategory]
-     * into their deep-link equivalents by doing a one-shot DB lookup.
-     *
-     * For [OpenDisaster]: looks up by the canonical Title-Case name that
-     * [VoiceCommandManager.parseCommand] already placed in the command, then
-     * emits [VoiceCommand.OpenDisasterDetail] with the real id + display name.
-     * Falls back to [VoiceCommand.NavigateDisasters] if the entity isn't found
-     * (shouldn't happen with seeded data, but handles gracefully).
-     *
-     * For [OpenFirstAidCategory]: same pattern → [VoiceCommand.OpenFirstAidDetail].
-     *
-     * All other commands pass through unchanged.
-     */
     private suspend fun resolveCommand(command: VoiceCommand): VoiceCommand {
         return when (command) {
 
             is VoiceCommand.OpenDisaster -> {
                 val entity = disasterRepository.getDisasterByName(command.disasterName)
                 if (entity != null) {
-                    VoiceCommand.OpenDisasterDetail(
-                        disasterId   = entity.id,
-                        disasterName = entity.name
-                    )
+                    VoiceCommand.OpenDisasterDetail(entity.id, entity.name)
                 } else {
-                    // Fallback: go to the disasters list — user can tap from there
+                    VoiceCommand.NavigateDisasters
+                }
+            }
+
+            // NEW: resolve disaster name → id, keep phase info
+            is VoiceCommand.OpenDisasterPhase -> {
+                val entity = disasterRepository.getDisasterByName(command.disasterName)
+                if (entity != null) {
+                    VoiceCommand.OpenDisasterPhaseResolved(entity.id, entity.name, command.phase)
+                } else {
+                    // disaster not found — go to list, phase intent lost gracefully
                     VoiceCommand.NavigateDisasters
                 }
             }
@@ -75,27 +68,31 @@ class VoiceCommandViewModel @Inject constructor(
             is VoiceCommand.OpenFirstAidCategory -> {
                 val entity = firstAidRepository.getCategoryByName(command.categoryName)
                 if (entity != null) {
-                    VoiceCommand.OpenFirstAidDetail(
-                        categoryId   = entity.id,
-                        categoryName = entity.name
-                    )
+                    VoiceCommand.OpenFirstAidDetail(entity.id, entity.name)
                 } else {
                     VoiceCommand.NavigateFirstAid
                 }
             }
 
-            // Every other command passes through as-is
+            is VoiceCommand.OpenTipDetail -> {
+                val entity = disasterRepository.getDisasterByName(command.disasterName)
+                if (entity != null) {
+                    VoiceCommand.OpenTipDetailResolved(entity.id, entity.name)
+                } else {
+                    VoiceCommand.NavigateTips
+                }
+            }
+
             else -> command
         }
     }
 
-    fun cancelListening() {
-        voiceCommandManager.cancel()
+    fun resetState() {
+        voiceCommandManager.resetToIdle()
     }
 
-    fun stopListening() {
-        voiceCommandManager.stopListening()
-    }
+    fun cancelListening() { voiceCommandManager.cancel() }
+    fun stopListening()   { voiceCommandManager.stopListening() }
 
     override fun onCleared() {
         super.onCleared()
