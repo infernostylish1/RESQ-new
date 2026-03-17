@@ -191,15 +191,11 @@ class MainActivity : AppCompatActivity() {
             }
 
             // ── Disaster detail + jump to phase tab ───────────────────────────
-            //
-            // Phase is passed as a nav arg ("voicePhase") so DisasterDetailFragment
-            // can read it synchronously in onViewCreated — no race condition with
-            // FragmentResult, which fires before the fragment is alive.
             is VoiceCommand.OpenDisasterPhaseResolved -> {
                 safeNavigateToDisasterDetail(
                     command.disasterId,
                     command.disasterName,
-                    command.phase   // ← delivered via nav args, not FragmentResult
+                    command.phase
                 )
             }
 
@@ -218,6 +214,11 @@ class MainActivity : AppCompatActivity() {
             is VoiceCommand.OpenDisasterPhase    -> navController.navigate(R.id.nav_disasters)
             is VoiceCommand.OpenFirstAidCategory -> navController.navigate(R.id.nav_first_aid)
             is VoiceCommand.OpenTipDetail        -> navController.navigate(R.id.nav_tips)
+
+            // ── List commands ─────────────────────────────────────────────────
+            is VoiceCommand.ListAllDisasters -> navController.navigate(R.id.nav_disasters)
+            is VoiceCommand.ListAllFirstAid  -> navController.navigate(R.id.nav_first_aid)
+            is VoiceCommand.ListAllTips      -> navController.navigate(R.id.nav_tips)
 
             // ── Search ────────────────────────────────────────────────────────
             is VoiceCommand.SearchDisaster -> {
@@ -267,10 +268,7 @@ class MainActivity : AppCompatActivity() {
                     REQUEST_TTS, Bundle().apply { putString(KEY_TTS, TTS_RESUME) })
             }
 
-            // ── Tab switch (user already on a detail screen) ──────────────────
-            //
-            // FragmentResult is correct here — the fragment IS already alive
-            // and listening when this command arrives.
+            // ── Tab switch ────────────────────────────────────────────────────
             is VoiceCommand.SwitchTab -> {
                 supportFragmentManager.setFragmentResult(
                     REQUEST_SWITCH_TAB,
@@ -296,8 +294,6 @@ class MainActivity : AppCompatActivity() {
 
     // ── Safe navigation helpers ───────────────────────────────────────────────
 
-    // phase is optional — only set by OpenDisasterPhaseResolved.
-    // DisasterDetailFragment reads "voicePhase" from its arguments in onViewCreated.
     private fun safeNavigateToDisasterDetail(
         disasterId: Long,
         disasterName: String,
@@ -376,14 +372,10 @@ class MainActivity : AppCompatActivity() {
         const val TTS_PAUSE          = "tts_pause"
         const val TTS_RESUME         = "tts_resume"
 
-        // Used only for SwitchTab (user already on a detail screen).
-        // OpenDisasterPhaseResolved now uses ARG_VOICE_PHASE instead.
         const val REQUEST_SWITCH_TAB = "request_switch_tab"
         const val KEY_TAB_LABEL      = "key_tab_label"
 
-        // Nav arg key for the phase delivered via safeNavigateToDisasterDetail
         const val ARG_VOICE_PHASE    = "voicePhase"
-
         const val ARG_VOICE_QUERY    = "arg_voice_query"
         const val ARG_CONTACT_NAME   = "arg_contact_name"
     }

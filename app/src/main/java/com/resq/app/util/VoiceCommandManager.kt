@@ -19,6 +19,7 @@ class VoiceCommandManager @Inject constructor() {
     private var speechRecognizer: SpeechRecognizer? = null
     private var currentLanguage: String = "en"
     private var isListening = false
+    private var retryCount = 0
 
     private val _recognitionState = MutableStateFlow<RecognitionState>(RecognitionState.Idle)
     val recognitionState: StateFlow<RecognitionState> = _recognitionState.asStateFlow()
@@ -31,9 +32,20 @@ class VoiceCommandManager @Inject constructor() {
             return
         }
         speechRecognizer?.destroy()
-        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
-            setRecognitionListener(createRecognitionListener())
+
+        // On Android 12+ (API 31+), use on-device recognizer if available
+        speechRecognizer = if (
+            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
+            SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
+        ) {
+            Log.d(TAG, "Using ON-DEVICE speech recognizer")
+            SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
+        } else {
+            Log.d(TAG, "Using default speech recognizer (may need network)")
+            SpeechRecognizer.createSpeechRecognizer(context)
         }
+
+        speechRecognizer?.setRecognitionListener(createRecognitionListener())
     }
 
     private fun createRecognitionListener() = object : RecognitionListener {
@@ -46,12 +58,46 @@ class VoiceCommandManager @Inject constructor() {
         override fun onEndOfSpeech() {
             _recognitionState.value = RecognitionState.Processing
         }
+
         override fun onError(error: Int) {
-            isListening = false
-            _recognitionState.value = RecognitionState.Error(getErrorMessage(error))
+            when (error) {
+                // ── Silence / no-match: auto-retry instead of showing error ──
+                SpeechRecognizer.ERROR_NO_MATCH,
+                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
+                    if (retryCount < MAX_RETRIES) {
+                        retryCount++
+                        Log.d(TAG, "No match/timeout — auto-retry #$retryCount")
+                        // Re-issue startListening with the same callback
+                        isListening = false
+                        onCommandRecognized?.let { callback ->
+                            startListening(callback)
+                        } ?: run {
+                            isListening = false
+                            _recognitionState.value = RecognitionState.Error(
+                                "No speech detected. Tap to try again."
+                            )
+                        }
+                    } else {
+                        // Exhausted retries — show friendly message, not raw error
+                        retryCount = 0
+                        isListening = false
+                        _recognitionState.value = RecognitionState.Error(
+                            "No speech detected. Tap to try again."
+                        )
+                    }
+                }
+                // ── Everything else: real error ──
+                else -> {
+                    retryCount = 0
+                    isListening = false
+                    _recognitionState.value = RecognitionState.Error(getErrorMessage(error))
+                }
+            }
         }
+
         override fun onResults(results: Bundle?) {
             isListening = false
+            retryCount = 0   // reset on successful recognition
             val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
             if (!matches.isNullOrEmpty()) {
                 // Try all candidates — use the first that isn't Unknown
@@ -60,13 +106,14 @@ class VoiceCommandManager @Inject constructor() {
                     .firstOrNull { it !is VoiceCommand.Unknown }
                     ?: VoiceCommand.Unknown(matches.first())
 
-                val best = if (command is VoiceCommand.Unknown) matches.first() else matches.first()
-                _recognitionState.value = RecognitionState.Result(best, command)
+                val bestText = matches.first()
+                _recognitionState.value = RecognitionState.Result(bestText, command)
                 onCommandRecognized?.invoke(command)
             } else {
                 _recognitionState.value = RecognitionState.Error("No speech recognized")
             }
         }
+
         override fun onPartialResults(partialResults: Bundle?) {
             val partial = partialResults
                 ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
@@ -88,21 +135,35 @@ class VoiceCommandManager @Inject constructor() {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-            // ── KEY FIX: supply both locales so STT understands Filipino ─────
-            // Primary  = Filipino/Tagalog
-            // Fallback = English
-            // The extra EXTRA_LANGUAGE_PREFERENCE lets the engine prefer fil-PH
-            // while EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE=false allows English too.
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "fil-PH")
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "fil-PH")
-            putExtra("android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES", arrayOf("en-US"))
+
+            // ── Use English as primary for offline reliability ────────────
+            // English offline packs are almost always pre-installed.
+            // Filipino words are handled by normalizeTagalog() post-STT.
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en-US")
+
+            // Still request Filipino as additional so if the device HAS
+            // the pack, it can use it — but English is the safe fallback.
+            putExtra(
+                "android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES",
+                arrayOf("fil-PH")
+            )
             putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false)
+
             // Return up to 5 alternatives — we pick best non-Unknown parse
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, false)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1500L)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500L)
+
+            // ── Prefer offline — critical for disaster app ────────────────
+            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+
+            // ── Generous timeouts so user has time to speak ───────────────
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 5000L)
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 4000L)
+            putExtra(
+                RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                3000L
+            )
         }
         try {
             speechRecognizer?.startListening(intent)
@@ -124,6 +185,7 @@ class VoiceCommandManager @Inject constructor() {
     fun cancel() {
         speechRecognizer?.cancel()
         isListening = false
+        retryCount = 0
         _recognitionState.value = RecognitionState.Idle
     }
 
@@ -134,7 +196,31 @@ class VoiceCommandManager @Inject constructor() {
         speechRecognizer?.destroy()
         speechRecognizer = null
         isListening = false
+        retryCount = 0
         _recognitionState.value = RecognitionState.Idle
+    }
+
+    /**
+     * Opens the system UI to download offline speech recognition packs.
+     * Call this from settings or on first launch so the user can download
+     * the English (en-US) pack for fully offline voice commands.
+     */
+    fun promptOfflineLanguageDownload(context: Context) {
+        try {
+            val downloadIntent =
+                Intent("com.google.android.googlequicksearchbox.VOICE_SEARCH_PARAMS")
+            downloadIntent.putExtra("language", "en-US")
+            context.startActivity(downloadIntent)
+        } catch (e: Exception) {
+            // Fallback: direct to input method settings
+            try {
+                val settingsIntent =
+                    Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS)
+                context.startActivity(settingsIntent)
+            } catch (_: Exception) {
+                Log.w(TAG, "Cannot open language download settings")
+            }
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -149,6 +235,7 @@ class VoiceCommandManager @Inject constructor() {
      *      transcriptions into their canonical equivalents BEFORE any keyword
      *      matching.  This fixes the "Filipino sounds like English" problem.
      *  3.  Hard navigation (require explicit nav verb).
+     *  3.5 List commands (before generic app-control).
      *  4.  App-control / TTS / tip browsing / emergency.
      *  5.  Phase + disaster combo → OpenDisasterPhase.
      *  6.  Tab-switch (user already on detail screen).
@@ -175,6 +262,13 @@ class VoiceCommandManager @Inject constructor() {
             matchesAny(normalized, NAV_TIPS_KEYWORDS)      -> return VoiceCommand.NavigateTips
             matchesAny(normalized, NAV_SETTINGS_KEYWORDS)  -> return VoiceCommand.NavigateSettings
             matchesAny(normalized, NAV_CONTACTS_KEYWORDS)  -> return VoiceCommand.NavigateContacts
+        }
+
+        // ── Step 3.5: List commands (before generic app-control) ──────────────
+        when {
+            matchesAny(normalized, LIST_ALL_DISASTERS_KEYWORDS) -> return VoiceCommand.ListAllDisasters
+            matchesAny(normalized, LIST_ALL_FIRSTAID_KEYWORDS)  -> return VoiceCommand.ListAllFirstAid
+            matchesAny(normalized, LIST_ALL_TIPS_KEYWORDS)      -> return VoiceCommand.ListAllTips
         }
 
         // ── Step 4: App-control ───────────────────────────────────────────────
@@ -397,17 +491,18 @@ class VoiceCommandManager @Inject constructor() {
         SpeechRecognizer.ERROR_AUDIO                    -> "Audio recording error"
         SpeechRecognizer.ERROR_CLIENT                   -> "Client side error"
         SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
-        SpeechRecognizer.ERROR_NETWORK                  -> "Network error"
-        SpeechRecognizer.ERROR_NETWORK_TIMEOUT          -> "Network timeout"
-        SpeechRecognizer.ERROR_NO_MATCH                 -> "No speech match found"
+        SpeechRecognizer.ERROR_NETWORK                  -> "Network error — enable offline speech pack in device settings"
+        SpeechRecognizer.ERROR_NETWORK_TIMEOUT          -> "Network timeout — enable offline speech pack in device settings"
+        SpeechRecognizer.ERROR_NO_MATCH                 -> "No speech detected. Tap to try again."
         SpeechRecognizer.ERROR_RECOGNIZER_BUSY          -> "Recognition service busy"
-        SpeechRecognizer.ERROR_SERVER                   -> "Server error"
+        SpeechRecognizer.ERROR_SERVER                   -> "Server error — enable offline speech pack in device settings"
         SpeechRecognizer.ERROR_SPEECH_TIMEOUT           -> "No speech input"
         else                                            -> "Unknown error: $errorCode"
     }
 
     companion object {
         private const val TAG = "VoiceCommandManager"
+        private const val MAX_RETRIES = 2  // auto-retry up to 2 times on no-match
 
         private val NAV_HOME_KEYWORDS = listOf(
             "go home", "home screen", "go to home", "tahanan",
@@ -434,6 +529,23 @@ class VoiceCommandManager @Inject constructor() {
         private val NAV_CONTACTS_KEYWORDS = listOf(
             "go to contacts", "open contacts", "emergency contacts",
             "hotlines", "emergency numbers", "mga contact", "contact list"
+        )
+
+        // ── List-command keywords ─────────────────────────────────────────────
+        private val LIST_ALL_DISASTERS_KEYWORDS = listOf(
+            "list all disasters", "show all disasters", "all disasters",
+            "list disasters", "lahat ng sakuna", "lahat ng kalamidad",
+            "ipakita lahat ng sakuna", "complete disaster list"
+        )
+        private val LIST_ALL_FIRSTAID_KEYWORDS = listOf(
+            "list all first aid", "show all first aid", "all first aid",
+            "list first aid", "lahat ng first aid", "lahat ng pertolya",
+            "complete first aid list"
+        )
+        private val LIST_ALL_TIPS_KEYWORDS = listOf(
+            "list all tips", "show all tips", "all tips",
+            "list tips", "lahat ng tip", "lahat ng payo",
+            "complete tip list"
         )
 
         private val BACK_KEYWORDS = listOf(

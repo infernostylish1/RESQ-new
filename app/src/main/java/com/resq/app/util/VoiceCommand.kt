@@ -41,7 +41,7 @@ sealed class VoiceCommand {
     /**
      * Switch to a named tab while already inside a detail fragment.
      * [tabLabel] is a canonical English label: "before", "during", "after",
-     * "steps", "symptoms", "treatment", etc.
+     * "steps", "symptoms", "treatment", "recommended", "all", etc.
      */
     data class SwitchTab(val tabLabel: String) : VoiceCommand()
 
@@ -64,6 +64,11 @@ sealed class VoiceCommand {
     // ── Tips ──────────────────────────────────────────────────────────────────
     data object GetRandomTip : VoiceCommand()
     data object GetNextTip   : VoiceCommand()
+
+    // ── List commands ─────────────────────────────────────────────────────────
+    data object ListAllDisasters : VoiceCommand()
+    data object ListAllFirstAid  : VoiceCommand()
+    data object ListAllTips      : VoiceCommand()
 
     // ── Emergency ────────────────────────────────────────────────────────────
     data object CallEmergency : VoiceCommand()
@@ -194,6 +199,20 @@ sealed class VoiceCommand {
             "overview" to listOf(
                 "overview", "info", "information", "about", "tungkol",
                 "impormasyon", "pangkalahatang"
+            ),
+            "recommended" to listOf(
+                "recommended", "suggestions", "suggested", "popular",
+                "top picks", "featured", "best",
+                // Tagalog
+                "rekomendado", "inirerekomenda", "mungkahi", "iminumungkahi",
+                "mga mungkahi", "pinakamaganda"
+            ),
+            "all" to listOf(
+                "all", "show all", "view all", "everything", "complete list",
+                "full list", "see all", "list all",
+                // Tagalog
+                "lahat", "ipakita lahat", "lahat ng", "buo", "kumpleto",
+                "buong listahan", "mga lahat", "tignan lahat"
             )
         )
 
