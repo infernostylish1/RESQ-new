@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayout
+import com.resq.app.MainActivity
 import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.databinding.FragmentDisastersBinding
 import com.resq.app.ui.adapter.DisasterAdapter
@@ -52,6 +53,10 @@ class DisastersFragment : Fragment() {
         setupTabLayout()
         setupSearch()
         observeViewModel()
+
+        // NEW — voice-commanded tab selection
+        handleVoiceTabArgument()
+        listenForVoiceTabSwitch()
     }
 
     private fun setupRecyclerView() {
@@ -72,8 +77,6 @@ class DisastersFragment : Fragment() {
 
     private fun showRecommendedTab() {
         isRecommendedTab = true
-        // Plain single adapter — ConcatAdapter, recommendedHeader,
-        // otherHeader, and otherAdapter are removed entirely from this tab
         binding.rvDisasters.adapter = recommendedAdapter
     }
 
@@ -88,8 +91,6 @@ class DisastersFragment : Fragment() {
                 binding.etSearch.text?.clear()
                 when (tab?.position) {
                     0 -> {
-                        // Recommended list is already live from ViewModel init —
-                        // no need to call loadAllDisasters() here
                         showRecommendedTab()
                     }
                     1 -> {
@@ -118,7 +119,6 @@ class DisastersFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-                // Recommended tab: only profile-matched disasters, no "Other" section
                 launch {
                     viewModel.recommendedDisasters.collect { recommended ->
                         recommendedAdapter.submitList(recommended)
@@ -129,7 +129,6 @@ class DisastersFragment : Fragment() {
                     }
                 }
 
-                // All Disasters tab: every disaster, flat list
                 launch {
                     viewModel.disasters.collect { all ->
                         allAdapter.submitList(all)
@@ -146,6 +145,49 @@ class DisastersFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    // ── Voice tab handling (NEW) ──────────────────────────────────────────────
+
+    /**
+     * Reads the one-shot "voiceTab" navigation argument and selects the
+     * matching tab.  The argument is consumed so it doesn't re-fire on
+     * configuration change or back-stack restore.
+     */
+    private fun handleVoiceTabArgument() {
+        val voiceTab = arguments?.getString("voiceTab")
+        if (!voiceTab.isNullOrEmpty()) {
+            selectTabByLabel(voiceTab)
+            arguments?.remove("voiceTab")
+        }
+    }
+
+    /**
+     * Listens for [MainActivity.REQUEST_SWITCH_TAB] fragment results so that
+     * voice commands issued while this fragment is already visible can still
+     * switch tabs.
+     */
+    private fun listenForVoiceTabSwitch() {
+        parentFragmentManager.setFragmentResultListener(
+            MainActivity.REQUEST_SWITCH_TAB,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val tabLabel = bundle.getString(MainActivity.KEY_TAB_LABEL)
+            if (!tabLabel.isNullOrEmpty()) {
+                selectTabByLabel(tabLabel)
+            }
+        }
+    }
+
+    private fun selectTabByLabel(label: String) {
+        val tabIndex = when (label) {
+            "recommended" -> 0
+            "all"         -> 1
+            else          -> -1
+        }
+        if (tabIndex in 0 until binding.tabLayout.tabCount) {
+            binding.tabLayout.getTabAt(tabIndex)?.select()
         }
     }
 

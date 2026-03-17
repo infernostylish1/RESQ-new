@@ -33,7 +33,6 @@ class VoiceCommandManager @Inject constructor() {
         }
         speechRecognizer?.destroy()
 
-        // On Android 12+ (API 31+), use on-device recognizer if available
         speechRecognizer = if (
             android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
             SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
@@ -61,13 +60,11 @@ class VoiceCommandManager @Inject constructor() {
 
         override fun onError(error: Int) {
             when (error) {
-                // ── Silence / no-match: auto-retry instead of showing error ──
                 SpeechRecognizer.ERROR_NO_MATCH,
                 SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
                     if (retryCount < MAX_RETRIES) {
                         retryCount++
                         Log.d(TAG, "No match/timeout — auto-retry #$retryCount")
-                        // Re-issue startListening with the same callback
                         isListening = false
                         onCommandRecognized?.let { callback ->
                             startListening(callback)
@@ -78,7 +75,6 @@ class VoiceCommandManager @Inject constructor() {
                             )
                         }
                     } else {
-                        // Exhausted retries — show friendly message, not raw error
                         retryCount = 0
                         isListening = false
                         _recognitionState.value = RecognitionState.Error(
@@ -86,7 +82,6 @@ class VoiceCommandManager @Inject constructor() {
                         )
                     }
                 }
-                // ── Everything else: real error ──
                 else -> {
                     retryCount = 0
                     isListening = false
@@ -97,10 +92,9 @@ class VoiceCommandManager @Inject constructor() {
 
         override fun onResults(results: Bundle?) {
             isListening = false
-            retryCount = 0   // reset on successful recognition
+            retryCount = 0
             val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
             if (!matches.isNullOrEmpty()) {
-                // Try all candidates — use the first that isn't Unknown
                 val command = matches
                     .map { parseCommand(it) }
                     .firstOrNull { it !is VoiceCommand.Unknown }
@@ -135,29 +129,16 @@ class VoiceCommandManager @Inject constructor() {
                 RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
             )
-
-            // ── Use English as primary for offline reliability ────────────
-            // English offline packs are almost always pre-installed.
-            // Filipino words are handled by normalizeTagalog() post-STT.
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en-US")
-
-            // Still request Filipino as additional so if the device HAS
-            // the pack, it can use it — but English is the safe fallback.
             putExtra(
                 "android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES",
                 arrayOf("fil-PH")
             )
             putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false)
-
-            // Return up to 5 alternatives — we pick best non-Unknown parse
             putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
             putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-
-            // ── Prefer offline — critical for disaster app ────────────────
             putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-
-            // ── Generous timeouts so user has time to speak ───────────────
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 5000L)
             putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 4000L)
             putExtra(
@@ -200,11 +181,6 @@ class VoiceCommandManager @Inject constructor() {
         _recognitionState.value = RecognitionState.Idle
     }
 
-    /**
-     * Opens the system UI to download offline speech recognition packs.
-     * Call this from settings or on first launch so the user can download
-     * the English (en-US) pack for fully offline voice commands.
-     */
     fun promptOfflineLanguageDownload(context: Context) {
         try {
             val downloadIntent =
@@ -212,7 +188,6 @@ class VoiceCommandManager @Inject constructor() {
             downloadIntent.putExtra("language", "en-US")
             context.startActivity(downloadIntent)
         } catch (e: Exception) {
-            // Fallback: direct to input method settings
             try {
                 val settingsIntent =
                     Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS)
@@ -231,13 +206,12 @@ class VoiceCommandManager @Inject constructor() {
      * Parse steps (order matters):
      *
      *  1.  Normalize.
-     *  2.  Apply phonetic Tagalog normalizer — converts common STT mis-
-     *      transcriptions into their canonical equivalents BEFORE any keyword
-     *      matching.  This fixes the "Filipino sounds like English" problem.
+     *  2.  Apply phonetic Tagalog normalizer.
      *  3.  Hard navigation (require explicit nav verb).
      *  3.5 List commands (before generic app-control).
      *  4.  App-control / TTS / tip browsing / emergency.
      *  5.  Phase + disaster combo → OpenDisasterPhase.
+     *  5.5 Tab + module combo → NavigateDisastersTab / NavigateTipsTab.  ← NEW
      *  6.  Tab-switch (user already on detail screen).
      *  7.  Tip trigger phrases.
      *  8.  Strip intent prefix → disaster keywords → OpenDisaster.
@@ -246,10 +220,10 @@ class VoiceCommandManager @Inject constructor() {
      * 11.  Unknown fallback.
      */
     fun parseCommand(rawText: String): VoiceCommand {
-        // Step 1 — lowercase
+        // Step 1
         val lowered = rawText.lowercase().trim()
 
-        // Step 2 — phonetic normalization
+        // Step 2
         val normalized = normalizeTagalog(lowered)
 
         Log.d(TAG, "raw='$rawText'  normalized='$normalized'")
@@ -264,7 +238,7 @@ class VoiceCommandManager @Inject constructor() {
             matchesAny(normalized, NAV_CONTACTS_KEYWORDS)  -> return VoiceCommand.NavigateContacts
         }
 
-        // ── Step 3.5: List commands (before generic app-control) ──────────────
+        // ── Step 3.5: List commands ───────────────────────────────────────────
         when {
             matchesAny(normalized, LIST_ALL_DISASTERS_KEYWORDS) -> return VoiceCommand.ListAllDisasters
             matchesAny(normalized, LIST_ALL_FIRSTAID_KEYWORDS)  -> return VoiceCommand.ListAllFirstAid
@@ -296,26 +270,39 @@ class VoiceCommandManager @Inject constructor() {
             if (!contactName.isNullOrEmpty()) return VoiceCommand.CallContact(contactName)
         }
 
-        // ── Step 5: Phase + disaster combo ───────────────────────────────────
-        // Detect a phase word first.  If we also find a disaster keyword the
-        // command is OpenDisasterPhase; if only a phase with NO disaster it
-        // becomes SwitchTab (user is already on a detail screen).
+        // ── Step 5: Phase + disaster combo ────────────────────────────────────
         val detectedPhase: String? = VoiceCommand.PHASE_KEYWORDS.entries
             .firstOrNull { (_, keywords) -> keywords.any { normalized.contains(it) } }
             ?.key
 
         if (detectedPhase != null) {
-            // Do we also have a disaster keyword?
             for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
                 if (keywords.any { normalized.contains(it) }) {
                     return VoiceCommand.OpenDisasterPhase(disasterKey, detectedPhase)
                 }
             }
-            // Phase word present, no disaster → switch tab on current screen
             return VoiceCommand.SwitchTab(detectedPhase)
         }
 
-        // ── Step 6: Generic tab-switch (steps, symptoms, treatment, etc.) ─────
+        // ── Step 5.5: Tab + module combo → navigate to screen with tab (NEW) ─
+        // Handles: "recommended disasters", "all tips", "show all disasters",
+        //          "rekomendado na sakuna", etc.
+        // Only fires for "recommended" and "all" — tabs that exist on list screens.
+        run {
+            val moduleTabLabels = listOf("recommended", "all")
+            for (tab in moduleTabLabels) {
+                val tabKeywords = VoiceCommand.TAB_KEYWORD_MAP[tab] ?: continue
+                if (tabKeywords.any { normalized.contains(it) }) {
+                    val mentionsDisasters = SCREEN_DISASTER_KEYWORDS.any { normalized.contains(it) }
+                    val mentionsTips      = SCREEN_TIPS_KEYWORDS.any { normalized.contains(it) }
+                    if (mentionsDisasters) return VoiceCommand.NavigateDisastersTab(tab)
+                    if (mentionsTips)      return VoiceCommand.NavigateTipsTab(tab)
+                    // No screen keyword found → fall through to Step 6 for generic SwitchTab
+                }
+            }
+        }
+
+        // ── Step 6: Generic tab-switch ────────────────────────────────────────
         for ((tabLabel, keywords) in VoiceCommand.TAB_KEYWORD_MAP) {
             if (keywords.any { normalized.contains(it) }) {
                 return VoiceCommand.SwitchTab(tabLabel)
@@ -333,7 +320,7 @@ class VoiceCommandManager @Inject constructor() {
             return VoiceCommand.NavigateTips
         }
 
-        // ── Steps 8–9: Strip prefix, match subject ────────────────────────────
+        // ── Steps 8–9: Strip prefix, match subject ───────────────────────────
         val subject = stripIntentPrefix(normalized)
 
         for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
@@ -362,18 +349,9 @@ class VoiceCommandManager @Inject constructor() {
     //  Tagalog phonetic normalizer
     // ══════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Google STT (English model) transcribes Filipino words phonetically.
-     * This function replaces the most common mis-transcriptions with the
-     * canonical Tagalog words so all keyword tables work correctly.
-     *
-     * Each pair is  phonetic → canonical.  Longer strings are checked first
-     * (the list is pre-sorted in [applyPhoneticReplacements]).
-     */
     private fun normalizeTagalog(text: String): String {
         var result = text
 
-        // ── Disaster-name phonetics ───────────────────────────────────────────
         result = result
             .replace("lin doll", "lindol")
             .replace("lin-dol",  "lindol")
@@ -394,32 +372,25 @@ class VoiceCommandManager @Inject constructor() {
             .replace("tag tu yot","tagtuyot")
             .replace("tag-tuyot","tagtuyot")
 
-        // ── Phase-word phonetics ──────────────────────────────────────────────
         result = result
-            // "bago" → before
             .replace("bag go",   "bago")
             .replace("bag-go",   "bago")
             .replace("ba-go",    "bago")
-            // "habang" → during
             .replace("ha-bang",  "habang")
             .replace("ha bang",  "habang")
             .replace("hah bang", "habang")
             .replace("habit ang","habang")
-            // "pagkatapos" → after
             .replace("pag-ka-tapos","pagkatapos")
             .replace("pag ka tapos","pagkatapos")
             .replace("mag-ka-tapos","pagkatapos")
             .replace("pagca tapos", "pagkatapos")
-            // "matapos" → after
             .replace("ma-tapos",  "matapos")
             .replace("ma tapos",  "matapos")
             .replace("mata pos",  "matapos")
-            // "paghanda" → before/preparation
             .replace("pag-handa", "paghanda")
             .replace("pag handa", "paghanda")
             .replace("pa-handa",  "paghanda")
 
-        // ── General Tagalog phonetics ─────────────────────────────────────────
         result = result
             .replace("pa-a-no",  "paano")
             .replace("pa a no",  "paano")
@@ -440,9 +411,8 @@ class VoiceCommandManager @Inject constructor() {
             .replace("i-ngat",   "ingat")
             .replace("ha-na-pin","hanapin")
             .replace("ha na pin","hanapin")
-            .replace("mga",      "mga")          // keep as-is (already correct)
+            .replace("mga",      "mga")
 
-        // ── Scroll phonetics (Tagalog words for up/down) ──────────────────────
         result = result
             .replace("pa-ta-as", "pataas")
             .replace("pa taas",  "pataas")
@@ -502,7 +472,7 @@ class VoiceCommandManager @Inject constructor() {
 
     companion object {
         private const val TAG = "VoiceCommandManager"
-        private const val MAX_RETRIES = 2  // auto-retry up to 2 times on no-match
+        private const val MAX_RETRIES = 2
 
         private val NAV_HOME_KEYWORDS = listOf(
             "go home", "home screen", "go to home", "tahanan",
@@ -546,6 +516,14 @@ class VoiceCommandManager @Inject constructor() {
             "list all tips", "show all tips", "all tips",
             "list tips", "lahat ng tip", "lahat ng payo",
             "complete tip list"
+        )
+
+        // ── Screen-level keywords (generic, NOT specific disaster names) (NEW) ─
+        private val SCREEN_DISASTER_KEYWORDS = listOf(
+            "disaster", "disasters", "sakuna", "kalamidad", "mga sakuna"
+        )
+        private val SCREEN_TIPS_KEYWORDS = listOf(
+            "tips", "mga tips", "payo", "mga payo"
         )
 
         private val BACK_KEYWORDS = listOf(

@@ -174,6 +174,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Navigate to a list screen and select a specific tab.
+     * If already on that screen, switch tab via fragment result instead
+     * of re-creating the fragment.
+     */
+    private fun navigateToScreenWithTab(destinationId: Int, tab: String) {
+        if (navController.currentDestination?.id == destinationId) {
+            // Already on this screen — switch tab via fragment result
+            supportFragmentManager.setFragmentResult(
+                REQUEST_SWITCH_TAB,
+                Bundle().apply { putString(KEY_TAB_LABEL, tab) }
+            )
+        } else {
+            navController.navigate(
+                destinationId,
+                Bundle().apply { putString(ARG_VOICE_TAB, tab) }
+            )
+        }
+    }
+
     private fun executeVoiceCommand(command: VoiceCommand) {
         when (command) {
 
@@ -184,6 +204,14 @@ class MainActivity : AppCompatActivity() {
             is VoiceCommand.NavigateTips      -> navController.navigate(R.id.nav_tips)
             is VoiceCommand.NavigateSettings  -> navController.navigate(R.id.nav_settings)
             is VoiceCommand.NavigateContacts  -> navController.navigate(R.id.nav_emergency_contacts)
+
+            // ── NEW: Navigate to module screen + select tab ───────────────────
+            is VoiceCommand.NavigateDisastersTab -> {
+                navigateToScreenWithTab(R.id.nav_disasters, command.tab)
+            }
+            is VoiceCommand.NavigateTipsTab -> {
+                navigateToScreenWithTab(R.id.nav_tips, command.tab)
+            }
 
             // ── Disaster detail (no phase) ────────────────────────────────────
             is VoiceCommand.OpenDisasterDetail -> {
@@ -215,10 +243,14 @@ class MainActivity : AppCompatActivity() {
             is VoiceCommand.OpenFirstAidCategory -> navController.navigate(R.id.nav_first_aid)
             is VoiceCommand.OpenTipDetail        -> navController.navigate(R.id.nav_tips)
 
-            // ── List commands ─────────────────────────────────────────────────
-            is VoiceCommand.ListAllDisasters -> navController.navigate(R.id.nav_disasters)
+            // ── List commands (UPDATED: now select the "All" tab) ─────────────
+            is VoiceCommand.ListAllDisasters -> {
+                navigateToScreenWithTab(R.id.nav_disasters, "all")
+            }
             is VoiceCommand.ListAllFirstAid  -> navController.navigate(R.id.nav_first_aid)
-            is VoiceCommand.ListAllTips      -> navController.navigate(R.id.nav_tips)
+            is VoiceCommand.ListAllTips -> {
+                navigateToScreenWithTab(R.id.nav_tips, "all")
+            }
 
             // ── Search ────────────────────────────────────────────────────────
             is VoiceCommand.SearchDisaster -> {
@@ -377,6 +409,7 @@ class MainActivity : AppCompatActivity() {
 
         const val ARG_VOICE_PHASE    = "voicePhase"
         const val ARG_VOICE_QUERY    = "arg_voice_query"
+        const val ARG_VOICE_TAB      = "voiceTab"          // NEW
         const val ARG_CONTACT_NAME   = "arg_contact_name"
     }
 }

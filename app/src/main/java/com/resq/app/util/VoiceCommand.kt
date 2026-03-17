@@ -10,23 +10,23 @@ sealed class VoiceCommand {
     data object NavigateSettings  : VoiceCommand()
     data object NavigateContacts  : VoiceCommand()
 
+    // ── Navigate to module screen with a specific tab (NEW) ───────────────────
+    data class NavigateDisastersTab(val tab: String) : VoiceCommand()   // "recommended" | "all"
+    data class NavigateTipsTab(val tab: String)      : VoiceCommand()   // "recommended" | "all"
+
     // ── Deep-link: disaster detail + phase ────────────────────────────────────
     data class OpenDisaster(val disasterName: String)                          : VoiceCommand()
     data class OpenDisasterDetail(val disasterId: Long, val disasterName: String) : VoiceCommand()
 
-    /**
-     * Navigate to a specific phase tab inside DisasterDetailFragment.
-     * [phase] is one of: "before", "during", "after"
-     */
     data class OpenDisasterPhase(
         val disasterName: String,
-        val phase: String              // "before" | "during" | "after"
+        val phase: String
     ) : VoiceCommand()
 
     data class OpenDisasterPhaseResolved(
         val disasterId: Long,
         val disasterName: String,
-        val phase: String              // "before" | "during" | "after"
+        val phase: String
     ) : VoiceCommand()
 
     // ── Deep-link: first aid detail ───────────────────────────────────────────
@@ -38,11 +38,6 @@ sealed class VoiceCommand {
     data class OpenTipDetailResolved(val disasterId: Long, val disasterName: String): VoiceCommand()
 
     // ── Tab navigation inside detail screens ──────────────────────────────────
-    /**
-     * Switch to a named tab while already inside a detail fragment.
-     * [tabLabel] is a canonical English label: "before", "during", "after",
-     * "steps", "symptoms", "treatment", "recommended", "all", etc.
-     */
     data class SwitchTab(val tabLabel: String) : VoiceCommand()
 
     // ── Search ────────────────────────────────────────────────────────────────
@@ -83,8 +78,6 @@ sealed class VoiceCommand {
 
     companion object {
 
-        // ── Disaster keywords ─────────────────────────────────────────────────
-        // Key = canonical name stored in DB
         val DISASTER_KEYWORDS: Map<String, List<String>> = mapOf(
             "Earthquake" to listOf(
                 "earthquake", "quake", "seismic", "tremor", "lindol", "linog",
@@ -119,60 +112,43 @@ sealed class VoiceCommand {
             )
         )
 
-        // ── Phase keywords ────────────────────────────────────────────────────
-        // Maps raw spoken words → canonical phase name
         val PHASE_KEYWORDS: Map<String, List<String>> = mapOf(
             "before" to listOf(
-                // English
                 "before", "prior", "preparation", "prepare", "preparedness",
                 "before the", "prior to", "bago",
-                // Tagalog phonetic transcriptions (what STT returns)
                 "bago ang", "paghahanda", "paghanda", "ihanda",
                 "bago pa", "bago mangyari",
-                // common mis-transcriptions
                 "bag-o", "bagong", "pag-handa"
             ),
             "during" to listOf(
-                // English
                 "during", "while", "when it happens", "at the time",
                 "in the middle of", "ongoing",
-                // Tagalog
                 "habang", "sa panahon ng", "sa oras ng", "nang mangyari",
                 "during the", "habang nangyayari", "ngayong",
-                // common mis-transcriptions
                 "habit ang", "ha bang", "sa panahon"
             ),
             "after" to listOf(
-                // English
                 "after", "following", "post", "recovery", "aftermath",
                 "after the", "once it",
-                // Tagalog
                 "pagkatapos", "matapos", "pagkatapos ng", "matapos ang",
                 "kapag tapos na", "recovery", "pagbangon",
-                // common mis-transcriptions
                 "pag-ka-tapos", "mata pos", "mag-ka-tapos"
             )
         )
 
-        // ── Tip trigger phrases ───────────────────────────────────────────────
         val TIP_TRIGGER_PHRASES: List<String> = listOf(
-            // English
             "tips for", "tips on", "tips about", "tip for", "tip on",
             "what to do", "what should i do", "how to survive",
             "how to prepare", "how to handle", "guide for", "guide on",
             "advice for", "advice on", "safety tips", "survival tips",
-            // Tagalog — exact as typed by STT
             "mga tip", "mga tips", "payo para sa", "payo tungkol sa",
             "paano harapin", "paano ang", "paano kung", "ano ang dapat",
             "ano ang gagawin", "ano gagawin", "gagawin sa",
             "paano mag-ingat", "paano mag ingat", "kung paano",
-            // Phonetic Tagalog transcriptions that STT produces
             "mag tip", "mag tips", "pa yo", "payo",
             "pa a no", "paa no", "gawin sa", "dapat gawin"
         )
 
-        // ── Tab labels for detail fragments ───────────────────────────────────
-        // These map what the user says → the canonical tab label in the UI
         val TAB_KEYWORD_MAP: Map<String, List<String>> = mapOf(
             "before" to listOf(
                 "before", "bago", "paghanda", "preparation", "prepare", "prior",
@@ -203,20 +179,17 @@ sealed class VoiceCommand {
             "recommended" to listOf(
                 "recommended", "suggestions", "suggested", "popular",
                 "top picks", "featured", "best",
-                // Tagalog
                 "rekomendado", "inirerekomenda", "mungkahi", "iminumungkahi",
                 "mga mungkahi", "pinakamaganda"
             ),
             "all" to listOf(
                 "all", "show all", "view all", "everything", "complete list",
                 "full list", "see all", "list all",
-                // Tagalog
                 "lahat", "ipakita lahat", "lahat ng", "buo", "kumpleto",
                 "buong listahan", "mga lahat", "tignan lahat"
             )
         )
 
-        // ── First aid keywords ────────────────────────────────────────────────
         val FIRST_AID_KEYWORDS: Map<String, List<String>> = mapOf(
             "CPR" to listOf(
                 "cpr", "cardiopulmonary", "resuscitation", "heart attack",
@@ -252,19 +225,15 @@ sealed class VoiceCommand {
             )
         )
 
-        // ── Intent prefixes (stripped before subject matching) ────────────────
         val INTENT_PREFIXES: List<String> = listOf(
-            // English
             "show me", "open", "go to", "navigate to", "take me to",
             "i want to see", "i want to know about", "tell me about",
             "what is", "what are", "how do i", "how do you", "how to",
             "search for", "find", "look for", "give me", "display",
             "show information about", "information about", "info about",
-            // Tagalog
             "ipakita", "buksan", "pumunta sa", "dalhin ako sa",
             "gusto kong malaman", "ano ang", "paano ang", "sabihin mo",
             "hanapin", "ibigay sa akin", "ipakita sa akin",
-            // Phonetic transcriptions
             "i pak ita", "bu ksan", "pu munta"
         )
     }

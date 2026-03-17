@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayout
+import com.resq.app.MainActivity
 import com.resq.app.databinding.FragmentTipsBinding
 import com.resq.app.ui.adapter.TipDisasterGroupAdapter
 import com.resq.app.ui.viewmodel.DisasterTipGroup
@@ -30,8 +31,6 @@ class TipsFragment : Fragment() {
 
     private lateinit var groupAdapter: TipDisasterGroupAdapter
 
-    // Two separate caches — one per tab — so each observer stores
-    // its data unconditionally without racing on selectedTabPosition.
     private var recommendedGroups: List<DisasterTipGroup> = emptyList()
     private var allGroups: List<DisasterTipGroup> = emptyList()
 
@@ -50,6 +49,10 @@ class TipsFragment : Fragment() {
         setupTabLayout()
         setupSearch()
         observeViewModel()
+
+        // NEW — voice-commanded tab selection
+        handleVoiceTabArgument()
+        listenForVoiceTabSwitch()
     }
 
     // ── RecyclerView ──────────────────────────────────────────────────────────
@@ -78,12 +81,10 @@ class TipsFragment : Fragment() {
                 when (tab?.position) {
                     0 -> {
                         viewModel.loadRecommendedTipsForTab()
-                        // Immediately show the cached list — no wait for emission
                         showGroups(recommendedGroups)
                     }
                     1 -> {
                         viewModel.loadAllTips()
-                        // Immediately show the cached list — no wait for emission
                         showGroups(allGroups)
                     }
                 }
@@ -103,7 +104,6 @@ class TipsFragment : Fragment() {
     }
 
     private fun filterGroups(query: String) {
-        // Pick the correct source list based on which tab is active
         val source = if (binding.tabLayout.selectedTabPosition == 0) {
             recommendedGroups
         } else {
@@ -130,9 +130,6 @@ class TipsFragment : Fragment() {
                     }
                 }
 
-                // Always store recommended groups unconditionally.
-                // Only push to the adapter when tab 0 is active so the
-                // All tab is not overwritten by a late recommended emission.
                 launch {
                     viewModel.recommendedDisasterGroups.collect { groups ->
                         recommendedGroups = groups
@@ -143,8 +140,6 @@ class TipsFragment : Fragment() {
                     }
                 }
 
-                // Always store all groups unconditionally.
-                // Only push to the adapter when tab 1 is active.
                 launch {
                     viewModel.allDisasterGroups.collect { groups ->
                         allGroups = groups
@@ -162,6 +157,39 @@ class TipsFragment : Fragment() {
         groupAdapter.submitList(groups)
         binding.emptyState.isVisible = groups.isEmpty()
         binding.rvTips.isVisible     = groups.isNotEmpty()
+    }
+
+    // ── Voice tab handling (NEW) ──────────────────────────────────────────────
+
+    private fun handleVoiceTabArgument() {
+        val voiceTab = arguments?.getString("voiceTab")
+        if (!voiceTab.isNullOrEmpty()) {
+            selectTabByLabel(voiceTab)
+            arguments?.remove("voiceTab")
+        }
+    }
+
+    private fun listenForVoiceTabSwitch() {
+        parentFragmentManager.setFragmentResultListener(
+            MainActivity.REQUEST_SWITCH_TAB,
+            viewLifecycleOwner
+        ) { _, bundle ->
+            val tabLabel = bundle.getString(MainActivity.KEY_TAB_LABEL)
+            if (!tabLabel.isNullOrEmpty()) {
+                selectTabByLabel(tabLabel)
+            }
+        }
+    }
+
+    private fun selectTabByLabel(label: String) {
+        val tabIndex = when (label) {
+            "recommended" -> 0
+            "all"         -> 1
+            else          -> -1
+        }
+        if (tabIndex in 0 until binding.tabLayout.tabCount) {
+            binding.tabLayout.getTabAt(tabIndex)?.select()
+        }
     }
 
     override fun onDestroyView() {

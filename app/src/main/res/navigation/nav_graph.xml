@@ -70,6 +70,13 @@
         android:name="com.resq.app.ui.fragment.DisastersFragment"
         android:label="@string/nav_disasters"
         tools:layout="@layout/fragment_disasters">
+
+        <!-- NEW: voice-commanded tab selection -->
+        <argument
+            android:name="voiceTab"
+            android:defaultValue=""
+            app:argType="string" />
+
         <action
             android:id="@+id/action_disasters_to_detail"
             app:destination="@id/nav_disaster_detail"
@@ -128,7 +135,12 @@
         android:label="@string/nav_tips"
         tools:layout="@layout/fragment_tips">
 
-        <!-- NEW: navigate to tip detail (disaster tips list) -->
+        <!-- NEW: voice-commanded tab selection -->
+        <argument
+            android:name="voiceTab"
+            android:defaultValue=""
+            app:argType="string" />
+
         <action
             android:id="@+id/action_tips_to_tip_detail"
             app:destination="@id/nav_tip_detail"
@@ -139,7 +151,7 @@
 
     </fragment>
 
-    <!-- NEW: Tip Detail — shows all tips for a specific disaster -->
+    <!-- Tip Detail -->
     <fragment
         android:id="@+id/nav_tip_detail"
         android:name="com.resq.app.ui.fragment.TipDetailFragment"
@@ -190,7 +202,6 @@
         android:label="@string/about_title"
         tools:layout="@layout/fragment_about" />
 
-    <!-- Global action — used by the persistent emergency FAB in MainActivity -->
     <action
         android:id="@+id/action_global_emergency_contacts"
         app:destination="@id/nav_emergency_contacts"
@@ -199,7 +210,6 @@
         app:popEnterAnim="@anim/slide_in_left"
         app:popExitAnim="@anim/slide_out_right" />
 
-    <!-- Global action — voice navigation directly to tip detail screen -->
     <action
         android:id="@+id/action_global_tip_detail"
         app:destination="@id/nav_tip_detail"
