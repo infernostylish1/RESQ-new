@@ -290,4 +290,21 @@
     <string name="voice_listening">Listening… speak now</string>
     <string name="voice_processing">Processing…</string>
 
+    <!-- Emergency Contacts Tabs -->
+    <string name="contacts_tab_primary">Primary</string>
+    <string name="contacts_tab_custom">Custom</string>
+    <string name="contacts_add">Add Contact</string>
+    <string name="contacts_edit">Edit</string>
+    <string name="contacts_delete">Delete</string>
+    <string name="contacts_add_title">Add Emergency Contact</string>
+    <string name="contacts_edit_title">Edit Emergency Contact</string>
+    <string name="contacts_name_hint">Contact Name</string>
+    <string name="contacts_phone_hint">Phone Number</string>
+    <string name="contacts_delete_confirm">Are you sure you want to delete \"%1$s\"?</string>
+    <string name="contacts_empty_custom">No custom contacts yet.\nTap + to add one.</string>
+    <string name="contacts_empty_primary">No primary contacts available.</string>
+    <string name="contacts_name_required">Name is required</string>
+    <string name="contacts_phone_required">Phone number is required</string>
+
+
 </resources>

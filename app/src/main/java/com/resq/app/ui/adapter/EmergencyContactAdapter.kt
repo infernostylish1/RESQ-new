@@ -1,71 +1,31 @@
 package com.resq.app.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.resq.app.data.entity.EmergencyContactEntity
-import com.resq.app.data.model.ContactCategory
-import com.resq.app.databinding.ItemContactHeaderBinding
 import com.resq.app.databinding.ItemEmergencyContactBinding
 
 class EmergencyContactAdapter(
-    private val onCallClick: (EmergencyContactEntity) -> Unit
-) : ListAdapter<EmergencyContactAdapter.ContactListItem, RecyclerView.ViewHolder>(ContactDiffCallback()) {
+    private val onCallClick: (EmergencyContactEntity) -> Unit,
+    private val onEditClick: (EmergencyContactEntity) -> Unit = {},
+    private val onDeleteClick: (EmergencyContactEntity) -> Unit = {}
+) : ListAdapter<EmergencyContactEntity, EmergencyContactAdapter.ContactViewHolder>(ContactDiffCallback()) {
 
-    sealed class ContactListItem {
-        data class Header(val category: ContactCategory) : ContactListItem()
-        data class Contact(val contact: EmergencyContactEntity) : ContactListItem()
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ContactViewHolder {
+        val binding = ItemEmergencyContactBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ContactViewHolder(binding)
     }
 
-    companion object {
-        private const val VIEW_TYPE_HEADER = 0
-        private const val VIEW_TYPE_CONTACT = 1
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return when (getItem(position)) {
-            is ContactListItem.Header -> VIEW_TYPE_HEADER
-            is ContactListItem.Contact -> VIEW_TYPE_CONTACT
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when (viewType) {
-            VIEW_TYPE_HEADER -> {
-                val binding = ItemContactHeaderBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-                HeaderViewHolder(binding)
-            }
-            else -> {
-                val binding = ItemEmergencyContactBinding.inflate(
-                    LayoutInflater.from(parent.context),
-                    parent,
-                    false
-                )
-                ContactViewHolder(binding)
-            }
-        }
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val item = getItem(position)) {
-            is ContactListItem.Header -> (holder as HeaderViewHolder).bind(item.category)
-            is ContactListItem.Contact -> (holder as ContactViewHolder).bind(item.contact)
-        }
-    }
-
-    class HeaderViewHolder(
-        private val binding: ItemContactHeaderBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(category: ContactCategory) {
-            binding.tvHeader.text = category.name
-        }
+    override fun onBindViewHolder(holder: ContactViewHolder, position: Int) {
+        holder.bind(getItem(position))
     }
 
     inner class ContactViewHolder(
@@ -76,10 +36,19 @@ class EmergencyContactAdapter(
             binding.btnCall.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
-                    val item = getItem(position)
-                    if (item is ContactListItem.Contact) {
-                        onCallClick(item.contact)
-                    }
+                    onCallClick(getItem(position))
+                }
+            }
+            binding.btnEdit.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onEditClick(getItem(position))
+                }
+            }
+            binding.btnDelete.setOnClickListener {
+                val position = bindingAdapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onDeleteClick(getItem(position))
                 }
             }
         }
@@ -88,40 +57,25 @@ class EmergencyContactAdapter(
             binding.apply {
                 tvContactName.text = contact.name
                 tvContactNumber.text = contact.phoneNumber
+                btnEdit.visibility = if (contact.isCustom) View.VISIBLE else View.GONE
+                btnDelete.visibility = if (contact.isCustom) View.VISIBLE else View.GONE
             }
         }
     }
 
-    private class ContactDiffCallback : DiffUtil.ItemCallback<ContactListItem>() {
-        override fun areItemsTheSame(oldItem: ContactListItem, newItem: ContactListItem): Boolean {
-            return when {
-                oldItem is ContactListItem.Header && newItem is ContactListItem.Header ->
-                    oldItem.category == newItem.category
-                oldItem is ContactListItem.Contact && newItem is ContactListItem.Contact ->
-                    oldItem.contact.id == newItem.contact.id
-                else -> false
-            }
+    private class ContactDiffCallback : DiffUtil.ItemCallback<EmergencyContactEntity>() {
+        override fun areItemsTheSame(
+            oldItem: EmergencyContactEntity,
+            newItem: EmergencyContactEntity
+        ): Boolean {
+            return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: ContactListItem, newItem: ContactListItem): Boolean {
+        override fun areContentsTheSame(
+            oldItem: EmergencyContactEntity,
+            newItem: EmergencyContactEntity
+        ): Boolean {
             return oldItem == newItem
         }
-    }
-
-    fun submitContactList(contacts: List<EmergencyContactEntity>) {
-        val items = mutableListOf<ContactListItem>()
-        val groupedContacts = contacts.groupBy { it.category }
-
-        ContactCategory.entries.forEach { category ->
-            val categoryContacts = groupedContacts[category]
-            if (!categoryContacts.isNullOrEmpty()) {
-                items.add(ContactListItem.Header(category))
-                categoryContacts.forEach { contact ->
-                    items.add(ContactListItem.Contact(contact))
-                }
-            }
-        }
-
-        submitList(items)
     }
 }

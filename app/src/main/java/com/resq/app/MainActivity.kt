@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
                 binding.bottomNavigation.visibility =
                     if (destination.id == R.id.nav_onboarding) View.GONE else View.VISIBLE
                 binding.fabMain.visibility = if (isHiddenDest) View.GONE else View.VISIBLE
-                updateEmergencyRowAvailability(isOnContactsScreen)
+                updateFabRowAvailability(isOnContactsScreen)
                 syncBottomNavSelection(destination.id)
             }
         }
@@ -102,9 +102,11 @@ class MainActivity : AppCompatActivity() {
     // ── FAB speed-dial ────────────────────────────────────────────────────────
 
     private var emergencyRowSuppressed = false
+    private var addContactRowAvailable = false
 
-    private fun updateEmergencyRowAvailability(onContactsScreen: Boolean) {
+    private fun updateFabRowAvailability(onContactsScreen: Boolean) {
         emergencyRowSuppressed = onContactsScreen
+        addContactRowAvailable = onContactsScreen
     }
 
     private fun setupFabMenu() {
@@ -112,6 +114,7 @@ class MainActivity : AppCompatActivity() {
             if (isFabMenuOpen) collapseFabMenu() else expandFabMenu()
         }
         binding.fabScrim.setOnClickListener { collapseFabMenu() }
+
         binding.fabVoiceCommand.setOnClickListener {
             collapseFabMenu()
             if (supportFragmentManager.findFragmentByTag(VoiceCommandBottomSheet.TAG) == null) {
@@ -124,6 +127,10 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.nav_emergency_contacts)
             }
         }
+        binding.fabAddContact.setOnClickListener {
+            collapseFabMenu()
+            supportFragmentManager.setFragmentResult(REQUEST_ADD_CONTACT, Bundle.EMPTY)
+        }
     }
 
     private fun expandFabMenu() {
@@ -131,14 +138,18 @@ class MainActivity : AppCompatActivity() {
         binding.fabMain.animate().rotation(45f).setDuration(200).start()
         binding.fabScrim.visibility = View.VISIBLE
         binding.fabScrim.animate().alpha(1f).setDuration(200).start()
+
         animateChildIn(binding.fabVoiceRow)
         if (!emergencyRowSuppressed) animateChildIn(binding.fabEmergencyRow)
+        if (addContactRowAvailable) animateChildIn(binding.fabAddContactRow)
     }
 
     private fun collapseFabMenu() {
         if (!isFabMenuOpen &&
             binding.fabVoiceRow.visibility == View.GONE &&
-            binding.fabEmergencyRow.visibility == View.GONE) return
+            binding.fabEmergencyRow.visibility == View.GONE &&
+            binding.fabAddContactRow.visibility == View.GONE) return
+
         isFabMenuOpen = false
         binding.fabMain.animate().rotation(0f).setDuration(200).start()
         binding.fabScrim.animate().alpha(0f).setDuration(200).withEndAction {
@@ -146,6 +157,7 @@ class MainActivity : AppCompatActivity() {
         }.start()
         animateChildOut(binding.fabVoiceRow)
         animateChildOut(binding.fabEmergencyRow)
+        animateChildOut(binding.fabAddContactRow)
     }
 
     private fun animateChildIn(row: View) {
@@ -174,14 +186,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Navigate to a list screen and select a specific tab.
-     * If already on that screen, switch tab via fragment result instead
-     * of re-creating the fragment.
-     */
     private fun navigateToScreenWithTab(destinationId: Int, tab: String) {
         if (navController.currentDestination?.id == destinationId) {
-            // Already on this screen — switch tab via fragment result
             supportFragmentManager.setFragmentResult(
                 REQUEST_SWITCH_TAB,
                 Bundle().apply { putString(KEY_TAB_LABEL, tab) }
@@ -196,8 +202,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun executeVoiceCommand(command: VoiceCommand) {
         when (command) {
-
-            // ── Simple navigation ─────────────────────────────────────────────
             is VoiceCommand.NavigateHome      -> navController.navigate(R.id.nav_home)
             is VoiceCommand.NavigateDisasters -> navController.navigate(R.id.nav_disasters)
             is VoiceCommand.NavigateFirstAid  -> navController.navigate(R.id.nav_first_aid)
@@ -205,7 +209,6 @@ class MainActivity : AppCompatActivity() {
             is VoiceCommand.NavigateSettings  -> navController.navigate(R.id.nav_settings)
             is VoiceCommand.NavigateContacts  -> navController.navigate(R.id.nav_emergency_contacts)
 
-            // ── NEW: Navigate to module screen + select tab ───────────────────
             is VoiceCommand.NavigateDisastersTab -> {
                 navigateToScreenWithTab(R.id.nav_disasters, command.tab)
             }
@@ -213,37 +216,26 @@ class MainActivity : AppCompatActivity() {
                 navigateToScreenWithTab(R.id.nav_tips, command.tab)
             }
 
-            // ── Disaster detail (no phase) ────────────────────────────────────
             is VoiceCommand.OpenDisasterDetail -> {
                 safeNavigateToDisasterDetail(command.disasterId, command.disasterName)
             }
-
-            // ── Disaster detail + jump to phase tab ───────────────────────────
             is VoiceCommand.OpenDisasterPhaseResolved -> {
                 safeNavigateToDisasterDetail(
-                    command.disasterId,
-                    command.disasterName,
-                    command.phase
+                    command.disasterId, command.disasterName, command.phase
                 )
             }
-
-            // ── First aid detail ──────────────────────────────────────────────
             is VoiceCommand.OpenFirstAidDetail -> {
                 safeNavigateToFirstAidDetail(command.categoryId, command.categoryName)
             }
-
-            // ── Tip detail ────────────────────────────────────────────────────
             is VoiceCommand.OpenTipDetailResolved -> {
                 safeNavigateToTipDetail(command.disasterId, command.disasterName)
             }
 
-            // ── Legacy list-level fallbacks ───────────────────────────────────
             is VoiceCommand.OpenDisaster         -> navController.navigate(R.id.nav_disasters)
             is VoiceCommand.OpenDisasterPhase    -> navController.navigate(R.id.nav_disasters)
             is VoiceCommand.OpenFirstAidCategory -> navController.navigate(R.id.nav_first_aid)
             is VoiceCommand.OpenTipDetail        -> navController.navigate(R.id.nav_tips)
 
-            // ── List commands (UPDATED: now select the "All" tab) ─────────────
             is VoiceCommand.ListAllDisasters -> {
                 navigateToScreenWithTab(R.id.nav_disasters, "all")
             }
@@ -252,7 +244,6 @@ class MainActivity : AppCompatActivity() {
                 navigateToScreenWithTab(R.id.nav_tips, "all")
             }
 
-            // ── Search ────────────────────────────────────────────────────────
             is VoiceCommand.SearchDisaster -> {
                 navController.navigate(R.id.nav_disasters,
                     Bundle().apply { putString(ARG_VOICE_QUERY, command.query) })
@@ -266,7 +257,6 @@ class MainActivity : AppCompatActivity() {
                     Bundle().apply { putString(ARG_VOICE_QUERY, command.query) })
             }
 
-            // ── App control ───────────────────────────────────────────────────
             is VoiceCommand.GoBack -> navController.popBackStack()
 
             is VoiceCommand.ScrollUp -> {
@@ -282,7 +272,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-            // ── TTS ───────────────────────────────────────────────────────────
             is VoiceCommand.ReadContent -> {
                 supportFragmentManager.setFragmentResult(
                     REQUEST_TTS, Bundle().apply { putString(KEY_TTS, TTS_READ) })
@@ -300,7 +289,6 @@ class MainActivity : AppCompatActivity() {
                     REQUEST_TTS, Bundle().apply { putString(KEY_TTS, TTS_RESUME) })
             }
 
-            // ── Tab switch ────────────────────────────────────────────────────
             is VoiceCommand.SwitchTab -> {
                 supportFragmentManager.setFragmentResult(
                     REQUEST_SWITCH_TAB,
@@ -308,18 +296,15 @@ class MainActivity : AppCompatActivity() {
                 )
             }
 
-            // ── Emergency ─────────────────────────────────────────────────────
             is VoiceCommand.CallEmergency -> navController.navigate(R.id.nav_emergency_contacts)
             is VoiceCommand.CallContact -> {
                 navController.navigate(R.id.nav_emergency_contacts,
                     Bundle().apply { putString(ARG_CONTACT_NAME, command.contactName) })
             }
 
-            // ── Tips ──────────────────────────────────────────────────────────
             is VoiceCommand.GetRandomTip,
             is VoiceCommand.GetNextTip -> navController.navigate(R.id.nav_tips)
 
-            // ── Unknown ───────────────────────────────────────────────────────
             is VoiceCommand.Unknown -> Unit
         }
     }
@@ -327,9 +312,7 @@ class MainActivity : AppCompatActivity() {
     // ── Safe navigation helpers ───────────────────────────────────────────────
 
     private fun safeNavigateToDisasterDetail(
-        disasterId: Long,
-        disasterName: String,
-        phase: String? = null
+        disasterId: Long, disasterName: String, phase: String? = null
     ) {
         val args = Bundle().apply {
             putLong("disasterId", disasterId)
@@ -337,9 +320,7 @@ class MainActivity : AppCompatActivity() {
             if (phase != null) putString(ARG_VOICE_PHASE, phase)
         }
         when (navController.currentDestination?.id) {
-            R.id.nav_disasters -> {
-                navController.navigate(R.id.action_disasters_to_detail, args)
-            }
+            R.id.nav_disasters -> navController.navigate(R.id.action_disasters_to_detail, args)
             R.id.nav_disaster_detail -> {
                 navController.popBackStack(R.id.nav_disasters, false)
                 navController.navigate(R.id.action_disasters_to_detail, args)
@@ -357,9 +338,7 @@ class MainActivity : AppCompatActivity() {
             putString("categoryName", categoryName)
         }
         when (navController.currentDestination?.id) {
-            R.id.nav_first_aid -> {
-                navController.navigate(R.id.action_first_aid_to_detail, args)
-            }
+            R.id.nav_first_aid -> navController.navigate(R.id.action_first_aid_to_detail, args)
             R.id.nav_first_aid_detail -> {
                 navController.popBackStack(R.id.nav_first_aid, false)
                 navController.navigate(R.id.action_first_aid_to_detail, args)
@@ -377,9 +356,7 @@ class MainActivity : AppCompatActivity() {
             putString("disasterName", disasterName)
         }
         when (navController.currentDestination?.id) {
-            R.id.nav_tips -> {
-                navController.navigate(R.id.action_tips_to_tip_detail, args)
-            }
+            R.id.nav_tips -> navController.navigate(R.id.action_tips_to_tip_detail, args)
             R.id.nav_tip_detail -> {
                 navController.popBackStack(R.id.nav_tips, false)
                 navController.navigate(R.id.action_tips_to_tip_detail, args)
@@ -392,24 +369,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        const val REQUEST_SCROLL     = "request_scroll"
-        const val KEY_SCROLL         = "key_scroll"
-        const val SCROLL_UP          = "scroll_up"
-        const val SCROLL_DOWN        = "scroll_down"
+        const val REQUEST_SCROLL      = "request_scroll"
+        const val KEY_SCROLL          = "key_scroll"
+        const val SCROLL_UP           = "scroll_up"
+        const val SCROLL_DOWN         = "scroll_down"
 
-        const val REQUEST_TTS        = "request_tts"
-        const val KEY_TTS            = "key_tts"
-        const val TTS_READ           = "tts_read"
-        const val TTS_STOP           = "tts_stop"
-        const val TTS_PAUSE          = "tts_pause"
-        const val TTS_RESUME         = "tts_resume"
+        const val REQUEST_TTS         = "request_tts"
+        const val KEY_TTS             = "key_tts"
+        const val TTS_READ            = "tts_read"
+        const val TTS_STOP            = "tts_stop"
+        const val TTS_PAUSE           = "tts_pause"
+        const val TTS_RESUME          = "tts_resume"
 
-        const val REQUEST_SWITCH_TAB = "request_switch_tab"
-        const val KEY_TAB_LABEL      = "key_tab_label"
+        const val REQUEST_SWITCH_TAB  = "request_switch_tab"
+        const val KEY_TAB_LABEL       = "key_tab_label"
 
-        const val ARG_VOICE_PHASE    = "voicePhase"
-        const val ARG_VOICE_QUERY    = "arg_voice_query"
-        const val ARG_VOICE_TAB      = "voiceTab"          // NEW
-        const val ARG_CONTACT_NAME   = "arg_contact_name"
+        const val REQUEST_ADD_CONTACT = "request_add_contact"
+
+        const val ARG_VOICE_PHASE     = "voicePhase"
+        const val ARG_VOICE_QUERY     = "arg_voice_query"
+        const val ARG_VOICE_TAB       = "voiceTab"
+        const val ARG_CONTACT_NAME    = "arg_contact_name"
     }
 }

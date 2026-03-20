@@ -39,9 +39,9 @@ class EmergencyContactsViewModel @Inject constructor(
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         allContacts = contacts,
-                        filteredContacts = contacts,
                         languageCode = languageCode
                     )
+                    applyFilters()
                 }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -52,49 +52,68 @@ class EmergencyContactsViewModel @Inject constructor(
         }
     }
 
-    fun filterByCategory(category: ContactCategory?) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(selectedCategory = category)
+    private fun applyFilters() {
+        val state = _uiState.value
+        var filtered = state.allContacts
 
-            if (category == null) {
-                _uiState.value = _uiState.value.copy(
-                    filteredContacts = _uiState.value.allContacts
-                )
-            } else {
-                emergencyContactRepository.getContactsByCategory(category).collect { contacts ->
-                    _uiState.value = _uiState.value.copy(filteredContacts = contacts)
-                }
+        // Filter by tab: 0 = Primary (preloaded), 1 = Custom (user-added)
+        filtered = when (state.selectedTab) {
+            0 -> filtered.filter { !it.isCustom }
+            1 -> filtered.filter { it.isCustom }
+            else -> filtered
+        }
+
+        // Filter by search query
+        if (state.searchQuery.isNotBlank()) {
+            val query = state.searchQuery.lowercase()
+            filtered = filtered.filter {
+                it.name.lowercase().contains(query) ||
+                        it.phoneNumber.lowercase().contains(query) ||
+                        (it.description?.lowercase()?.contains(query) == true)
             }
         }
+
+        _uiState.value = state.copy(filteredContacts = filtered)
+    }
+
+    fun selectTab(tabIndex: Int) {
+        _uiState.value = _uiState.value.copy(selectedTab = tabIndex)
+        applyFilters()
     }
 
     fun searchContacts(query: String) {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(searchQuery = query)
-
-            if (query.isBlank()) {
-                _uiState.value = _uiState.value.copy(
-                    filteredContacts = _uiState.value.allContacts
-                )
-            } else {
-                emergencyContactRepository.searchContacts(query).collect { results ->
-                    _uiState.value = _uiState.value.copy(filteredContacts = results)
-                }
-            }
-        }
+        _uiState.value = _uiState.value.copy(searchQuery = query)
+        applyFilters()
     }
 
-    fun addCustomContact(name: String, phoneNumber: String, category: ContactCategory = ContactCategory.PERSONAL) {
+    fun addCustomContact(name: String, phoneNumber: String) {
         viewModelScope.launch {
             try {
                 emergencyContactRepository.addCustomContact(
                     name = name,
                     phoneNumber = phoneNumber,
-                    category = category
+                    category = ContactCategory.PERSONAL
                 )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     error = "Failed to add contact: ${e.message}"
+                )
+            }
+        }
+    }
+
+    fun updateContact(contactId: Long, name: String, phoneNumber: String) {
+        viewModelScope.launch {
+            try {
+                val existing = emergencyContactRepository.getContactById(contactId)
+                if (existing != null) {
+                    emergencyContactRepository.updateContact(
+                        existing.copy(name = name, phoneNumber = phoneNumber)
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    error = "Failed to update contact: ${e.message}"
                 )
             }
         }
@@ -128,15 +147,13 @@ class EmergencyContactsViewModel @Inject constructor(
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
-
-    fun getCategoryOptions() = ContactCategory.entries
 }
 
 data class EmergencyContactsUiState(
     val isLoading: Boolean = true,
     val allContacts: List<EmergencyContactEntity> = emptyList(),
     val filteredContacts: List<EmergencyContactEntity> = emptyList(),
-    val selectedCategory: ContactCategory? = null,
+    val selectedTab: Int = 0,
     val searchQuery: String = "",
     val languageCode: String = "en",
     val error: String? = null
