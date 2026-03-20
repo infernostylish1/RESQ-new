@@ -33,7 +33,7 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
             app:layout_constraintBottom_toTopOf="@id/tv_contact_number"
-            app:layout_constraintEnd_toStartOf="@id/btn_edit"
+            app:layout_constraintEnd_toStartOf="@id/btn_call"
             app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed"
@@ -50,38 +50,48 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.RESQ.Body"
             android:textColor="@color/text_secondary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_edit"
+            app:layout_constraintBottom_toTopOf="@id/btn_edit"
+            app:layout_constraintEnd_toStartOf="@id/btn_call"
             app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
             app:layout_constraintTop_toBottomOf="@id/tv_contact_name"
             tools:text="117" />
 
-        <com.google.android.material.button.MaterialButton
+        <!-- Text-link "Edit" — part of the vertical packed chain -->
+        <TextView
             android:id="@+id/btn_edit"
-            style="@style/Widget.RESQ.Button.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/contacts_edit"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingHorizontal="@dimen/spacing_xs"
+            android:paddingVertical="2dp"
+            android:text="@string/contacts_edit"
+            android:textColor="@color/primary"
+            android:textSize="@dimen/text_size_caption"
+            android:textStyle="bold"
             android:visibility="gone"
-            app:icon="@android:drawable/ic_menu_edit"
-            app:iconTint="@color/text_secondary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_delete"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
+            app:layout_constraintTop_toBottomOf="@id/tv_contact_number"
             tools:visibility="visible" />
 
-        <com.google.android.material.button.MaterialButton
+        <!-- Text-link "Delete" — follows btn_edit horizontally -->
+        <TextView
             android:id="@+id/btn_delete"
-            style="@style/Widget.RESQ.Button.Icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/contacts_delete"
+            android:layout_marginStart="@dimen/spacing_md"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingHorizontal="@dimen/spacing_xs"
+            android:paddingVertical="2dp"
+            android:text="@string/contacts_delete"
+            android:textColor="@color/error"
+            android:textSize="@dimen/text_size_caption"
+            android:textStyle="bold"
             android:visibility="gone"
-            app:icon="@android:drawable/ic_menu_delete"
-            app:iconTint="@color/error"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btn_call"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/btn_edit"
+            app:layout_constraintStart_toEndOf="@id/btn_edit"
             tools:visibility="visible" />
 
         <com.google.android.material.button.MaterialButton

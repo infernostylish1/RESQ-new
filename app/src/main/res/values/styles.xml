@@ -173,6 +173,7 @@
     <style name="Widget.RESQ.Toolbar" parent="Widget.Material3.Toolbar">
         <item name="android:background">@color/surface</item>
         <item name="titleTextColor">@color/text_primary</item>
+        <item name="titleTextAppearance">@style/TextAppearance.RESQ.Headline</item>
         <item name="navigationIconTint">@color/on_surface</item>
         <item name="android:elevation">@dimen/toolbar_elevation</item>
     </style>

@@ -7,13 +7,23 @@
     android:layout_height="match_parent"
     tools:context=".ui.fragment.TipsFragment">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Widget.RESQ.Toolbar"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/nav_tips" />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:tabIndicatorColor="@color/primary"
         app:tabSelectedTextColor="@color/primary"
         app:tabTextColor="@color/text_secondary">
@@ -30,7 +40,6 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-    <!-- Search is kept but scoped to filter disaster cards by name -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search"
         style="@style/Widget.RESQ.TextInputLayout.Search"
@@ -51,7 +60,6 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Loading indicator -->
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress_indicator"
         android:layout_width="wrap_content"
@@ -63,7 +71,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_search" />
 
-    <!-- Disaster group cards — one card per disaster type -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_tips"
         android:layout_width="0dp"
@@ -90,7 +97,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/til_search">
 
         <ImageView
             android:layout_width="@dimen/icon_size_xxl"

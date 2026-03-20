@@ -31,6 +31,7 @@ import com.resq.app.ui.adapter.EmergencyContactAdapter
 import com.resq.app.ui.viewmodel.EmergencyContactsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import androidx.core.os.bundleOf
 
 @AndroidEntryPoint
 class EmergencyContactsFragment : Fragment() {
@@ -73,6 +74,9 @@ class EmergencyContactsFragment : Fragment() {
         setupSearch()
         setupAddContactListener()
         observeViewModel()
+
+        // Notify activity of initial tab state for FAB visibility
+        notifyTabState(binding.tabLayout.selectedTabPosition)
     }
 
     private fun setupToolbar() {
@@ -84,12 +88,21 @@ class EmergencyContactsFragment : Fragment() {
     private fun setupTabs() {
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                viewModel.selectTab(tab?.position ?: 0)
+                val position = tab?.position ?: 0
+                viewModel.selectTab(position)
+                notifyTabState(position)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {}
             override fun onTabReselected(tab: TabLayout.Tab?) {}
         })
+    }
+
+    private fun notifyTabState(tabPosition: Int) {
+        requireActivity().supportFragmentManager.setFragmentResult(
+            RESULT_CONTACTS_TAB,
+            bundleOf(KEY_SELECTED_TAB to tabPosition)
+        )
     }
 
     private fun setupRecyclerView() {
@@ -285,4 +298,10 @@ class EmergencyContactsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    companion object {
+        const val RESULT_CONTACTS_TAB = "result_contacts_tab"
+        const val KEY_SELECTED_TAB = "key_selected_tab"
+    }
+
 }

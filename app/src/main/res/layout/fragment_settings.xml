@@ -1,264 +1,284 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     tools:context=".ui.fragment.SettingsFragment">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/screen_padding">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Widget.RESQ.Toolbar"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/nav_settings" />
 
-        <TextView
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/settings_appearance"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
-            android:textColor="@color/primary" />
-
-        <LinearLayout
-            android:id="@+id/setting_dark_theme"
-            style="@style/Widget.RESQ.ListItem"
-            android:layout_marginTop="@dimen/spacing_sm">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_dark_theme"
-                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_dark_theme_desc"
-                    android:textAppearance="@style/TextAppearance.RESQ.Caption"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switch_dark_theme"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/setting_font_size"
-            style="@style/Widget.RESQ.ListItem"
-            android:layout_marginTop="@dimen/spacing_sm">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_font_size"
-                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
-
-                <TextView
-                    android:id="@+id/tv_font_size_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.RESQ.Caption"
-                    android:textColor="@color/text_secondary"
-                    tools:text="Medium" />
-
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="@dimen/icon_size_md"
-                android:layout_height="@dimen/icon_size_md"
-                android:contentDescription="@string/cd_next_button"
-                android:src="@android:drawable/ic_media_play"
-                app:tint="@color/text_secondary" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/setting_language"
-            style="@style/Widget.RESQ.ListItem"
-            android:layout_marginTop="@dimen/spacing_sm">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_language"
-                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
-
-                <TextView
-                    android:id="@+id/tv_language_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.RESQ.Caption"
-                    android:textColor="@color/text_secondary"
-                    tools:text="English" />
-
-            </LinearLayout>
-
-            <ImageView
-                android:layout_width="@dimen/icon_size_md"
-                android:layout_height="@dimen/icon_size_md"
-                android:contentDescription="@string/cd_next_button"
-                android:src="@android:drawable/ic_media_play"
-                app:tint="@color/text_secondary" />
-
-        </LinearLayout>
-
-        <View
-            style="@style/Widget.RESQ.Divider"
-            android:layout_marginVertical="@dimen/spacing_lg" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_accessibility"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
-            android:textColor="@color/primary" />
-
-        <LinearLayout
-            android:id="@+id/setting_voice_command"
-            style="@style/Widget.RESQ.ListItem"
-            android:layout_marginTop="@dimen/spacing_sm">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_voice_command"
-                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_voice_command_desc"
-                    android:textAppearance="@style/TextAppearance.RESQ.Caption"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switch_voice_command"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/setting_tts"
-            style="@style/Widget.RESQ.ListItem"
-            android:layout_marginTop="@dimen/spacing_sm">
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_tts"
-                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/settings_tts_desc"
-                    android:textAppearance="@style/TextAppearance.RESQ.Caption"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/switch_tts"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-        <View
-            style="@style/Widget.RESQ.Divider"
-            android:layout_marginVertical="@dimen/spacing_lg" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/settings_content"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
-            android:textColor="@color/primary" />
-
-        <LinearLayout
-            android:id="@+id/setting_emergency_contacts"
-            style="@style/Widget.RESQ.ListItem"
-            android:layout_marginTop="@dimen/spacing_sm">
+            android:orientation="vertical"
+            android:padding="@dimen/screen_padding">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/contacts_title"
-                android:textAppearance="@style/TextAppearance.RESQ.Body" />
+                android:text="@string/settings_appearance"
+                android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                android:textColor="@color/primary" />
 
-            <ImageView
-                android:layout_width="@dimen/icon_size_md"
-                android:layout_height="@dimen/icon_size_md"
-                android:contentDescription="@string/cd_next_button"
-                android:src="@android:drawable/ic_media_play"
-                app:tint="@color/text_secondary" />
+            <LinearLayout
+                android:id="@+id/setting_dark_theme"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
 
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
 
-        <View
-            style="@style/Widget.RESQ.Divider"
-            android:layout_marginVertical="@dimen/spacing_lg" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_dark_theme"
+                        android:textAppearance="@style/TextAppearance.RESQ.Body" />
 
-        <LinearLayout
-            android:id="@+id/setting_about"
-            style="@style/Widget.RESQ.ListItem">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_dark_theme_desc"
+                        android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                        android:textColor="@color/text_secondary" />
+
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_dark_theme"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/setting_font_size"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_font_size"
+                        android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                    <TextView
+                        android:id="@+id/tv_font_size_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                        android:textColor="@color/text_secondary"
+                        tools:text="Medium" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_md"
+                    android:layout_height="@dimen/icon_size_md"
+                    android:contentDescription="@string/cd_next_button"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/setting_language"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_language"
+                        android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                    <TextView
+                        android:id="@+id/tv_language_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                        android:textColor="@color/text_secondary"
+                        tools:text="English" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_md"
+                    android:layout_height="@dimen/icon_size_md"
+                    android:contentDescription="@string/cd_next_button"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <View
+                style="@style/Widget.RESQ.Divider"
+                android:layout_marginVertical="@dimen/spacing_lg" />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/settings_about_app"
-                android:textAppearance="@style/TextAppearance.RESQ.Body" />
+                android:text="@string/settings_accessibility"
+                android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                android:textColor="@color/primary" />
 
-            <ImageView
-                android:layout_width="@dimen/icon_size_md"
-                android:layout_height="@dimen/icon_size_md"
-                android:contentDescription="@string/cd_next_button"
-                android:src="@android:drawable/ic_media_play"
-                app:tint="@color/text_secondary" />
+            <LinearLayout
+                android:id="@+id/setting_voice_command"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_voice_command"
+                        android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_voice_command_desc"
+                        android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                        android:textColor="@color/text_secondary" />
+
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_voice_command"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/setting_tts"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_tts"
+                        android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_tts_desc"
+                        android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                        android:textColor="@color/text_secondary" />
+
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_tts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <View
+                style="@style/Widget.RESQ.Divider"
+                android:layout_marginVertical="@dimen/spacing_lg" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings_content"
+                android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                android:textColor="@color/primary" />
+
+            <LinearLayout
+                android:id="@+id/setting_emergency_contacts"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/contacts_title"
+                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_md"
+                    android:layout_height="@dimen/icon_size_md"
+                    android:contentDescription="@string/cd_next_button"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <View
+                style="@style/Widget.RESQ.Divider"
+                android:layout_marginVertical="@dimen/spacing_lg" />
+
+            <LinearLayout
+                android:id="@+id/setting_about"
+                style="@style/Widget.RESQ.ListItem">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/settings_about_app"
+                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_md"
+                    android:layout_height="@dimen/icon_size_md"
+                    android:contentDescription="@string/cd_next_button"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-</androidx.core.widget.NestedScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

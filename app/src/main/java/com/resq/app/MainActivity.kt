@@ -21,6 +21,7 @@ import com.resq.app.util.VoiceCommand
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.resq.app.ui.fragment.EmergencyContactsFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -104,9 +105,12 @@ class MainActivity : AppCompatActivity() {
     private var emergencyRowSuppressed = false
     private var addContactRowAvailable = false
 
+    private var isOnContactsScreen = false
+
     private fun updateFabRowAvailability(onContactsScreen: Boolean) {
         emergencyRowSuppressed = onContactsScreen
-        addContactRowAvailable = onContactsScreen
+        isOnContactsScreen = onContactsScreen
+        addContactRowAvailable = false  // Updated by fragment tab-state listener
     }
 
     private fun setupFabMenu() {
@@ -131,6 +135,16 @@ class MainActivity : AppCompatActivity() {
             collapseFabMenu()
             supportFragmentManager.setFragmentResult(REQUEST_ADD_CONTACT, Bundle.EMPTY)
         }
+
+        // Listen for contacts-tab changes to show/hide "Add Contact" row
+        supportFragmentManager.setFragmentResultListener(
+            EmergencyContactsFragment.RESULT_CONTACTS_TAB, this
+        ) { _, bundle ->
+            val isCustomTab =
+                bundle.getInt(EmergencyContactsFragment.KEY_SELECTED_TAB, 0) == 1
+            addContactRowAvailable = isOnContactsScreen && isCustomTab
+        }
+
     }
 
     private fun expandFabMenu() {
