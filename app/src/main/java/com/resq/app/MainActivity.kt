@@ -2,11 +2,12 @@ package com.resq.app
 
 import android.os.Bundle
 import android.view.View
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -22,6 +23,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.resq.app.ui.fragment.EmergencyContactsFragment
+import androidx.activity.addCallback
+import com.resq.app.util.DialogHelper
+import com.resq.app.util.clearSelection
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -37,13 +41,17 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+
+        // Draw behind system bars without fitsSystemWindows inflating the nav bar
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+        // Apply insets ONLY to the fragment container so the status bar is respected,
+        // but the BottomNavigationView height stays fixed and is never pushed up.
+        ViewCompat.setOnApplyWindowInsetsListener(binding.navHostFragment) { view, insets ->
+            view.updatePadding(0)
             insets
         }
 
@@ -73,6 +81,42 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(item.itemId)
                 true
             }
+
+            // Proper back navigation with exit confirmation
+            onBackPressedDispatcher.addCallback(this@MainActivity) {
+                val currentId = navController.currentDestination?.id
+
+                val topLevelIds = setOf(
+                    R.id.nav_home,
+                    R.id.nav_disasters,
+                    R.id.nav_first_aid,
+                    R.id.nav_tips,
+                    R.id.nav_settings
+                )
+
+                if (currentId in topLevelIds) {
+                    // Any top-level screen — show exit confirmation
+                    DialogHelper.showExitConfirmation(this@MainActivity) {
+                        finish()
+                    }
+                } else {
+                    // On a detail/sub screen — try to pop back
+                    if (!navController.popBackStack()) {
+                        // Nothing to pop (shouldn't normally happen), show exit dialog as fallback
+                        DialogHelper.showExitConfirmation(this@MainActivity) {
+                            finish()
+                        }
+                    }
+                }
+            }
+
+            binding.swipeNavigationLayout.attach(
+                navController = navController,
+                onTabSwiped = { destinationId ->
+                    syncBottomNavSelection(destinationId)
+                }
+            )
+
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 collapseFabMenu()
                 val isHiddenDest = destination.id in fabHiddenDestinations
@@ -88,29 +132,33 @@ class MainActivity : AppCompatActivity() {
 
     private fun syncBottomNavSelection(destinationId: Int) {
         val ownerTab = when (destinationId) {
-            R.id.nav_home -> R.id.nav_home
+            R.id.nav_home             -> R.id.nav_home
             R.id.nav_disasters,
             R.id.nav_disaster_detail  -> R.id.nav_disasters
             R.id.nav_first_aid,
             R.id.nav_first_aid_detail -> R.id.nav_first_aid
             R.id.nav_tips,
             R.id.nav_tip_detail       -> R.id.nav_tips
-            else -> null
+            R.id.nav_settings         -> R.id.nav_settings  // ← added
+            else                      -> null
         }
-        ownerTab?.let { binding.bottomNavigation.menu.findItem(it)?.isChecked = true }
+        if (ownerTab != null) {
+            binding.bottomNavigation.menu.findItem(ownerTab)?.isChecked = true
+        } else {
+            binding.bottomNavigation.clearSelection()        // ← was a no-op before
+        }
     }
 
     // ── FAB speed-dial ────────────────────────────────────────────────────────
 
     private var emergencyRowSuppressed = false
     private var addContactRowAvailable = false
-
     private var isOnContactsScreen = false
 
     private fun updateFabRowAvailability(onContactsScreen: Boolean) {
         emergencyRowSuppressed = onContactsScreen
         isOnContactsScreen = onContactsScreen
-        addContactRowAvailable = false  // Updated by fragment tab-state listener
+        addContactRowAvailable = false
     }
 
     private fun setupFabMenu() {
@@ -136,7 +184,6 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.setFragmentResult(REQUEST_ADD_CONTACT, Bundle.EMPTY)
         }
 
-        // Listen for contacts-tab changes to show/hide "Add Contact" row
         supportFragmentManager.setFragmentResultListener(
             EmergencyContactsFragment.RESULT_CONTACTS_TAB, this
         ) { _, bundle ->
@@ -144,7 +191,6 @@ class MainActivity : AppCompatActivity() {
                 bundle.getInt(EmergencyContactsFragment.KEY_SELECTED_TAB, 0) == 1
             addContactRowAvailable = isOnContactsScreen && isCustomTab
         }
-
     }
 
     private fun expandFabMenu() {

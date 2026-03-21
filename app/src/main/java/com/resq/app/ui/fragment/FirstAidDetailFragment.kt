@@ -16,6 +16,7 @@ import com.resq.app.databinding.FragmentFirstAidDetailBinding
 import com.resq.app.ui.adapter.FirstAidStepAdapter
 import com.resq.app.ui.viewmodel.FirstAidViewModel
 import com.resq.app.util.TextToSpeechManager
+import com.resq.app.util.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -65,12 +66,7 @@ class FirstAidDetailFragment : Fragment() {
     }
 
     private fun setupToolbar() {
-        // Set initial title from nav arg so the toolbar is not blank
-        // while the DB load completes. The observer will update it.
-        binding.collapsingToolbar.title = args.categoryName
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+        binding.toolbar.setupWithNavController(this)
     }
 
     private fun setupRecyclerView() {

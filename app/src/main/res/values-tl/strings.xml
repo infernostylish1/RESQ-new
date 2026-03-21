@@ -306,5 +306,9 @@
     <string name="contacts_name_required">Name is required</string>
     <string name="contacts_phone_required">Phone number is required</string>
 
+    <!-- Exit Confirmation -->
+    <string name="exit_dialog_title">Exit App?</string>
+    <string name="exit_dialog_message">Are you sure you want to exit the application?</string>
+    <string name="action_exit">Exit</string>
 
 </resources>

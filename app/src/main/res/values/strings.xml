@@ -78,7 +78,7 @@
     <string name="home_greeting_afternoon">Good Afternoon</string>
     <string name="home_greeting_evening">Good Evening</string>
     <string name="home_safety_message">Stay prepared, stay safe.</string>
-    <string name="home_quick_access">Quick Access</string>
+    <string name="home_quick_access">Quick Disaster Access</string>
     <string name="home_daily_tip">Daily Tip</string>
     <string name="home_tip_of_the_day">Tip of the Day</string>
     <string name="home_see_all">See All</string>
@@ -306,5 +306,9 @@
     <string name="contacts_name_required">Name is required</string>
     <string name="contacts_phone_required">Phone number is required</string>
 
+    <!-- Exit Confirmation -->
+    <string name="exit_dialog_title">Exit App?</string>
+    <string name="exit_dialog_message">Are you sure you want to exit the application?</string>
+    <string name="action_exit">Exit</string>
 
 </resources>

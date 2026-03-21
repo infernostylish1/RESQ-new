@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.resq.app.MainActivity
 import com.resq.app.R
@@ -18,6 +17,7 @@ import com.resq.app.databinding.FragmentDisasterDetailBinding
 import com.resq.app.ui.adapter.PreparationStepAdapter
 import com.resq.app.ui.viewmodel.DisasterViewModel
 import com.resq.app.util.TextToSpeechManager
+import com.resq.app.util.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -67,9 +67,7 @@ class DisasterDetailFragment : Fragment() {
     }
 
     private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+        binding.toolbar.setupWithNavController(this)
     }
 
     private fun setupChipGroup() {

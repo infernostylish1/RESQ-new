@@ -6,10 +6,11 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- ★ Changed from ConstraintLayout to SwipeNavigationLayout ★ -->
+    <com.resq.app.util.SwipeNavigationLayout
+        android:id="@+id/swipe_navigation_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -26,7 +27,7 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/bottom_nav_height"
             android:background="@color/nav_background"
             app:itemIconTint="@color/nav_item_color"
             app:itemTextColor="@color/nav_item_color"
@@ -36,9 +37,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.resq.app.util.SwipeNavigationLayout>
 
-    <!-- ── Scrim ───────────────────────────────────────────────────────────── -->
+    <!-- Everything below stays exactly the same -->
     <View
         android:id="@+id/fab_scrim"
         android:layout_width="match_parent"
@@ -48,7 +49,6 @@
         android:focusable="true"
         android:visibility="gone" />
 
-    <!-- ── Add Contact child row (same position as emergency — mutually exclusive) -->
     <LinearLayout
         android:id="@+id/fab_add_contact_row"
         android:layout_width="wrap_content"
@@ -83,7 +83,6 @@
 
     </LinearLayout>
 
-    <!-- ── Emergency contact child row ───────────────────────────────────── -->
     <LinearLayout
         android:id="@+id/fab_emergency_row"
         android:layout_width="wrap_content"
@@ -118,7 +117,6 @@
 
     </LinearLayout>
 
-    <!-- ── Voice command child row ────────────────────────────────────────── -->
     <LinearLayout
         android:id="@+id/fab_voice_row"
         android:layout_width="wrap_content"
@@ -153,7 +151,6 @@
 
     </LinearLayout>
 
-    <!-- ── Main trigger FAB ───────────────────────────────────────────────── -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_main"
         android:layout_width="wrap_content"

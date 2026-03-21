@@ -16,7 +16,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -29,6 +28,7 @@ import com.resq.app.data.entity.EmergencyContactEntity
 import com.resq.app.databinding.FragmentEmergencyContactsBinding
 import com.resq.app.ui.adapter.EmergencyContactAdapter
 import com.resq.app.ui.viewmodel.EmergencyContactsViewModel
+import com.resq.app.util.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import androidx.core.os.bundleOf
@@ -75,14 +75,11 @@ class EmergencyContactsFragment : Fragment() {
         setupAddContactListener()
         observeViewModel()
 
-        // Notify activity of initial tab state for FAB visibility
         notifyTabState(binding.tabLayout.selectedTabPosition)
     }
 
     private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+        binding.toolbar.setupWithNavController(this)
     }
 
     private fun setupTabs() {
@@ -125,16 +122,10 @@ class EmergencyContactsFragment : Fragment() {
         }
     }
 
-    /**
-     * Listens for the "Add Contact" action dispatched by the main FAB
-     * speed-dial in [MainActivity]. Auto-switches to the Custom tab
-     * and opens the add dialog.
-     */
     private fun setupAddContactListener() {
         requireActivity().supportFragmentManager.setFragmentResultListener(
             MainActivity.REQUEST_ADD_CONTACT, viewLifecycleOwner
         ) { _, _ ->
-            // Switch to custom tab so the new contact is immediately visible
             binding.tabLayout.getTabAt(1)?.select()
             showAddEditDialog(null)
         }
@@ -303,5 +294,4 @@ class EmergencyContactsFragment : Fragment() {
         const val RESULT_CONTACTS_TAB = "result_contacts_tab"
         const val KEY_SELECTED_TAB = "key_selected_tab"
     }
-
 }

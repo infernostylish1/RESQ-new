@@ -8,53 +8,7 @@
     android:layout_marginBottom="@dimen/spacing_md"
     android:orientation="vertical">
 
-    <!--
-        Media card. Visibility is controlled exclusively by MediaLoader.bind().
-        Shown when the bound entity's mediaResName is non-null/non-blank.
-        Hidden (GONE) otherwise. Do not set visibility here; MediaLoader owns it.
-
-        Inside this card, exactly ONE of iv_step_media or pv_step_media is
-        VISIBLE at any time. MediaLoader sets both before returning.
-    -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_media"
-        style="@style/Widget.RESQ.CardView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/spacing_sm"
-        android:visibility="gone"
-        app:cardBackgroundColor="@color/surface_variant"
-        tools:visibility="visible">
-
-        <!--
-            IMAGE and GIF — Glide loads into this view.
-            GONE when mediaType is VIDEO.
-        -->
-        <ImageView
-            android:id="@+id/iv_step_media"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/media_card_height"
-            android:contentDescription="@string/cd_firstaid_icon"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            tools:src="@android:drawable/ic_menu_report_image"
-            tools:visibility="visible" />
-
-        <!--
-            VIDEO — ExoPlayer's PlayerView renders here.
-            GONE when mediaType is IMAGE or GIF.
-        -->
-        <androidx.media3.ui.PlayerView
-            android:id="@+id/pv_step_media"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/media_card_height"
-            android:visibility="gone"
-            app:use_controller="true"
-            tools:visibility="gone" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Step row: number circle + title/description/tip — unchanged -->
+    <!-- Step row: number circle + title/description/tip — shown first so users read before seeing media -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -132,5 +86,36 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_media"
+        style="@style/Widget.RESQ.CardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/surface_variant"
+        app:cardElevation="0dp"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/iv_step_media"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/media_card_height"
+            android:contentDescription="@string/cd_firstaid_icon"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            tools:src="@android:drawable/ic_menu_report_image"
+            tools:visibility="visible" />
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/pv_step_media"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/media_card_height"
+            android:visibility="gone"
+            app:use_controller="true"
+            tools:visibility="gone" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

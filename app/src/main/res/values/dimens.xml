@@ -125,6 +125,7 @@
 
     <!-- Quick Access -->
     <dimen name="quick_access_item_width">100dp</dimen>
+    <dimen name="quick_access_item_height">100dp</dimen>
 
     <dimen name="media_card_height">200dp</dimen>
 </resources>

@@ -5,132 +5,159 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:fillViewport="true"
     tools:context=".ui.fragment.HomeFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/screen_padding">
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_greeting"
-            android:layout_width="0dp"
+        <!-- Top section with screen padding -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.RESQ.Headline"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Good Morning, User" />
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingTop="@dimen/screen_padding">
 
-        <TextView
-            android:id="@+id/tv_safety_message"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
-            android:text="@string/home_safety_message"
-            android:textAppearance="@style/TextAppearance.RESQ.Body"
-            android:textColor="@color/text_secondary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_greeting" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/til_search"
-            style="@style/Widget.RESQ.TextInputLayout.Search"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_lg"
-            android:hint="@string/home_search_hint"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_safety_message">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/et_search"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_greeting"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:inputType="text"
-                android:maxLines="1" />
+                android:textAppearance="@style/TextAppearance.RESQ.Headline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Good Morning, User" />
 
-        </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/tv_safety_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:text="@string/home_safety_message"
+                android:textAppearance="@style/TextAppearance.RESQ.Body"
+                android:textColor="@color/text_secondary"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_greeting" />
 
-        <TextView
-            android:id="@+id/tv_quick_access_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xl"
-            android:text="@string/home_quick_access"
-            android:textAppearance="@style/TextAppearance.RESQ.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/til_search" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_search"
+                style="@style/Widget.RESQ.TextInputLayout.Search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_lg"
+                android:hint="@string/home_search_hint"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_safety_message">
 
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/tv_quick_access_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="@string/home_quick_access"
+                android:textAppearance="@style/TextAppearance.RESQ.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/til_search" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- RecyclerView spans full width to prevent edge clipping -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_quick_access"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
+            android:clipChildren="false"
             android:clipToPadding="false"
             android:orientation="horizontal"
+            android:paddingStart="@dimen/screen_padding"
+            android:paddingEnd="@dimen/screen_padding"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_quick_access_title"
             tools:itemCount="4"
             tools:listitem="@layout/item_quick_access" />
 
-        <TextView
-            android:id="@+id/tv_daily_tip_title"
-            android:layout_width="0dp"
+        <!-- Bottom section with screen padding -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xl"
-            android:text="@string/home_tip_of_the_day"
-            android:textAppearance="@style/TextAppearance.RESQ.Title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rv_quick_access" />
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/screen_padding"
+            android:paddingBottom="@dimen/screen_padding">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_daily_tip"
-            style="@style/Widget.RESQ.CardView.Tip"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_daily_tip_title">
+            <TextView
+                android:id="@+id/tv_daily_tip_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xl"
+                android:text="@string/home_tip_of_the_day"
+                android:textAppearance="@style/TextAppearance.RESQ.Title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_daily_tip"
+                style="@style/Widget.RESQ.CardView.Tip"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_md"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_daily_tip_title">
 
-                <ImageView
-                    android:id="@+id/iv_tip_icon"
-                    android:layout_width="@dimen/icon_size_lg"
-                    android:layout_height="@dimen/icon_size_lg"
-                    android:contentDescription="@string/cd_tip_icon"
-                    android:src="@android:drawable/ic_menu_info_details"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/primary" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/tv_tip_content"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/spacing_md"
-                    android:textAppearance="@style/TextAppearance.RESQ.Body"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Always keep an emergency kit ready with essentials like water, food, and first aid supplies." />
+                    <ImageView
+                        android:id="@+id/iv_tip_icon"
+                        android:layout_width="@dimen/icon_size_lg"
+                        android:layout_height="@dimen/icon_size_lg"
+                        android:contentDescription="@string/cd_tip_icon"
+                        android:src="@android:drawable/ic_menu_info_details"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="@color/primary" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:id="@+id/tv_tip_content"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_md"
+                        android:textAppearance="@style/TextAppearance.RESQ.Body"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/iv_tip_icon"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Always keep an emergency kit ready with essentials like water, food, and first aid supplies." />
 
-        </com.google.android.material.card.MaterialCardView>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

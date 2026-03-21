@@ -20,15 +20,9 @@
             android:fitsSystemWindows="true"
             app:contentScrim="@color/primary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="true">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:navigationContentDescription="@string/cd_back_button"
-                app:navigationIcon="@drawable/ic_arrow_back" />
+            app:titleEnabled="true"
+            app:collapsedTitleTextAppearance="@style/TextAppearance.RESQ.Headline"
+            app:expandedTitleTextAppearance="@style/TextAppearance.RESQ.Headline">>
 
             <ImageView
                 android:id="@+id/iv_header"
@@ -43,6 +37,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/scrim" />
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@drawable/ic_back_button"
+                app:navigationContentDescription="@string/cd_back_button" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 

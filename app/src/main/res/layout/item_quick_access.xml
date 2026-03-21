@@ -5,22 +5,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Widget.RESQ.CardView"
     android:layout_width="@dimen/quick_access_item_width"
-    android:layout_height="wrap_content"
-    android:layout_marginEnd="@dimen/spacing_md"
+    android:layout_height="@dimen/quick_access_item_height"
+    android:layout_marginVertical="@dimen/spacing_xs"
+    android:layout_marginEnd="@dimen/spacing_sm"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    app:contentPadding="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_md">
+        android:padding="@dimen/spacing_sm">
 
         <ImageView
             android:id="@+id/iv_icon"
-            android:layout_width="@dimen/icon_size_xl"
-            android:layout_height="@dimen/icon_size_xl"
+            android:layout_width="@dimen/icon_size_lg"
+            android:layout_height="@dimen/icon_size_lg"
             android:contentDescription="@string/cd_disaster_icon"
             android:scaleType="centerInside"
             app:tint="@color/primary"
@@ -30,12 +32,12 @@
             android:id="@+id/tv_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:ellipsize="end"
             android:gravity="center"
-            android:maxLines="2"
-            android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
-            tools:text="Earthquake" />
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.RESQ.Caption"
+            tools:text="Storm Surge" />
 
     </LinearLayout>
 

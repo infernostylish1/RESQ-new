@@ -15,6 +15,7 @@ import com.resq.app.databinding.FragmentTipDetailBinding
 import com.resq.app.ui.adapter.TipDetailAdapter
 import com.resq.app.ui.viewmodel.DisasterTipsViewModel
 import com.resq.app.util.TextToSpeechManager
+import com.resq.app.util.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,11 +55,7 @@ class TipDetailFragment : Fragment() {
     // ── Toolbar ───────────────────────────────────────────────────────────────
 
     private fun setupToolbar() {
-        // Set a fallback title immediately from args in case disasterDetail is slow
-        binding.collapsingToolbar.title = args.disasterName
-        binding.toolbar.setNavigationOnClickListener {
-            findNavController().navigateUp()
-        }
+        binding.toolbar.setupWithNavController(this)
     }
 
     // ── RecyclerView ──────────────────────────────────────────────────────────

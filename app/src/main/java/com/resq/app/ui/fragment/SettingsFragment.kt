@@ -10,11 +10,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.resq.app.R
+import com.resq.app.data.entity.UserSettingsEntity
 import com.resq.app.data.model.FontSize
 import com.resq.app.databinding.FragmentSettingsBinding
 import com.resq.app.ui.viewmodel.SettingsViewModel
+import com.resq.app.util.DialogHelper
 import com.resq.app.util.LanguageManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -44,37 +46,30 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        // Dark theme toggle
         binding.switchDarkTheme.setOnCheckedChangeListener { _, isChecked ->
             viewModel.updateDarkTheme(isChecked)
         }
 
-        // Font size selection
         binding.settingFontSize.setOnClickListener {
             showFontSizeDialog()
         }
 
-        // Language selection
         binding.settingLanguage.setOnClickListener {
             showLanguageDialog()
         }
 
-        // Voice command toggle
         binding.switchVoiceCommand.setOnCheckedChangeListener { _, isChecked ->
             viewModel.updateVoiceCommandEnabled(isChecked)
         }
 
-        // TTS toggle
         binding.switchTts.setOnCheckedChangeListener { _, isChecked ->
             viewModel.updateTTSEnabled(isChecked)
         }
 
-        // Emergency contacts navigation
         binding.settingEmergencyContacts.setOnClickListener {
             findNavController().navigate(R.id.action_settings_to_emergency_contacts)
         }
 
-        // About navigation
         binding.settingAbout.setOnClickListener {
             findNavController().navigate(R.id.action_settings_to_about)
         }
@@ -102,8 +97,8 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun updateUI(settings: com.resq.app.data.entity.UserSettingsEntity) {
-        // Update switches without triggering listeners
+    private fun updateUI(settings: UserSettingsEntity) {
+        // Detach listeners to avoid triggering updates during UI sync
         binding.switchDarkTheme.setOnCheckedChangeListener(null)
         binding.switchVoiceCommand.setOnCheckedChangeListener(null)
         binding.switchTts.setOnCheckedChangeListener(null)
@@ -123,7 +118,6 @@ class SettingsFragment : Fragment() {
             viewModel.updateTTSEnabled(isChecked)
         }
 
-        // Update text values
         binding.tvFontSizeValue.text = getFontSizeDisplayName(settings.fontSize)
         binding.tvLanguageValue.text = getLanguageDisplayName(settings.preferredLanguage)
     }
@@ -135,14 +129,15 @@ class SettingsFragment : Fragment() {
         val currentSettings = viewModel.uiState.value.settings
         val currentIndex = fontSizes.indexOf(currentSettings?.fontSize ?: FontSize.MEDIUM)
 
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.settings_font_size)
-            .setSingleChoiceItems(displayNames, currentIndex) { dialog, which ->
+        DialogHelper.showSelectionDialog(
+            context = requireContext(),
+            title = getString(R.string.settings_font_size),
+            items = displayNames,
+            selectedIndex = currentIndex,
+            onItemSelected = { which ->
                 viewModel.updateFontSize(fontSizes[which])
-                dialog.dismiss()
             }
-            .setNegativeButton(R.string.action_cancel, null)
-            .show()
+        )
     }
 
     private fun showLanguageDialog() {
@@ -154,14 +149,15 @@ class SettingsFragment : Fragment() {
             it.code == (currentSettings?.preferredLanguage ?: LanguageManager.LANGUAGE_ENGLISH)
         }.coerceAtLeast(0)
 
-        MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.settings_language)
-            .setSingleChoiceItems(displayNames, currentIndex) { dialog, which ->
+        DialogHelper.showSelectionDialog(
+            context = requireContext(),
+            title = getString(R.string.settings_language),
+            items = displayNames,
+            selectedIndex = currentIndex,
+            onItemSelected = { which ->
                 viewModel.updateLanguage(languages[which].code)
-                dialog.dismiss()
             }
-            .setNegativeButton(R.string.action_cancel, null)
-            .show()
+        )
     }
 
     private fun getFontSizeDisplayName(fontSize: FontSize): String {
@@ -175,14 +171,14 @@ class SettingsFragment : Fragment() {
 
     private fun getLanguageDisplayName(languageCode: String): String {
         return viewModel.getSupportedLanguages().find { it.code == languageCode }?.displayName
-            ?: "English"
+            ?: getString(R.string.language_english)
     }
 
     private fun showError(message: String) {
-        com.google.android.material.snackbar.Snackbar.make(
+        Snackbar.make(
             binding.root,
             message,
-            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+            Snackbar.LENGTH_LONG
         ).show()
     }
 
