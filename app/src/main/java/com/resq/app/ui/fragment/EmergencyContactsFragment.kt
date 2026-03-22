@@ -32,6 +32,8 @@ import com.resq.app.util.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
+
 
 @AndroidEntryPoint
 class EmergencyContactsFragment : Fragment() {
@@ -117,9 +119,14 @@ class EmergencyContactsFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.etSearch.doAfterTextChanged { text ->
-            viewModel.searchContacts(text?.toString() ?: "")
-        }
+        binding.etSearch.isFocusable = false
+        binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.setOnClickListener { openGlobalSearch() }
+        binding.etSearch.setOnClickListener  { openGlobalSearch() }
+    }
+
+    private fun openGlobalSearch() {
+        findNavController().navigate(R.id.action_global_search)
     }
 
     private fun setupAddContactListener() {

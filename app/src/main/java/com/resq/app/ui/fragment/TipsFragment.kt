@@ -20,6 +20,8 @@ import com.resq.app.ui.viewmodel.DisasterTipGroup
 import com.resq.app.ui.viewmodel.DisasterTipsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import com.resq.app.R
+
 
 @AndroidEntryPoint
 class TipsFragment : Fragment() {
@@ -97,10 +99,14 @@ class TipsFragment : Fragment() {
     // ── Search ────────────────────────────────────────────────────────────────
 
     private fun setupSearch() {
-        binding.etSearch.addTextChangedListener { editable ->
-            val query = editable?.toString().orEmpty().trim()
-            filterGroups(query)
-        }
+        binding.etSearch.isFocusable = false
+        binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.setOnClickListener { openGlobalSearch() }
+        binding.etSearch.setOnClickListener  { openGlobalSearch() }
+    }
+
+    private fun openGlobalSearch() {
+        findNavController().navigate(R.id.action_global_search)
     }
 
     private fun filterGroups(query: String) {

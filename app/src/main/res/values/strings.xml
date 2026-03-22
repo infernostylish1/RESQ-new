@@ -88,7 +88,7 @@
     <string name="disasters_title">Disaster Information</string>
     <string name="disasters_recommended">Recommended for You</string>
     <string name="disasters_all">All Disasters</string>
-    <string name="disasters_search_hint">Search disasters...</string>
+    <string name="disasters_search_hint">Search disasters, first aid, tips...</string>
     <string name="disaster_information">Information</string>
     <string name="disaster_preparation">Preparation</string>
     <string name="disaster_before">Before</string>
@@ -107,7 +107,7 @@
 
     <!-- First Aid Module -->
     <string name="firstaid_title">First Aid Guide</string>
-    <string name="firstaid_search_hint">Search first aid topics...</string>
+    <string name="firstaid_search_hint">Search disasters, first aid, tips...</string>
     <string name="firstaid_step">Step %1$d of %2$d</string>
     <string name="firstaid_important">Important</string>
     <string name="firstaid_warning">Warning</string>
@@ -129,7 +129,7 @@
     <string name="tips_random">Random Tip</string>
     <string name="tips_next">Next Tip</string>
     <string name="tips_previous">Previous Tip</string>
-    <string name="tips_search_hint">Search tips...</string>
+    <string name="tips_search_hint">Search disasters, first aid, tips...</string>
     <string name="tips_no_favorites">No favorite tips yet</string>
     <string name="tips_add_favorites_hint">Tap the heart icon on tips to add them to your favorites.</string>
 
@@ -138,7 +138,7 @@
     <string name="contacts_hotlines">Emergency Hotlines</string>
     <string name="contacts_favorites">Favorites</string>
     <string name="contacts_all">All Contacts</string>
-    <string name="contacts_search_hint">Search contacts...</string>
+    <string name="contacts_search_hint">Search disasters, first aid, tips...</string>
     <string name="contacts_call_confirm">Call %1$s?</string>
     <string name="contacts_calling">Calling...</string>
     <string name="contacts_no_favorites">No favorite contacts yet</string>

@@ -14,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayout
 import com.resq.app.MainActivity
+import com.resq.app.R
 import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.databinding.FragmentDisastersBinding
 import com.resq.app.ui.adapter.DisasterAdapter
@@ -105,14 +106,14 @@ class DisastersFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.etSearch.addTextChangedListener { editable ->
-            val query = editable?.toString().orEmpty().trim()
-            if (query.isEmpty()) {
-                viewModel.loadAllDisasters()
-            } else {
-                viewModel.searchDisasters(query)
-            }
-        }
+        binding.etSearch.isFocusable = false
+        binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.setOnClickListener { openGlobalSearch() }
+        binding.etSearch.setOnClickListener  { openGlobalSearch() }
+    }
+
+    private fun openGlobalSearch() {
+        findNavController().navigate(R.id.action_global_search)
     }
 
     private fun observeViewModel() {

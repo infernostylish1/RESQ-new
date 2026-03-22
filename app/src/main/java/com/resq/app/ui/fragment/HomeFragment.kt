@@ -16,6 +16,7 @@ import com.resq.app.ui.adapter.QuickAccessAdapter
 import com.resq.app.ui.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import com.resq.app.R
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -55,10 +56,21 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        binding.etSearch.addTextChangedListener { editable ->
-            val query = editable?.toString().orEmpty()
-            viewModel.onSearchQueryChanged(query)
+        // Tapping or typing in the search bar opens GlobalSearchFragment
+        binding.etSearch.isFocusable = false
+        binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.setOnClickListener { openGlobalSearch() }
+        binding.etSearch.setOnClickListener  { openGlobalSearch() }
+    }
+
+    private fun openGlobalSearch(query: String = "") {
+        val args = Bundle().apply {
+            putString(
+                com.resq.app.ui.search.GlobalSearchFragment.ARG_INITIAL_QUERY,
+                query
+            )
         }
+        findNavController().navigate(R.id.action_global_search, args)
     }
 
     private fun observeViewModel() {

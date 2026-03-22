@@ -17,6 +17,7 @@ import com.resq.app.ui.adapter.FirstAidCategoryAdapter
 import com.resq.app.ui.viewmodel.FirstAidViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import com.resq.app.R
 
 /**
  * First Aid categories grid fragment.
@@ -67,15 +68,14 @@ class FirstAidFragment : Fragment() {
     }
 
     private fun setupSearch() {
-        // Layout uses TextInputLayout + TextInputEditText — not a SearchView
-        binding.etSearch.addTextChangedListener { editable ->
-            val query = editable?.toString().orEmpty().trim()
-            if (query.isEmpty()) {
-                viewModel.loadAllCategories()
-            } else {
-                viewModel.searchCategories(query)
-            }
-        }
+        binding.etSearch.isFocusable = false
+        binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.setOnClickListener { openGlobalSearch() }
+        binding.etSearch.setOnClickListener  { openGlobalSearch() }
+    }
+
+    private fun openGlobalSearch() {
+        findNavController().navigate(R.id.action_global_search)
     }
 
     private fun observeViewModel() {
