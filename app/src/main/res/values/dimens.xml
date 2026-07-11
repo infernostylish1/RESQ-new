@@ -48,7 +48,7 @@
     <dimen name="icon_size_lg">32dp</dimen>
     <dimen name="icon_size_xl">48dp</dimen>
     <dimen name="icon_size_xxl">64dp</dimen>
-    <dimen name="icon_size_hero">96dp</dimen>
+    <dimen name="icon_size_hero">200dp</dimen>
 
     <!-- Text Sizes -->
     <dimen name="text_size_xs">10sp</dimen>

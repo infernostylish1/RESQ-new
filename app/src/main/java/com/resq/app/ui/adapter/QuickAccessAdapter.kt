@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.resq.app.R
 import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.databinding.ItemQuickAccessBinding
 
@@ -41,22 +42,24 @@ class QuickAccessAdapter(
         fun bind(disaster: DisasterEntity) {
             binding.apply {
                 tvTitle.text = disaster.name
-
-                val iconRes = getDisasterIcon(disaster.iconResName)
-                ivIcon.setImageResource(iconRes)
+                ivIcon.setImageResource(getDisasterIcon(disaster.iconResName))
             }
         }
 
+        /**
+         * Hardcoded mapping of icon resource name to actual drawable resource ID.
+         */
         private fun getDisasterIcon(iconName: String): Int {
-            return when (iconName.lowercase()) {
-                "earthquake" -> android.R.drawable.ic_dialog_alert
-                "typhoon" -> android.R.drawable.ic_menu_compass
-                "flood" -> android.R.drawable.ic_menu_directions
-                "volcanic_eruption" -> android.R.drawable.ic_menu_mapmode
-                "landslide" -> android.R.drawable.ic_menu_gallery
-                "tsunami" -> android.R.drawable.ic_menu_directions
-                "fire" -> android.R.drawable.ic_menu_report_image
-                else -> android.R.drawable.ic_dialog_alert
+            return when (iconName) {
+                "ic_earthquake"    -> R.drawable.ic_earthquake
+                "ic_typhoon"       -> R.drawable.ic_typhoon
+                "ic_flood"         -> R.drawable.ic_flood
+                "ic_landslide"     -> R.drawable.ic_landslide
+                "ic_volcano"       -> R.drawable.ic_volcano
+                "ic_tsunami"       -> R.drawable.ic_tsunami
+                "ic_fire"          -> R.drawable.ic_fire
+                "ic_storm_surge"   -> R.drawable.ic_storm_surge
+                else               -> android.R.drawable.ic_dialog_alert  // fallback
             }
         }
     }

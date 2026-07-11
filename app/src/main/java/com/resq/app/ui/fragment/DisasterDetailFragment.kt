@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
 import com.resq.app.MainActivity
 import com.resq.app.R
 import com.resq.app.databinding.FragmentDisasterDetailBinding
@@ -56,10 +57,6 @@ class DisasterDetailFragment : Fragment() {
         observeViewModel()
         setupVoiceListeners()
 
-        // ── Voice phase from nav args ─────────────────────────────────────────
-        // When MainActivity navigates here via OpenDisasterPhaseResolved it packs
-        // the requested phase into the nav args as "voicePhase". We apply it here,
-        // synchronously, after chips are wired up — no FragmentResult race condition.
         val voicePhase = arguments?.getString(MainActivity.ARG_VOICE_PHASE)
         if (!voicePhase.isNullOrEmpty()) {
             selectPhaseByLabel(voicePhase)
@@ -112,11 +109,21 @@ class DisasterDetailFragment : Fragment() {
         }
     }
 
-    // ── Voice command listeners ───────────────────────────────────────────────
+    // ─── Lifecycle: pause/resume video players ──────────────────────────────────
+
+    override fun onPause() {
+        super.onPause()
+        preparationAdapter.pauseAllPlayers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preparationAdapter.resumeAllPlayers()
+    }
+
+    // ─── Voice command listeners ───────────────────────────────────────────────
 
     private fun setupVoiceListeners() {
-
-        // Scroll up / scroll down
         setFragmentResultListener(MainActivity.REQUEST_SCROLL) { _, bundle ->
             when (bundle.getString(MainActivity.KEY_SCROLL)) {
                 MainActivity.SCROLL_UP   -> binding.nestedScrollView.smoothScrollTo(0, 0)
@@ -126,21 +133,12 @@ class DisasterDetailFragment : Fragment() {
             }
         }
 
-        // Tab/phase switch — only fires when the user is ALREADY on this screen
-        // (VoiceCommand.SwitchTab). The OpenDisasterPhaseResolved path now uses
-        // nav args instead (read in onViewCreated above) to avoid the race condition
-        // where the result fires before this listener is registered.
         setFragmentResultListener(MainActivity.REQUEST_SWITCH_TAB) { _, bundle ->
             val label = bundle.getString(MainActivity.KEY_TAB_LABEL) ?: return@setFragmentResultListener
             selectPhaseByLabel(label)
         }
     }
 
-    /**
-     * Maps a voice-command canonical phase label ("before", "during", "after")
-     * to the correct chip and triggers the phase load.
-     * Case-insensitive. Silently ignores unrecognized labels.
-     */
     private fun selectPhaseByLabel(label: String) {
         when (label.lowercase()) {
             "before" -> {
@@ -161,18 +159,26 @@ class DisasterDetailFragment : Fragment() {
         }
     }
 
-    // ── Header image ──────────────────────────────────────────────────────────
-
+    /**
+     * Loads the header image (static or GIF) using Glide.
+     * Supports any image format Glide can handle, including animated GIFs.
+     */
     private fun loadHeaderImage(imageResName: String) {
         val context = requireContext()
-        val resId   = context.resources.getIdentifier(
+        val resId = context.resources.getIdentifier(
             imageResName, "drawable", context.packageName
         )
-        if (resId != 0) binding.ivHeader.setImageResource(resId)
+        if (resId != 0) {
+            Glide.with(context)
+                .load(resId)
+                .centerCrop()
+                .into(binding.ivHeader)
+        }
     }
 
     override fun onDestroyView() {
         ttsManager.stop()
+        preparationAdapter.releaseAllPlayers()  // ← ADDED: prevents memory leak
         super.onDestroyView()
         _binding = null
     }

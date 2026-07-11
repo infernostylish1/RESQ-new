@@ -25,7 +25,6 @@
             android:layout_height="@dimen/icon_size_lg"
             android:contentDescription="@string/cd_disaster_icon"
             android:scaleType="centerInside"
-            app:tint="@color/primary"
             tools:src="@android:drawable/ic_dialog_alert" />
 
         <TextView

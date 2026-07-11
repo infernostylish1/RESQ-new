@@ -79,24 +79,24 @@ class OnboardingFragment : Fragment() {
         OnboardingPage.InfoPage(
             title = getString(R.string.onboarding_welcome_title),
             description = getString(R.string.onboarding_welcome_desc),
-            imageRes = R.drawable.ic_launcher_foreground
+            imageRes = R.drawable.onboarding_1
         ),
         OnboardingPage.InfoPage(
             title = getString(R.string.onboarding_disasters_title),
             description = getString(R.string.onboarding_disasters_desc),
-            imageRes = R.drawable.ic_launcher_foreground
+            imageRes = R.drawable.onboarding_2
         ),
         OnboardingPage.InfoPage(
             title = getString(R.string.onboarding_first_aid_title),
             description = getString(R.string.onboarding_first_aid_desc),
-            imageRes = R.drawable.ic_launcher_foreground
+            imageRes = R.drawable.onboarding_3
         ),
         // Location question page — index 3
         OnboardingPage.LocationPage(),
         OnboardingPage.InfoPage(
             title = getString(R.string.onboarding_ready_title),
             description = getString(R.string.onboarding_ready_desc),
-            imageRes = R.drawable.ic_launcher_foreground
+            imageRes = R.drawable.onboarding_4
         )
     )
 

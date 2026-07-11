@@ -14,6 +14,9 @@ import com.resq.app.util.MediaLoader
 class PreparationStepAdapter :
     ListAdapter<DisasterPreparationEntity, PreparationStepAdapter.StepViewHolder>(DiffCallback()) {
 
+    // Track ViewHolders that currently have an active ExoPlayer
+    private val activeHolders = mutableSetOf<StepViewHolder>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StepViewHolder {
         val binding = ItemPreparationStepBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
@@ -30,24 +33,41 @@ class PreparationStepAdapter :
         holder.releasePlayer()
     }
 
+    /**
+     * Pause all currently active video players.
+     * Call this when the fragment is paused (e.g., user navigates away, app goes to background).
+     */
+    fun pauseAllPlayers() {
+        activeHolders.forEach { it.pausePlayer() }
+    }
+
+    /**
+     * Resume all previously active video players.
+     * Call this when the fragment is resumed.
+     */
+    fun resumeAllPlayers() {
+        activeHolders.forEach { it.resumePlayer() }
+    }
+
+    /**
+     * Stops and releases all active video players immediately.
+     * Call this when the fragment is being destroyed (onDestroyView) to prevent memory leaks.
+     */
+    fun releaseAllPlayers() {
+        activeHolders.forEach { it.releasePlayer() }
+        activeHolders.clear()
+    }
+
     inner class StepViewHolder(
         private val binding: ItemPreparationStepBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        /**
-         * Holds the active ExoPlayer for VIDEO items.
-         * Null for IMAGE, GIF, TEXT, or when no media is present.
-         * Released in onViewRecycled() via releasePlayer().
-         */
         private var player: ExoPlayer? = null
 
         fun bind(entity: DisasterPreparationEntity) {
-            // Release any player from a previously bound VIDEO item before
-            // binding new content. This covers rebind without recycle.
+            // Release any previous player
             releasePlayer()
 
-            // Media card — MediaLoader owns all visibility decisions.
-            // Returns a non-null ExoPlayer only when mediaType is VIDEO.
             player = MediaLoader.bind(
                 context      = binding.root.context,
                 cardMedia    = binding.cardMedia,
@@ -57,16 +77,17 @@ class PreparationStepAdapter :
                 mediaType    = entity.mediaType
             )
 
-            // Step number — displayOrder is the ordering field on this entity.
+            // Track this holder if it has a video player
+            if (player != null) {
+                activeHolders.add(this)
+            } else {
+                activeHolders.remove(this)
+            }
+
             binding.tvStepNumber.text = entity.displayOrder.toString()
-
-            // Title
             binding.tvStepTitle.text = entity.title
-
-            // Body text — content is the body field on DisasterPreparationEntity.
             binding.tvStepDescription.text = entity.content
 
-            // Tip card — tip is nullable on this entity.
             val tip = entity.tip
             if (!tip.isNullOrBlank()) {
                 binding.cardTip.visibility = View.VISIBLE
@@ -76,10 +97,18 @@ class PreparationStepAdapter :
             }
         }
 
-        /** Stops and releases the ExoPlayer held by this ViewHolder. Safe to call when null. */
         fun releasePlayer() {
             MediaLoader.releasePlayer(player)
             player = null
+            activeHolders.remove(this)
+        }
+
+        fun pausePlayer() {
+            player?.playWhenReady = false
+        }
+
+        fun resumePlayer() {
+            player?.playWhenReady = true
         }
     }
 

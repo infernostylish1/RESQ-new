@@ -55,24 +55,22 @@ class FirstAidCategoryAdapter(
                     item.stepCount
                 )
 
-                val iconRes = getCategoryIcon(item.category.iconResName)
-                ivCategoryIcon.setImageResource(iconRes)
+                ivCategoryIcon.setImageResource(getCategoryIcon(item.category.iconResName))
             }
         }
 
+        /**
+         * Hardcoded mapping of icon resource name to actual drawable resource ID.
+         */
         private fun getCategoryIcon(iconName: String): Int {
-            return when (iconName.lowercase()) {
-                "cpr" -> android.R.drawable.ic_menu_help
-                "choking" -> android.R.drawable.ic_menu_info_details
-                "bleeding" -> android.R.drawable.ic_menu_add
-                "burns" -> android.R.drawable.ic_menu_report_image
-                "fractures" -> android.R.drawable.ic_menu_edit
-                "drowning" -> android.R.drawable.ic_menu_directions
-                "poisoning" -> android.R.drawable.ic_dialog_alert
-                "heart_attack" -> android.R.drawable.ic_menu_myplaces
-                "stroke" -> android.R.drawable.ic_menu_compass
-                "seizure" -> android.R.drawable.ic_menu_view
-                else -> android.R.drawable.ic_menu_help
+            return when (iconName) {
+                "ic_cpr"         -> R.drawable.ic_cpr
+                "ic_wound"       -> R.drawable.ic_wound
+                "ic_burn"        -> R.drawable.ic_burn
+                "ic_fracture"    -> R.drawable.ic_fracture
+                "ic_temperature" -> R.drawable.ic_temperature
+                "ic_drowning"    -> R.drawable.ic_drowning
+                else             -> android.R.drawable.ic_dialog_alert  // fallback
             }
         }
     }

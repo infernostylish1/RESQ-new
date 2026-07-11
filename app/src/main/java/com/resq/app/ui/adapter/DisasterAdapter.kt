@@ -43,21 +43,30 @@ class DisasterAdapter(
                 tvDisasterName.text = disaster.name
                 tvDisasterDescription.text = disaster.description
 
-                val iconRes = getDisasterIcon(disaster.iconResName)
-                ivDisasterIcon.setImageResource(iconRes)
+                // Load the custom icon using the resource name from the entity
+                val iconResId = getDisasterIconResId(disaster.iconResName)
+                if (iconResId != 0) {
+                    ivDisasterIcon.setImageResource(iconResId)
+                } else {
+                    // Fallback to default icon if resource not found
+                    ivDisasterIcon.setImageResource(android.R.drawable.ic_dialog_alert)
+                }
             }
         }
 
-        private fun getDisasterIcon(iconName: String): Int {
-            return when (iconName.lowercase()) {
-                "earthquake" -> android.R.drawable.ic_dialog_alert
-                "typhoon" -> android.R.drawable.ic_menu_compass
-                "flood" -> android.R.drawable.ic_menu_directions
-                "volcanic_eruption" -> android.R.drawable.ic_menu_mapmode
-                "landslide" -> android.R.drawable.ic_menu_gallery
-                "tsunami" -> android.R.drawable.ic_menu_directions
-                "fire" -> android.R.drawable.ic_menu_report_image
-                else -> android.R.drawable.ic_dialog_alert
+        /**
+         * Resolves the drawable resource ID from the icon resource name string.
+         * Returns 0 if not found.
+         */
+        private fun getDisasterIconResId(iconName: String): Int {
+            return try {
+                itemView.context.resources.getIdentifier(
+                    iconName,
+                    "drawable",
+                    itemView.context.packageName
+                )
+            } catch (e: Exception) {
+                0
             }
         }
     }

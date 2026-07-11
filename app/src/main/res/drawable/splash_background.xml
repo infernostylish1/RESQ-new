@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background color -->
     <item>
-        <color android:color="@color/primary" />
+        <color android:color="@color/primary_container" />
     </item>
+    <!-- Centered logo (unmasked) -->
     <item
-        android:drawable="@drawable/ic_launcher_foreground"
+        android:drawable="@drawable/splashscreen"
         android:gravity="center" />
 </layer-list>

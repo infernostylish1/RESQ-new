@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
+    android:background="@color/primary_container"
     tools:context=".ui.activity.SplashActivity">
 
     <ImageView
@@ -13,40 +13,27 @@
         android:layout_width="@dimen/icon_size_hero"
         android:layout_height="@dimen/icon_size_hero"
         android:contentDescription="@string/cd_app_logo"
-        android:src="@mipmap/ic_launcher"
-        app:layout_constraintBottom_toTopOf="@id/tv_app_name"
+        android:src="@drawable/splashscreen"
+        app:layout_constraintBottom_toTopOf="@id/tv_tagline"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
-        android:id="@+id/tv_app_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_lg"
-        android:text="@string/app_name"
-        android:textColor="@color/on_primary"
-        android:textSize="@dimen/text_size_display"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@id/tv_tagline"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/iv_logo" />
-
-    <TextView
         android:id="@+id/tv_tagline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/spacing_sm"
+        android:layout_marginTop="@dimen/spacing_lg"
+        android:fontFamily="@font/minims_regular"
         android:text="@string/app_tagline"
-        android:textColor="@color/on_primary"
+        android:textColor="@color/splashtext_black"
         android:textSize="@dimen/text_size_body"
         android:alpha="0.9"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_app_name" />
+        app:layout_constraintTop_toBottomOf="@id/iv_logo" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/progress_indicator"

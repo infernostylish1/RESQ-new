@@ -120,7 +120,7 @@ object MediaLoader {
                 pvStepMedia.player = player
                 player.setMediaItem(MediaItem.fromUri(uri))
                 player.prepare()
-                player.playWhenReady = true
+                player.playWhenReady = false   // ← CHANGED: start paused instead of autoplay
                 player.repeatMode   = ExoPlayer.REPEAT_MODE_ONE
 
                 player // caller stores and releases this

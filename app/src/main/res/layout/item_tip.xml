@@ -22,7 +22,6 @@
             android:scaleType="centerInside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary"
             tools:src="@android:drawable/ic_menu_info_details" />
 
         <TextView

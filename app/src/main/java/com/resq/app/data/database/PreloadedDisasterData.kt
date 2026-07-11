@@ -21,7 +21,7 @@ object PreloadedDisasterData {
             description = "A sudden shaking of the ground caused by movement of tectonic plates.",
             descriptionTagalog = "Biglaang pagyanig ng lupa dulot ng paggalaw ng tectonic plates.",
             iconResName = "ic_earthquake",
-            imageResName = "img_earthquake",
+            imageResName = "earthquake",
             isUniversal = true,
             displayOrder = 1
         ),
@@ -233,8 +233,8 @@ object PreloadedDisasterData {
             titleTagalog = "Maghanda ng Emergency Kit",
             content = "Prepare a Go Bag with water, food, flashlight, first aid kit, important documents, and medications. Keep it in an easily accessible location.",
             contentTagalog = "Maghanda ng Go Bag na may tubig, pagkain, flashlight, first aid kit, mahahalagang dokumento, at gamot. Ilagay ito sa lugar na madaling makuha.",
-            mediaResName = "img_earthquake_kit",
-            mediaType = MediaType.IMAGE,
+            mediaResName = "vid_sample",
+            mediaType = MediaType.VIDEO,
             displayOrder = 1
         ),
         DisasterPreparationEntity(
