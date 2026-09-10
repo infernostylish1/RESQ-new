@@ -70,13 +70,10 @@
         android:name="com.resq.app.ui.fragment.DisastersFragment"
         android:label="@string/nav_disasters"
         tools:layout="@layout/fragment_disasters">
-
-        <!-- NEW: voice-commanded tab selection -->
         <argument
             android:name="voiceTab"
             android:defaultValue=""
             app:argType="string" />
-
         <action
             android:id="@+id/action_disasters_to_detail"
             app:destination="@id/nav_disaster_detail"
@@ -128,19 +125,15 @@
             app:argType="string" />
     </fragment>
 
-    <!-- ── Tips ───────────────────────────────────────────────────────────── -->
     <fragment
         android:id="@+id/nav_tips"
         android:name="com.resq.app.ui.fragment.TipsFragment"
         android:label="@string/nav_tips"
         tools:layout="@layout/fragment_tips">
-
-        <!-- NEW: voice-commanded tab selection -->
         <argument
             android:name="voiceTab"
             android:defaultValue=""
             app:argType="string" />
-
         <action
             android:id="@+id/action_tips_to_tip_detail"
             app:destination="@id/nav_tip_detail"
@@ -148,25 +141,20 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
     </fragment>
 
-    <!-- Tip Detail -->
     <fragment
         android:id="@+id/nav_tip_detail"
         android:name="com.resq.app.ui.fragment.TipDetailFragment"
         android:label="{disasterName}"
         tools:layout="@layout/fragment_tip_detail">
-
         <argument
             android:name="disasterId"
             app:argType="long" />
-
         <argument
             android:name="disasterName"
             android:defaultValue="Tips"
             app:argType="string" />
-
     </fragment>
 
     <fragment
@@ -188,6 +176,21 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <!-- NEW: Actions to Terms and Privacy -->
+        <action
+            android:id="@+id/action_settings_to_terms"
+            app:destination="@id/nav_terms"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_settings_to_privacy"
+            app:destination="@id/nav_privacy"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -201,6 +204,20 @@
         android:name="com.resq.app.ui.fragment.AboutFragment"
         android:label="@string/about_title"
         tools:layout="@layout/fragment_about" />
+
+    <!-- NEW: Terms & Conditions Fragment -->
+    <fragment
+        android:id="@+id/nav_terms"
+        android:name="com.resq.app.ui.fragment.TermsAndConditionsFragment"
+        android:label="@string/terms_title"
+        tools:layout="@layout/fragment_terms_and_conditions" />
+
+    <!-- NEW: Data Privacy Fragment -->
+    <fragment
+        android:id="@+id/nav_privacy"
+        android:name="com.resq.app.ui.fragment.DataPrivacyFragment"
+        android:label="@string/privacy_title"
+        tools:layout="@layout/fragment_data_privacy" />
 
     <action
         android:id="@+id/action_global_emergency_contacts"
@@ -223,12 +240,10 @@
         android:name="com.resq.app.ui.search.GlobalSearchFragment"
         android:label="@string/action_search"
         tools:layout="@layout/fragment_global_search">
-
         <argument
             android:name="arg_initial_query"
             android:defaultValue=""
             app:argType="string" />
-
     </fragment>
 
     <action

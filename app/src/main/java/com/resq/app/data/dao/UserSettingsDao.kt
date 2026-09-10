@@ -56,6 +56,26 @@ interface UserSettingsDao {
     @Query("SELECT is_dark_theme FROM user_settings WHERE id = 1")
     suspend fun isDarkTheme(): Boolean?
 
+    // NEW: Terms & Privacy methods
+    @Query("UPDATE user_settings SET terms_accepted = :accepted, updated_at = :updatedAt WHERE id = 1")
+    suspend fun updateTermsAccepted(accepted: Boolean, updatedAt: Long = System.currentTimeMillis())
+
+    @Query("UPDATE user_settings SET privacy_accepted = :accepted, updated_at = :updatedAt WHERE id = 1")
+    suspend fun updatePrivacyAccepted(accepted: Boolean, updatedAt: Long = System.currentTimeMillis())
+
+    @Query("UPDATE user_settings SET terms_accepted = :termsAccepted, privacy_accepted = :privacyAccepted, updated_at = :updatedAt WHERE id = 1")
+    suspend fun updateAgreementStatus(
+        termsAccepted: Boolean,
+        privacyAccepted: Boolean,
+        updatedAt: Long = System.currentTimeMillis()
+    )
+
+    @Query("SELECT terms_accepted FROM user_settings WHERE id = 1")
+    suspend fun getTermsAccepted(): Boolean?
+
+    @Query("SELECT privacy_accepted FROM user_settings WHERE id = 1")
+    suspend fun getPrivacyAccepted(): Boolean?
+
     @Query("DELETE FROM user_settings")
     suspend fun deleteSettings()
 }

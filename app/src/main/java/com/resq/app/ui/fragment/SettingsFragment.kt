@@ -73,6 +73,16 @@ class SettingsFragment : Fragment() {
         binding.settingAbout.setOnClickListener {
             findNavController().navigate(R.id.action_settings_to_about)
         }
+
+        // NEW: Terms & Conditions click listener
+        binding.settingTerms.setOnClickListener {
+            findNavController().navigate(R.id.action_settings_to_terms)
+        }
+
+        // NEW: Data Privacy click listener
+        binding.settingPrivacy.setOnClickListener {
+            findNavController().navigate(R.id.action_settings_to_privacy)
+        }
     }
 
     private fun observeViewModel() {

@@ -3,12 +3,14 @@ package com.resq.app.ui.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.resq.app.databinding.ItemOnboardingAgreementBinding
 import com.resq.app.databinding.ItemOnboardingPageBinding
 import com.resq.app.databinding.ItemOnboardingProfileBinding
 
 class OnboardingPagerAdapter(
     private val pages: List<OnboardingPage>,
-    private val onLocationChanged: (LocationField, Boolean) -> Unit
+    private val onLocationChanged: (LocationField, Boolean) -> Unit,
+    private val onAgreementChanged: (AgreementField, Boolean) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // ── Page model ────────────────────────────────────────────────────────────
@@ -23,6 +25,10 @@ class OnboardingPagerAdapter(
         data class LocationPage(
             val locationState: LocationState = LocationState()
         ) : OnboardingPage()
+
+        data class AgreementPage(
+            val agreementState: AgreementState = AgreementState()
+        ) : OnboardingPage()
     }
 
     data class LocationState(
@@ -35,8 +41,17 @@ class OnboardingPagerAdapter(
         val isCoastal: Boolean = false
     )
 
+    data class AgreementState(
+        val termsAccepted: Boolean = false,
+        val privacyAccepted: Boolean = false
+    )
+
     enum class LocationField {
         NEAR_WATER, MOUNTAINOUS, LANDSLIDE, FLOOD, VOLCANO, URBAN, COASTAL
+    }
+
+    enum class AgreementField {
+        TERMS, PRIVACY
     }
 
     // ── View types ────────────────────────────────────────────────────────────
@@ -44,13 +59,16 @@ class OnboardingPagerAdapter(
     companion object {
         private const val TYPE_INFO = 0
         private const val TYPE_LOCATION = 1
+        private const val TYPE_AGREEMENT = 2
     }
 
-    override fun getItemViewType(position: Int): Int =
-        when (pages[position]) {
+    override fun getItemViewType(position: Int): Int {
+        return when (pages[position]) {
             is OnboardingPage.InfoPage -> TYPE_INFO
             is OnboardingPage.LocationPage -> TYPE_LOCATION
+            is OnboardingPage.AgreementPage -> TYPE_AGREEMENT
         }
+    }
 
     // ── ViewHolder creation ───────────────────────────────────────────────────
 
@@ -60,10 +78,15 @@ class OnboardingPagerAdapter(
             TYPE_INFO -> InfoViewHolder(
                 ItemOnboardingPageBinding.inflate(inflater, parent, false)
             )
-            else -> LocationViewHolder(
+            TYPE_LOCATION -> LocationViewHolder(
                 ItemOnboardingProfileBinding.inflate(inflater, parent, false),
                 onLocationChanged
             )
+            TYPE_AGREEMENT -> AgreementViewHolder(
+                ItemOnboardingAgreementBinding.inflate(inflater, parent, false),
+                onAgreementChanged
+            )
+            else -> throw IllegalArgumentException("Unknown view type: $viewType")
         }
     }
 
@@ -71,12 +94,13 @@ class OnboardingPagerAdapter(
         when (val page = pages[position]) {
             is OnboardingPage.InfoPage -> (holder as InfoViewHolder).bind(page)
             is OnboardingPage.LocationPage -> (holder as LocationViewHolder).bind(page)
+            is OnboardingPage.AgreementPage -> (holder as AgreementViewHolder).bind(page)
         }
     }
 
     override fun getItemCount(): Int = pages.size
 
-    // ── Info ViewHolder (unchanged behaviour) ─────────────────────────────────
+    // ── Info ViewHolder ─────────────────────────────────────────────────────
 
     class InfoViewHolder(
         private val binding: ItemOnboardingPageBinding
@@ -89,14 +113,13 @@ class OnboardingPagerAdapter(
         }
     }
 
-    // ── Location ViewHolder ───────────────────────────────────────────────────
+    // ── Location ViewHolder ─────────────────────────────────────────────────
 
     class LocationViewHolder(
         private val binding: ItemOnboardingProfileBinding,
         private val onLocationChanged: (LocationField, Boolean) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        // Track whether we're in a programmatic bind so listeners don't fire
         private var isBinding = false
 
         init {
@@ -132,6 +155,33 @@ class OnboardingPagerAdapter(
             binding.cbVolcano.isChecked = page.locationState.isNearVolcano
             binding.cbUrban.isChecked = page.locationState.isUrban
             binding.cbCoastal.isChecked = page.locationState.isCoastal
+            isBinding = false
+        }
+    }
+
+    // ── Agreement ViewHolder ───────────────────────────────────────────────
+
+    class AgreementViewHolder(
+        val binding: ItemOnboardingAgreementBinding,
+        private val onAgreementChanged: (AgreementField, Boolean) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        private var isBinding = false
+
+        init {
+            // Checkbox listeners
+            binding.cbTermsAccepted.setOnCheckedChangeListener { _, checked ->
+                if (!isBinding) onAgreementChanged(AgreementField.TERMS, checked)
+            }
+            binding.cbPrivacyAccepted.setOnCheckedChangeListener { _, checked ->
+                if (!isBinding) onAgreementChanged(AgreementField.PRIVACY, checked)
+            }
+        }
+
+        fun bind(page: OnboardingPage.AgreementPage) {
+            isBinding = true
+            binding.cbTermsAccepted.isChecked = page.agreementState.termsAccepted
+            binding.cbPrivacyAccepted.isChecked = page.agreementState.privacyAccepted
             isBinding = false
         }
     }

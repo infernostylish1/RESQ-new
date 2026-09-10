@@ -43,6 +43,12 @@ data class UserSettingsEntity(
     @ColumnInfo(name = "has_completed_onboarding")
     val hasCompletedOnboarding: Boolean = false,
 
+    @ColumnInfo(name = "terms_accepted")
+    val termsAccepted: Boolean = false,
+
+    @ColumnInfo(name = "privacy_accepted")
+    val privacyAccepted: Boolean = false,
+
     @ColumnInfo(name = "updated_at")
     val updatedAt: Long = System.currentTimeMillis()
 )

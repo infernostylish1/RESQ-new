@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--values-tl-->
     <!-- App Name -->
     <string name="app_name">RESQ</string>
     <string name="app_tagline">Ang Iyong Kaagapay sa Paghahanda sa Kalamidad</string>
@@ -310,5 +311,79 @@
     <string name="exit_dialog_title">Exit App?</string>
     <string name="exit_dialog_message">Are you sure you want to exit the application?</string>
     <string name="action_exit">Exit</string>
+
+    <!-- ==================== TERMS & PRIVACY ==================== -->
+    <string name="terms_title">Mga Tuntunin at Kundisyon</string>
+    <string name="terms_preview">Sa paggamit ng RESQ, sumasang-ayon ka sa aming Mga Tuntunin at Kundisyon. Basahin ang buong tuntunin dito.</string>
+    <string name="terms_last_updated">Huling Na-update: Hulyo 2026</string>
+
+    <string name="privacy_title">Patakaran sa Privacy</string>
+    <string name="privacy_preview">Ang iyong data ay naka-imbak sa lokal sa iyong device. Hindi namin ibinabahagi ang iyong impormasyon sa sinuman. Basahin ang aming buong patakaran sa privacy.</string>
+    <string name="privacy_last_updated">Huling Na-update: Hulyo 2026</string>
+
+    <!-- Onboarding Agreement -->
+    <string name="onboarding_agreement_title">Mga Tuntunin at Privacy</string>
+    <string name="onboarding_agreement_desc">Mangyaring basahin at tanggapin ang aming Mga Tuntunin at Kundisyon at Patakaran sa Privacy upang magpatuloy.</string>
+    <string name="onboarding_i_accept_terms">Tinatanggap ko ang Mga Tuntunin at Kundisyon</string>
+    <string name="onboarding_i_accept_privacy">Tinatanggap ko ang Patakaran sa Privacy</string>
+    <string name="onboarding_agreement_required">Dapat mong tanggapin ang parehong Tuntunin at Patakaran sa Privacy upang magpatuloy.</string>
+
+
+    <!-- ==================== TERMS & PRIVACY ==================== -->
+    <string name="terms_read_full">Basahin ang Buong Tuntunin</string>
+    <string name="privacy_read_full">Basahin ang Buong Patakaran</string>
+
+    <!-- ==================== TERMS & CONDITIONS FULL CONTENT (Tagalog) ==================== -->
+    <string name="terms_full_content" formatted="false">1. Panimula
+Maligayang pagdating sa RESQ. Sa paggamit ng application na ito, sumasang-ayon kang sumunod at magpatali sa mga sumusunod na tuntunin at kundisyon.
+2. Layunin ng App
+Ang RESQ ay isang application para sa paghahanda at pagtugon sa mga sakuna na idinisenyo upang magbigay ng impormasyong pang-edukasyon upang matulungan ang mga gumagamit na maghanda at tumugon sa mga emergency. Ang app ay gumagana nang offline.
+3. Mga Permiso
+Humihingi ang RESQ ng sumusunod na mga permiso upang maibigay ang pangunahing functionality nito:
+• Permiso sa Mikropono: Kailangan para sa voice search at voice command features.
+• Permiso sa Telepono: Kailangan upang tumawag ng emergency nang direkta mula sa app.
+4. Imbakan ng Data
+Lahat ng data ng user ay naka-imbak sa lokal sa iyong device. Hindi kami nangongolekta, nagpapadala, o nag-iimbak ng anumang personal na impormasyon sa mga panlabas na server. Ang iyong data ay nananatili lamang sa iyong device.
+5. Responsibilidad ng Gumagamit
+Sumasang-ayon kang gamitin ang RESQ nang responsable at para lamang sa layunin nito. Kinikilala mo na ang impormasyong ibinigay ay para sa mga layuning pang-edukasyon at hindi dapat palitan ang propesyonal na payo o mga serbisyo sa emergency.
+6. Pagtatanggi
+Ang RESQ ay nagbibigay ng impormasyon para sa mga layuning pang-edukasyon lamang. Bagama\'t nagsusumikap kaming magbigay ng tumpak at napapanahong impormasyon, hindi kami gumagawa ng anumang representasyon o garantiya ng anumang uri, hayag o ipinahiwatig, tungkol sa pagkakumpleto, katumpakan, pagiging maaasahan, pagiging angkop, o pagkakaroon ng impormasyon. Palaging sundin ang mga tagubilin ng mga lokal na awtoridad sa mga emergency.
+7. Mga Pagbabago sa Tuntunin
+Inilalaan namin ang karapatang i-update ang mga tuntuning ito anumang oras. Ang patuloy na paggamit ng app ay nangangahulugan ng pagtanggap sa mga na-update na tuntunin.
+8. Pagtanggap
+Sa paggamit ng RESQ, tinatanggap mo ang mga tuntunin at kundisyong ito nang buo. Kung hindi ka sumasang-ayon sa anumang bahagi ng mga tuntuning ito, hindi mo dapat gamitin ang application.
+9. Makipag-ugnayan
+Para sa anumang mga katanungan tungkol sa mga tuntuning ito, mangyaring makipag-ugnayan sa amin sa pamamagitan ng feedback mechanism ng app.</string>
+
+    <string name="privacy_full_content" formatted="false">1. Panimula
+Ipinapaliwanag ng Patakaran sa Privacy na ito kung paano nangongolekta, gumagamit, at pinoprotektahan ng RESQ ang iyong impormasyon kapag ginagamit mo ang aming application.
+2. Impormasyong Kinokolekta Namin
+Kolekta kami ng kaunting impormasyon upang magbigay ng personalized na impormasyon sa sakuna:
+• Mga Kagustuhan sa Lokasyon: Ang iyong mga sagot sa mga tanong na may kaugnayan sa lokasyon (hal., malapit sa tubig, maburol na lugar) upang magrekomenda ng may-katuturang impormasyon sa sakuna.
+• Mga Setting ng App: Ang iyong mga kagustuhan tulad ng dark theme, laki ng font, pagpili ng wika, at mga setting ng accessibility.
+3. Paano Namin Ginagamit ang Iyong Impormasyon
+Ang impormasyong nakolekta ay eksklusibong ginagamit para sa:
+• I-personalize ang mga rekomendasyon sa sakuna batay sa iyong profile sa lokasyon
+• Tandaan ang iyong mga kagustuhan at setting sa app
+• Pagbutihin ang iyong karanasan bilang gumagamit
+4. Imbakan at Seguridad ng Data
+Lahat ng data ay naka-imbak sa lokal sa iyong device gamit ang Room database ng Android. Nagpapatupad kami ng naaangkop na mga hakbang sa seguridad upang protektahan ang iyong impormasyon mula sa hindi awtorisadong pag-access, pagbabago, o pagkasira.
+5. Pagbabahagi ng Data
+Hindi kami nagbabahagi, nagbebenta, o nagpapadala ng anuman sa iyong data sa mga third party. Ang iyong impormasyon ay nananatiling pribado at secure sa iyong device.
+6. Access ng Developer
+Ang mga developer ay walang access sa anumang data ng gumagamit. Ang application ay idinisenyo upang gumana nang buong offline nang walang panlabas na pagpapadala ng data.
+7. Iyong Mga Karapatan
+May karapatan kang:
+• I-access ang data na naka-imbak sa iyong device
+• Baguhin o i-update ang iyong impormasyon anumang oras
+• I-reset o i-clear ang iyong data sa pamamagitan ng mga setting ng app
+• I-uninstall ang app upang alisin ang lahat ng naka-imbak na data
+8. Privacy ng mga Bata
+Ang RESQ ay hindi sinasadya na nangongolekta ng personal na impormasyon mula sa mga bata. Ang app ay idinisenyo para sa pangkalahatang mga madla at hindi partikular na nagta-target sa mga bata.
+9. Mga Pagbabago sa Patakaran sa Privacy
+Maaari naming i-update ang Patakaran sa Privacy na ito paminsan-minsan. Ang patuloy na paggamit ng app pagkatapos ng mga pagbabago ay nagpapahiwatig ng pagtanggap sa na-update na patakaran.
+10. Makipag-ugnayan sa Amin
+Kung mayroon kang anumang mga katanungan tungkol sa Patakaran sa Privacy na ito, mangyaring makipag-ugnayan sa amin sa pamamagitan ng feedback mechanism ng app.</string>
+
 
 </resources>

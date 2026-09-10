@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--values-->
     <!-- App Name -->
     <string name="app_name">RESQ</string>
     <string name="app_tagline">Your Disaster Preparedness Companion</string>
@@ -310,5 +311,79 @@
     <string name="exit_dialog_title">Exit App?</string>
     <string name="exit_dialog_message">Are you sure you want to exit the application?</string>
     <string name="action_exit">Exit</string>
+
+    <!-- ==================== TERMS & PRIVACY ==================== -->
+    <string name="terms_title">Terms &amp; Conditions</string>
+    <string name="terms_preview">By using RESQ, you agree to our Terms and Conditions. Read the full terms here.</string>
+    <string name="terms_last_updated">Last Updated: July 2026</string>
+
+    <string name="privacy_title">Data Privacy</string>
+    <string name="privacy_preview">Your data is stored locally on your device. We do not share your information with anyone. Read our full privacy policy.</string>
+    <string name="privacy_last_updated">Last Updated: July 2026</string>
+
+    <!-- Onboarding Agreement -->
+    <string name="onboarding_agreement_title">Terms &amp; Privacy</string>
+    <string name="onboarding_agreement_desc">Please read and accept our Terms &amp; Conditions and Data Privacy Policy to continue.</string>
+    <string name="onboarding_i_accept_terms">I accept the Terms &amp; Conditions</string>
+    <string name="onboarding_i_accept_privacy">I accept the Data Privacy Policy</string>
+    <string name="onboarding_agreement_required">You must accept both Terms and Privacy Policy to continue.</string>
+
+    <!-- ==================== TERMS & PRIVACY ==================== -->
+    <string name="terms_read_full">Read Full Terms</string>
+    <string name="privacy_read_full">Read Full Privacy</string>
+
+    <!-- ==================== TERMS & CONDITIONS FULL CONTENT ==================== -->
+    <string name="terms_full_content" formatted="false">
+        \n1. Introduction\n
+        Welcome to RESQ. By using this application, you agree to comply with and be bound by the following terms and conditions.
+        \n2. App Purpose\n
+        RESQ is a disaster preparedness and emergency response application designed to provide educational information to help users prepare for and respond to emergencies. The app operates entirely offline.
+        \n3. Permissions\n
+        RESQ requests the following permissions to provide its core functionality:
+        \n• Microphone Permission: Required for voice search and voice command features.
+        \n• Phone Permission: Required to make emergency calls directly from the app.
+        \n4. Data Storage\n
+        All user data is stored locally on your device. We do not collect, transmit, or store any personal information on external servers. Your data remains solely on your device.
+        \n5. User Responsibilities\n
+        You agree to use RESQ responsibly and only for its intended purpose. You acknowledge that the information provided is for educational purposes and should not replace professional advice or emergency services.
+        \n6. Disclaimer\n
+        RESQ provides information for educational purposes only. While we strive to provide accurate and up-to-date information, we make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability, or availability of the information. Always follow instructions from local authorities during emergencies.
+        \n7. Changes to Terms\n
+        We reserve the right to update these terms at any time. Continued use of the app constitutes acceptance of the updated terms.
+        \n8. Acceptance\n
+        By using RESQ, you accept these terms and conditions in full. If you disagree with any part of these terms, you should not use the application.
+        \n9. Contact\n
+        For any questions regarding these terms, please contact us through the app\'s feedback mechanism.
+    </string>
+
+    <string name="privacy_full_content" formatted="true">1. Introduction
+This Privacy Policy explains how RESQ collects, uses, and protects your information when you use our application.
+2. Information We Collect
+We collect minimal information to provide personalized disaster information:
+• Location Preferences: Your responses to location-based questions (e.g., near water, mountainous area) to recommend relevant disaster information.
+• App Settings: Your preferences such as dark theme, font size, language selection, and accessibility settings.
+3. How We Use Your Information
+The information collected is used exclusively to:
+• Personalize disaster recommendations based on your location profile
+• Remember your app preferences and settings
+• Improve your user experience
+4. Data Storage and Security
+All data is stored locally on your device using Android\'s Room database. We implement appropriate security measures to protect your information from unauthorized access, alteration, or destruction.
+5. Data Sharing
+We do not share, sell, or transmit any of your data to third parties. Your information remains private and secure on your device.
+6. Developer Access
+Developers do not have access to any user data. The application is designed to function entirely offline without external data transmission.
+7. Your Rights
+You have the right to:
+• Access the data stored on your device
+• Modify or update your information at any time
+• Reset or clear your data through app settings
+• Uninstall the app to remove all stored data
+8. Children\'s Privacy
+RESQ does not knowingly collect personal information from children. The app is designed for general audiences and does not target children specifically.
+9. Changes to Privacy Policy
+We may update this Privacy Policy from time to time. Continued use of the app after changes indicates acceptance of the updated policy.
+10. Contact Us
+If you have any questions about this Privacy Policy, please contact us through the app\'s feedback mechanism.</string>
 
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--values-->
     <!-- ── Primary (Red) ──────────────────────────────────────────────────── -->
     <color name="primary">#D32F2F</color>
     <color name="primary_dark">#B71C1C</color>
@@ -114,4 +115,6 @@
     <color name="secondary_variant">#F57C00</color>
     <color name="ripple_color">#1AD32F2F</color>
     <color name="divider">#E0E0E0</color>
+
+    <color name="button_disabled">#BDBDBD</color>
 </resources>

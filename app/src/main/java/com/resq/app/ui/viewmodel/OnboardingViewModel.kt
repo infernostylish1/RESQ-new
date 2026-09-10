@@ -26,12 +26,20 @@ class OnboardingViewModel @Inject constructor(
 
     init {
         checkOnboardingStatus()
+        loadCurrentLanguage()
     }
 
     private fun checkOnboardingStatus() {
         viewModelScope.launch {
             val isCompleted = userProfileRepository.isOnboardingCompleted()
             _uiState.value = _uiState.value.copy(hasCompletedOnboarding = isCompleted)
+        }
+    }
+
+    private fun loadCurrentLanguage() {
+        viewModelScope.launch {
+            val language = userSettingsRepository.getPreferredLanguage()
+            _uiState.value = _uiState.value.copy(currentLanguage = language)
         }
     }
 
@@ -61,6 +69,14 @@ class OnboardingViewModel @Inject constructor(
 
     fun updateCoastal(isCoastal: Boolean) {
         _uiState.value = _uiState.value.copy(isCoastal = isCoastal)
+    }
+
+    fun updateTermsAccepted(accepted: Boolean) {
+        _uiState.value = _uiState.value.copy(termsAccepted = accepted)
+    }
+
+    fun updatePrivacyAccepted(accepted: Boolean) {
+        _uiState.value = _uiState.value.copy(privacyAccepted = accepted)
     }
 
     fun nextPage() {
@@ -97,9 +113,13 @@ class OnboardingViewModel @Inject constructor(
                     isInCoastalArea = state.isCoastal,
                     onboardingCompleted = true
                 )
-                // FIX: was insertProfile() — would silently fail if default row
-                // already exists from DatabaseCallback.onCreate()
+
                 userProfileRepository.insertOrUpdateProfile(profile)
+
+                userSettingsRepository.updateAgreementStatus(
+                    termsAccepted = state.termsAccepted,
+                    privacyAccepted = state.privacyAccepted
+                )
                 userSettingsRepository.setOnboardingCompleted(true)
 
                 _uiState.value = _uiState.value.copy(
@@ -119,7 +139,6 @@ class OnboardingViewModel @Inject constructor(
     fun skipOnboarding() {
         viewModelScope.launch {
             val profile = UserProfileEntity(id = 1, onboardingCompleted = true)
-            // FIX: same as above
             userProfileRepository.insertOrUpdateProfile(profile)
             userSettingsRepository.setOnboardingCompleted(true)
 
@@ -135,8 +154,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     companion object {
-        // Was 4 — added location page between "First Aid" and "Ready"
-        const val TOTAL_PAGES = 5
+        const val TOTAL_PAGES = 6
     }
 }
 
@@ -148,6 +166,9 @@ data class OnboardingUiState(
     val isNearVolcano: Boolean = false,
     val isUrban: Boolean = false,
     val isCoastal: Boolean = false,
+    val termsAccepted: Boolean = false,
+    val privacyAccepted: Boolean = false,
+    val currentLanguage: String = "en",
     val isLoading: Boolean = false,
     val error: String? = null,
     val hasCompletedOnboarding: Boolean = false,

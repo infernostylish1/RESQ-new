@@ -52,28 +52,18 @@ class UserSettingsRepository(
     suspend fun updateFontSize(fontSize: FontSize) =
         userSettingsDao.updateFontSize(fontSize)
 
-    /**
-     * TTS enabled toggle — used by SettingsViewModel.
-     */
     suspend fun updateTTSEnabled(enabled: Boolean) =
         userSettingsDao.updateTtsEnabled(enabled)
 
-    /** Legacy alias */
     suspend fun updateTtsEnabled(enabled: Boolean) =
         userSettingsDao.updateTtsEnabled(enabled)
 
-    /**
-     * TTS speed — used by SettingsViewModel.
-     */
     suspend fun updateTTSSpeed(speed: Float) {
         val current = userSettingsDao.getSettingsOnce()
         val pitch = current?.ttsPitch ?: 1.0f
         userSettingsDao.updateTtsSettings(speed, pitch)
     }
 
-    /**
-     * TTS pitch — used by SettingsViewModel.
-     */
     suspend fun updateTTSPitch(pitch: Float) {
         val current = userSettingsDao.getSettingsOnce()
         val speed = current?.ttsSpeed ?: 1.0f
@@ -92,10 +82,6 @@ class UserSettingsRepository(
     suspend fun updateLanguage(language: String) =
         userSettingsDao.updateLanguage(language)
 
-    /**
-     * Marks onboarding as completed.
-     * Used by OnboardingViewModel.
-     */
     suspend fun setOnboardingCompleted(completed: Boolean) {
         val current = userSettingsDao.getSettingsOnce()
         if (current != null) {
@@ -106,6 +92,22 @@ class UserSettingsRepository(
             )
         }
     }
+
+    // NEW: Terms & Privacy methods
+    suspend fun updateTermsAccepted(accepted: Boolean) =
+        userSettingsDao.updateTermsAccepted(accepted)
+
+    suspend fun updatePrivacyAccepted(accepted: Boolean) =
+        userSettingsDao.updatePrivacyAccepted(accepted)
+
+    suspend fun updateAgreementStatus(termsAccepted: Boolean, privacyAccepted: Boolean) =
+        userSettingsDao.updateAgreementStatus(termsAccepted, privacyAccepted)
+
+    suspend fun getTermsAccepted(): Boolean =
+        userSettingsDao.getTermsAccepted() ?: false
+
+    suspend fun getPrivacyAccepted(): Boolean =
+        userSettingsDao.getPrivacyAccepted() ?: false
 
     suspend fun getPreferredLanguage(): String =
         userSettingsDao.getPreferredLanguage() ?: "en"

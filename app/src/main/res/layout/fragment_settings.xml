@@ -32,6 +32,7 @@
             android:orientation="vertical"
             android:padding="@dimen/screen_padding">
 
+            <!-- Appearance Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -39,6 +40,7 @@
                 android:textAppearance="@style/TextAppearance.RESQ.Caption"
                 android:textColor="@color/primary" />
 
+            <!-- Dark Theme -->
             <LinearLayout
                 android:id="@+id/setting_dark_theme"
                 style="@style/Widget.RESQ.ListItem"
@@ -72,6 +74,7 @@
 
             </LinearLayout>
 
+            <!-- Font Size -->
             <LinearLayout
                 android:id="@+id/setting_font_size"
                 style="@style/Widget.RESQ.ListItem"
@@ -108,6 +111,7 @@
 
             </LinearLayout>
 
+            <!-- Language -->
             <LinearLayout
                 android:id="@+id/setting_language"
                 style="@style/Widget.RESQ.ListItem"
@@ -148,6 +152,7 @@
                 style="@style/Widget.RESQ.Divider"
                 android:layout_marginVertical="@dimen/spacing_lg" />
 
+            <!-- Accessibility Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -155,6 +160,7 @@
                 android:textAppearance="@style/TextAppearance.RESQ.Caption"
                 android:textColor="@color/primary" />
 
+            <!-- Voice Command -->
             <LinearLayout
                 android:id="@+id/setting_voice_command"
                 style="@style/Widget.RESQ.ListItem"
@@ -188,6 +194,7 @@
 
             </LinearLayout>
 
+            <!-- TTS -->
             <LinearLayout
                 android:id="@+id/setting_tts"
                 style="@style/Widget.RESQ.ListItem"
@@ -225,6 +232,7 @@
                 style="@style/Widget.RESQ.Divider"
                 android:layout_marginVertical="@dimen/spacing_lg" />
 
+            <!-- Content Section -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -232,6 +240,7 @@
                 android:textAppearance="@style/TextAppearance.RESQ.Caption"
                 android:textColor="@color/primary" />
 
+            <!-- Emergency Contacts -->
             <LinearLayout
                 android:id="@+id/setting_emergency_contacts"
                 style="@style/Widget.RESQ.ListItem"
@@ -257,15 +266,69 @@
                 style="@style/Widget.RESQ.Divider"
                 android:layout_marginVertical="@dimen/spacing_lg" />
 
+            <!-- About Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/about_title"
+                android:textAppearance="@style/TextAppearance.RESQ.Caption"
+                android:textColor="@color/primary" />
+
+            <!-- About App -->
             <LinearLayout
                 android:id="@+id/setting_about"
-                style="@style/Widget.RESQ.ListItem">
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/settings_about_app"
+                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_md"
+                    android:layout_height="@dimen/icon_size_md"
+                    android:contentDescription="@string/cd_next_button"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <!-- NEW: Terms & Conditions -->
+            <LinearLayout
+                android:id="@+id/setting_terms"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/terms_title"
+                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_md"
+                    android:layout_height="@dimen/icon_size_md"
+                    android:contentDescription="@string/cd_next_button"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <!-- NEW: Data Privacy -->
+            <LinearLayout
+                android:id="@+id/setting_privacy"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/privacy_title"
                     android:textAppearance="@style/TextAppearance.RESQ.Body" />
 
                 <ImageView
