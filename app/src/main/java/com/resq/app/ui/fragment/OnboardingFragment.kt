@@ -294,10 +294,9 @@ class OnboardingFragment : Fragment() {
 
         val isPart1 = position < 3
         val isAgreementPage = position == 3
-        val isLocationPage = position == 4
         val isLastPage = position == OnboardingViewModel.TOTAL_PAGES - 1
 
-        binding.btnSkip.visibility = if (isPart1 || isLocationPage) {
+        binding.btnSkip.visibility = if (isPart1) {
             View.VISIBLE
         } else {
             View.INVISIBLE
@@ -325,8 +324,6 @@ class OnboardingFragment : Fragment() {
 
             if (currentPosition < 3) {
                 binding.viewPager.currentItem = 3
-            } else if (currentPosition == 4) {
-                binding.viewPager.currentItem = 5
             }
         }
 
