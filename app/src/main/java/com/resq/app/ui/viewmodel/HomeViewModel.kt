@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -47,11 +50,7 @@ class HomeViewModel @Inject constructor(
     private val _userProfile = MutableStateFlow<UserProfileEntity?>(null)
     val userProfile: StateFlow<UserProfileEntity?> = _userProfile.asStateFlow()
 
-    private var allTipsList: List<DisasterTipEntity> = emptyList()
-    private var allDisastersList: List<DisasterEntity> = emptyList()
     private var recommendedDisastersList: List<DisasterEntity> = emptyList()
-
-    private var currentTipIndex = 0
 
     init {
         loadHomeData()
@@ -65,17 +64,41 @@ class HomeViewModel @Inject constructor(
                 val profile      = userProfileRepository.getUserProfile().first()
                 val settings     = userSettingsRepository.getSettings().first()
                 val disasterList = disasterRepository.getAllDisasters().first()
-                val tips         = disasterTipRepository.getRandomTips(10)
-
-                allTipsList      = tips
-                allDisastersList = disasterList
-                val tip          = tips.firstOrNull()
-
+                
                 recommendedDisastersList = if (profile != null) {
                     ProfileSituationMapper.filterRecommended(disasterList, profile)
                         .ifEmpty { disasterList }
                 } else {
                     disasterList
+                }
+
+                // Persistent Tip of the Day Logic
+                val todayDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+                var tip: DisasterTipEntity? = null
+
+                val lastTipId = settings?.lastTipId
+                val lastTipDate = settings?.lastTipDate
+
+                if (lastTipDate == todayDate && lastTipId != null) {
+                    // Try to load existing tip for today
+                    tip = disasterTipRepository.getTipById(lastTipId)
+                }
+
+                if (tip == null && profile != null) {
+                    // Fetch new random tip based on profile
+                    val recommendedTips = disasterTipRepository.getRecommendedTips(profile, 1)
+                    tip = recommendedTips.firstOrNull()
+                    
+                    // Save the new tip for today
+                    tip?.let {
+                        userSettingsRepository.updateLastTip(it.id, todayDate)
+                    }
+                } else if (tip == null) {
+                    // Fallback to any random tip if profile is null or recommended fails
+                    tip = disasterTipRepository.getRandomTips(1).firstOrNull()
+                    tip?.let {
+                        userSettingsRepository.updateLastTip(it.id, todayDate)
+                    }
                 }
 
                 val languageCode  = settings?.preferredLanguage ?: "en"
@@ -118,30 +141,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun refreshTip() {
-        viewModelScope.launch {
-            try {
-                val tips = disasterTipRepository.getRandomTips(1)
-                if (tips.isNotEmpty()) {
-                    _currentTip.value = tips.first()
-                    _uiState.value    = _uiState.value.copy(currentTip = tips.first())
-                }
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    error = "Failed to refresh tip: ${e.message}"
-                )
-            }
-        }
-    }
-
-    fun getNextTip() {
-        if (allTipsList.isEmpty()) return
-        currentTipIndex   = (currentTipIndex + 1) % allTipsList.size
-        val tip           = allTipsList[currentTipIndex]
-        _currentTip.value = tip
-        _uiState.value    = _uiState.value.copy(currentTip = tip)
     }
 
     fun getLanguageCode(): String =

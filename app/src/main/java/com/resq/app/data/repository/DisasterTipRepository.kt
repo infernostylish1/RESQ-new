@@ -16,6 +16,9 @@ class DisasterTipRepository(
     suspend fun getAllTipsOnce(): List<DisasterTipEntity> =
         disasterTipDao.getAllTipsOnce()
 
+    suspend fun getTipById(tipId: Long): DisasterTipEntity? =
+        disasterTipDao.getTipById(tipId)
+
     fun getTipsByDisasterId(disasterId: Long): Flow<List<DisasterTipEntity>> =
         disasterTipDao.getTipsByDisasterId(disasterId)
 

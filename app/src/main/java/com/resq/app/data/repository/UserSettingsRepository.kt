@@ -115,6 +115,9 @@ class UserSettingsRepository(
     suspend fun isDarkTheme(): Boolean =
         userSettingsDao.isDarkTheme() ?: false
 
+    suspend fun updateLastTip(tipId: Long, date: String) =
+        userSettingsDao.updateLastTip(tipId, date)
+
     suspend fun deleteSettings() =
         userSettingsDao.deleteSettings()
 }

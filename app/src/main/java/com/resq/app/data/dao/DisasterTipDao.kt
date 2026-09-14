@@ -18,6 +18,9 @@ interface DisasterTipDao {
     @Query("SELECT * FROM disaster_tips ORDER BY id ASC")
     suspend fun getAllTipsOnce(): List<DisasterTipEntity>
 
+    @Query("SELECT * FROM disaster_tips WHERE id = :tipId")
+    suspend fun getTipById(tipId: Long): DisasterTipEntity?
+
     @Query("SELECT * FROM disaster_tips WHERE disaster_id = :disasterId ORDER BY id ASC")
     fun getTipsByDisasterId(disasterId: Long): Flow<List<DisasterTipEntity>>
 

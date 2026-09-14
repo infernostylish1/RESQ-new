@@ -76,6 +76,10 @@ interface UserSettingsDao {
     @Query("SELECT privacy_accepted FROM user_settings WHERE id = 1")
     suspend fun getPrivacyAccepted(): Boolean?
 
+    // Persistent Tip methods
+    @Query("UPDATE user_settings SET last_tip_id = :tipId, last_tip_date = :date, updated_at = :updatedAt WHERE id = 1")
+    suspend fun updateLastTip(tipId: Long, date: String, updatedAt: Long = System.currentTimeMillis())
+
     @Query("DELETE FROM user_settings")
     suspend fun deleteSettings()
 }

@@ -49,6 +49,12 @@ data class UserSettingsEntity(
     @ColumnInfo(name = "privacy_accepted")
     val privacyAccepted: Boolean = false,
 
+    @ColumnInfo(name = "last_tip_id")
+    val lastTipId: Long? = null,
+
+    @ColumnInfo(name = "last_tip_date")
+    val lastTipDate: String? = null,
+
     @ColumnInfo(name = "updated_at")
     val updatedAt: Long = System.currentTimeMillis()
 )
