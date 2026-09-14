@@ -21,9 +21,10 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:animateLayoutChanges="true">
 
-            <!-- Title - now at the very top -->
+            <!-- Title -->
             <TextView
                 android:id="@+id/tv_title"
                 android:layout_width="match_parent"
@@ -32,7 +33,7 @@
                 android:text="@string/onboarding_agreement_title"
                 android:textAppearance="@style/TextAppearance.RESQ.Headline" />
 
-            <!-- Description with minimal top spacing -->
+            <!-- Description -->
             <TextView
                 android:id="@+id/tv_description"
                 android:layout_width="match_parent"
@@ -55,34 +56,64 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/spacing_md">
+                    android:orientation="vertical">
 
-                    <TextView
+                    <!-- Header -->
+                    <LinearLayout
+                        android:id="@+id/layout_terms_header"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/terms_title"
-                        android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
-                        android:textColor="@color/text_primary" />
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_md"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
 
-                    <TextView
-                        android:id="@+id/tv_terms_content"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/terms_title"
+                            android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+                            android:textColor="@color/text_primary" />
+
+                        <ImageView
+                            android:id="@+id/iv_terms_expand"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_back"
+                            android:rotation="270"
+                            app:tint="@color/text_secondary" />
+                    </LinearLayout>
+
+                    <!-- Expandable Content -->
+                    <LinearLayout
+                        android:id="@+id/layout_terms_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_sm"
-                        android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
-                        android:textColor="@color/text_secondary"
-                        android:lineSpacingExtra="4dp"
-                        tools:text="Full terms content here..." />
+                        android:orientation="vertical"
+                        android:paddingHorizontal="@dimen/spacing_md"
+                        android:paddingBottom="@dimen/spacing_md"
+                        android:visibility="gone">
 
-                    <CheckBox
-                        android:id="@+id/cb_terms_accepted"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
-                        android:text="@string/onboarding_i_accept_terms"
-                        android:textAppearance="@style/TextAppearance.RESQ.BodySmall" />
+                        <TextView
+                            android:id="@+id/tv_terms_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
+                            android:textColor="@color/text_secondary"
+                            android:lineSpacingExtra="4dp"
+                            tools:text="Full terms content here..." />
 
+                        <CheckBox
+                            android:id="@+id/cb_terms_accepted"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_md"
+                            android:text="@string/onboarding_i_accept_terms"
+                            android:textAppearance="@style/TextAppearance.RESQ.BodySmall" />
+                    </LinearLayout>
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
@@ -99,34 +130,64 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="@dimen/spacing_md">
+                    android:orientation="vertical">
 
-                    <TextView
+                    <!-- Header -->
+                    <LinearLayout
+                        android:id="@+id/layout_privacy_header"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/privacy_title"
-                        android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
-                        android:textColor="@color/text_primary" />
+                        android:orientation="horizontal"
+                        android:padding="@dimen/spacing_md"
+                        android:gravity="center_vertical"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?attr/selectableItemBackground">
 
-                    <TextView
-                        android:id="@+id/tv_privacy_content"
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/privacy_title"
+                            android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+                            android:textColor="@color/text_primary" />
+
+                        <ImageView
+                            android:id="@+id/iv_privacy_expand"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_arrow_back"
+                            android:rotation="270"
+                            app:tint="@color/text_secondary" />
+                    </LinearLayout>
+
+                    <!-- Expandable Content -->
+                    <LinearLayout
+                        android:id="@+id/layout_privacy_content"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_sm"
-                        android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
-                        android:textColor="@color/text_secondary"
-                        android:lineSpacingExtra="4dp"
-                        tools:text="Full privacy content here..." />
+                        android:orientation="vertical"
+                        android:paddingHorizontal="@dimen/spacing_md"
+                        android:paddingBottom="@dimen/spacing_md"
+                        android:visibility="gone">
 
-                    <CheckBox
-                        android:id="@+id/cb_privacy_accepted"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
-                        android:text="@string/onboarding_i_accept_privacy"
-                        android:textAppearance="@style/TextAppearance.RESQ.BodySmall" />
+                        <TextView
+                            android:id="@+id/tv_privacy_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.RESQ.BodySmall"
+                            android:textColor="@color/text_secondary"
+                            android:lineSpacingExtra="4dp"
+                            tools:text="Full privacy content here..." />
 
+                        <CheckBox
+                            android:id="@+id/cb_privacy_accepted"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/spacing_md"
+                            android:text="@string/onboarding_i_accept_privacy"
+                            android:textAppearance="@style/TextAppearance.RESQ.BodySmall" />
+                    </LinearLayout>
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>

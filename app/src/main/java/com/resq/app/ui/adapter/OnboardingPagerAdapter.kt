@@ -1,6 +1,7 @@
 package com.resq.app.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.resq.app.databinding.ItemOnboardingAgreementBinding
@@ -175,6 +176,26 @@ class OnboardingPagerAdapter(
             }
             binding.cbPrivacyAccepted.setOnCheckedChangeListener { _, checked ->
                 if (!isBinding) onAgreementChanged(AgreementField.PRIVACY, checked)
+            }
+
+            // Expandable logic
+            binding.layoutTermsHeader.setOnClickListener {
+                toggleSection(binding.layoutTermsContent, binding.ivTermsExpand)
+            }
+
+            binding.layoutPrivacyHeader.setOnClickListener {
+                toggleSection(binding.layoutPrivacyContent, binding.ivPrivacyExpand)
+            }
+        }
+
+        private fun toggleSection(content: View, icon: View) {
+            val isExpanded = content.visibility == View.VISIBLE
+            if (isExpanded) {
+                content.visibility = View.GONE
+                icon.animate().rotation(270f).start()
+            } else {
+                content.visibility = View.VISIBLE
+                icon.animate().rotation(90f).start()
             }
         }
 
