@@ -1,5 +1,6 @@
 package com.resq.app
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
@@ -24,8 +25,12 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.resq.app.ui.fragment.EmergencyContactsFragment
 import androidx.activity.addCallback
+import com.resq.app.data.model.FontSize
 import com.resq.app.util.DialogHelper
+import com.resq.app.util.FontSizeManager
 import com.resq.app.util.clearSelection
+import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -34,10 +39,34 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     @Inject lateinit var userSettingsRepository: UserSettingsRepository
+    @Inject lateinit var fontSizeManager: FontSizeManager
     private val voiceViewModel: VoiceCommandViewModel by viewModels()
 
     private var isFabMenuOpen = false
     private val fabHiddenDestinations = setOf(R.id.nav_onboarding, R.id.nav_settings)
+
+    override fun attachBaseContext(newBase: Context) {
+        // We need to access the repository before Hilt is initialized in onCreate
+        val entryPoint = EntryPointAccessors.fromApplication(
+            newBase.applicationContext,
+            MainActivityEntryPoint::class.java
+        )
+        val repository = entryPoint.userSettingsRepository()
+        val manager = entryPoint.fontSizeManager()
+
+        val fontSize = runBlocking {
+            repository.getSettingsOnce()?.fontSize ?: FontSize.MEDIUM
+        }
+        
+        super.attachBaseContext(manager.wrapContext(newBase, fontSize))
+    }
+
+    @dagger.hilt.EntryPoint
+    @dagger.hilt.InstallIn(dagger.hilt.components.SingletonComponent::class)
+    interface MainActivityEntryPoint {
+        fun userSettingsRepository(): UserSettingsRepository
+        fun fontSizeManager(): FontSizeManager
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,13 +168,13 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_first_aid_detail -> R.id.nav_first_aid
             R.id.nav_tips,
             R.id.nav_tip_detail       -> R.id.nav_tips
-            R.id.nav_settings         -> R.id.nav_settings  // ← added
+            R.id.nav_settings         -> R.id.nav_settings
             else                      -> null
         }
         if (ownerTab != null) {
             binding.bottomNavigation.menu.findItem(ownerTab)?.isChecked = true
         } else {
-            binding.bottomNavigation.clearSelection()        // ← was a no-op before
+            binding.bottomNavigation.clearSelection()
         }
     }
 

@@ -98,6 +98,11 @@ class SettingsFragment : Fragment() {
                         viewModel.clearLanguageChanged()
                     }
 
+                    if (state.fontSizeChanged) {
+                        requireActivity().recreate()
+                        viewModel.clearFontSizeChanged()
+                    }
+
                     state.error?.let { error ->
                         showError(error)
                         viewModel.clearError()

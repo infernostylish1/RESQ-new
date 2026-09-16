@@ -1,5 +1,7 @@
 package com.resq.app.util
 
+import android.content.Context
+import android.content.res.Configuration
 import android.util.TypedValue
 import android.widget.TextView
 import com.resq.app.data.model.FontSize
@@ -17,8 +19,8 @@ class FontSizeManager @Inject constructor() {
         return when (fontSize) {
             FontSize.SMALL -> 0.85f
             FontSize.MEDIUM -> 1.0f
-            FontSize.LARGE -> 1.15f
-            FontSize.EXTRA_LARGE -> 1.3f
+            FontSize.LARGE -> 1.2f
+            FontSize.EXTRA_LARGE -> 1.4f
         }
     }
 
@@ -48,13 +50,10 @@ class FontSizeManager @Inject constructor() {
         }
     }
 
-    fun getPreviewSize(fontSize: FontSize): Float {
-        return when (fontSize) {
-            FontSize.SMALL -> 14f
-            FontSize.MEDIUM -> 16f
-            FontSize.LARGE -> 18f
-            FontSize.EXTRA_LARGE -> 22f
-        }
+    fun wrapContext(context: Context, fontSize: FontSize): Context {
+        val config = Configuration(context.resources.configuration)
+        config.fontScale = getScaleFactor(fontSize)
+        return context.createConfigurationContext(config)
     }
 
     companion object {

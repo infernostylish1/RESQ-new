@@ -69,6 +69,7 @@ class SettingsViewModel @Inject constructor(
     fun updateFontSize(fontSize: FontSize) {
         viewModelScope.launch {
             userSettingsRepository.updateFontSize(fontSize)
+            _uiState.value = _uiState.value.copy(fontSizeChanged = true)
         }
     }
 
@@ -148,6 +149,10 @@ class SettingsViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(languageChanged = false)
     }
 
+    fun clearFontSizeChanged() {
+        _uiState.value = _uiState.value.copy(fontSizeChanged = false)
+    }
+
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
@@ -166,5 +171,6 @@ data class SettingsUiState(
     val profile: UserProfileEntity? = null,
     val saveSuccess: Boolean = false,
     val languageChanged: Boolean = false,
+    val fontSizeChanged: Boolean = false,
     val error: String? = null
 )
