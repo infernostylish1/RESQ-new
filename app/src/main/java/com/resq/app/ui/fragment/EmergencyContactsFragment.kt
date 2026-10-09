@@ -28,6 +28,7 @@ import com.resq.app.data.entity.EmergencyContactEntity
 import com.resq.app.databinding.FragmentEmergencyContactsBinding
 import com.resq.app.ui.adapter.EmergencyContactAdapter
 import com.resq.app.ui.viewmodel.EmergencyContactsViewModel
+import com.resq.app.util.setupSettingsAction
 import com.resq.app.util.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -82,9 +83,20 @@ class EmergencyContactsFragment : Fragment() {
 
     private fun setupToolbar() {
         binding.toolbar.setupWithNavController(this)
+        binding.toolbar.setupSettingsAction(this)
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_settings -> {
+                    findNavController().navigate(R.id.nav_settings)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     private fun setupTabs() {
+        binding.tabLayout.getTabAt(viewModel.uiState.value.selectedTab)?.select()
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val position = tab?.position ?: 0
@@ -121,6 +133,9 @@ class EmergencyContactsFragment : Fragment() {
     private fun setupSearch() {
         binding.etSearch.isFocusable = false
         binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.isEndIconVisible = false
+        binding.tilSearch.setStartIconContentDescription(R.string.search_field_hint)
+        binding.tilSearch.setStartIconOnClickListener { openGlobalSearch() }
         binding.tilSearch.setOnClickListener { openGlobalSearch() }
         binding.etSearch.setOnClickListener  { openGlobalSearch() }
     }

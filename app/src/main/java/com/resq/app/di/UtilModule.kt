@@ -6,7 +6,6 @@ import com.resq.app.util.LanguageManager
 import com.resq.app.util.PermissionHelper
 import com.resq.app.util.PhoneDialerHelper
 import com.resq.app.util.SearchHelper
-import com.resq.app.util.TextToSpeechManager
 import com.resq.app.util.ThemeManager
 import com.resq.app.util.VoiceCommandManager
 import dagger.Module
@@ -17,14 +16,14 @@ import javax.inject.Singleton
 
 /**
  * Hilt module that provides utility class dependencies.
+ *
+ * Note: TextToSpeechManager is no longer provided here. It now has an
+ * @Inject constructor that takes @ApplicationContext Context, so Hilt
+ * can construct it directly — no @Provides method is required.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object UtilModule {
-
-    @Provides
-    @Singleton
-    fun provideTextToSpeechManager(): TextToSpeechManager = TextToSpeechManager()
 
     @Provides
     @Singleton

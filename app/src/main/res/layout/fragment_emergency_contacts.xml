@@ -5,24 +5,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".ui.fragment.EmergencyContactsFragment">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         style="@style/Widget.RESQ.Toolbar"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_back_button"
-        app:title="@string/contacts_title" />
+        app:menu="@menu/menu_top_level"
+        app:title="@string/contacts_title"
+        app:titleTextAppearance="@style/TextAppearance.RESQ.ContactsToolbar" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/background"
+        android:elevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
@@ -44,11 +47,10 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search"
-        style="@style/Widget.RESQ.TextInputLayout.Search"
+        style="@style/Widget.RESQ.TextInputLayout.GlobalSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/screen_margin_horizontal"
-        android:hint="@string/contacts_search_hint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tab_layout">
@@ -57,8 +59,14 @@
             android:id="@+id/et_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:hint="@string/search_field_hint"
+            android:imeOptions="actionSearch|flagNoExtractUi"
             android:inputType="text"
-            android:maxLines="1" />
+            android:singleLine="true"
+            android:paddingVertical="14dp"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            android:textColorHint="@color/text_secondary" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -69,7 +77,7 @@
         android:layout_marginTop="@dimen/spacing_md"
         android:clipToPadding="false"
         android:paddingHorizontal="@dimen/screen_margin_horizontal"
-        android:paddingBottom="@dimen/spacing_lg"
+        android:paddingBottom="@dimen/contacts_list_bottom_padding"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

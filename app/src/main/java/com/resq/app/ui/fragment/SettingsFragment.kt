@@ -18,6 +18,7 @@ import com.resq.app.databinding.FragmentSettingsBinding
 import com.resq.app.ui.viewmodel.SettingsViewModel
 import com.resq.app.util.DialogHelper
 import com.resq.app.util.LanguageManager
+import com.resq.app.util.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -41,7 +42,9 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.toolbar.setupWithNavController(this)
         setupClickListeners()
+        setupSliders()
         observeViewModel()
     }
 
@@ -64,6 +67,11 @@ class SettingsFragment : Fragment() {
 
         binding.switchTts.setOnCheckedChangeListener { _, isChecked ->
             viewModel.updateTTSEnabled(isChecked)
+            updateTtsCustomizationVisibility(isChecked)
+        }
+
+        binding.btnTestTts.setOnClickListener {
+            viewModel.testTTS()
         }
 
         binding.settingEmergencyContacts.setOnClickListener {
@@ -74,14 +82,30 @@ class SettingsFragment : Fragment() {
             findNavController().navigate(R.id.action_settings_to_about)
         }
 
-        // NEW: Terms & Conditions click listener
         binding.settingTerms.setOnClickListener {
             findNavController().navigate(R.id.action_settings_to_terms)
         }
 
-        // NEW: Data Privacy click listener
         binding.settingPrivacy.setOnClickListener {
             findNavController().navigate(R.id.action_settings_to_privacy)
+        }
+
+        binding.settingDataSources.setOnClickListener {
+            findNavController().navigate(R.id.action_settings_to_data_sources)
+        }
+    }
+
+    private fun setupSliders() {
+        binding.sliderTtsSpeed.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                viewModel.updateTTSSettings(value, binding.sliderTtsPitch.value)
+            }
+        }
+
+        binding.sliderTtsPitch.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) {
+                viewModel.updateTTSSettings(binding.sliderTtsSpeed.value, value)
+            }
         }
     }
 
@@ -121,6 +145,16 @@ class SettingsFragment : Fragment() {
         binding.switchDarkTheme.isChecked = settings.isDarkTheme
         binding.switchVoiceCommand.isChecked = settings.isVoiceCommandEnabled
         binding.switchTts.isChecked = settings.isTtsEnabled
+        
+        updateTtsCustomizationVisibility(settings.isTtsEnabled)
+        
+        // Update sliders if not touching them
+        if (!binding.sliderTtsSpeed.isFocused) {
+            binding.sliderTtsSpeed.value = settings.ttsSpeed
+        }
+        if (!binding.sliderTtsPitch.isFocused) {
+            binding.sliderTtsPitch.value = settings.ttsPitch
+        }
 
         // Re-attach listeners
         binding.switchDarkTheme.setOnCheckedChangeListener { _, isChecked ->
@@ -131,10 +165,15 @@ class SettingsFragment : Fragment() {
         }
         binding.switchTts.setOnCheckedChangeListener { _, isChecked ->
             viewModel.updateTTSEnabled(isChecked)
+            updateTtsCustomizationVisibility(isChecked)
         }
 
         binding.tvFontSizeValue.text = getFontSizeDisplayName(settings.fontSize)
         binding.tvLanguageValue.text = getLanguageDisplayName(settings.preferredLanguage)
+    }
+
+    private fun updateTtsCustomizationVisibility(enabled: Boolean) {
+        binding.layoutTtsCustomization.visibility = if (enabled) View.VISIBLE else View.GONE
     }
 
     private fun showFontSizeDialog() {

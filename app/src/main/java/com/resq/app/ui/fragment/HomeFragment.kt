@@ -12,10 +12,13 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.resq.app.databinding.FragmentHomeBinding
 import com.resq.app.ui.adapter.QuickAccessAdapter
+import com.resq.app.ui.adapter.QuickFirstAidAdapter
 import com.resq.app.ui.viewmodel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import com.resq.app.R
+import com.resq.app.ui.search.GlobalSearchFragment
+import com.resq.app.util.setupSettingsAction
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -25,6 +28,7 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels()
     private lateinit var quickAccessAdapter: QuickAccessAdapter
+    private lateinit var quickFirstAidAdapter: QuickFirstAidAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +43,8 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupSearch()
+        setupToolbar()
+        setupMapShortcut()
         observeViewModel()
     }
 
@@ -52,20 +58,51 @@ class HomeFragment : Fragment() {
             findNavController().navigate(action)
         }
         binding.rvQuickAccess.adapter = quickAccessAdapter
+
+        quickFirstAidAdapter = QuickFirstAidAdapter { category ->
+            val action = HomeFragmentDirections
+                .actionHomeToFirstAidDetail(
+                    categoryId = category.id,
+                    categoryName = category.name
+                )
+            findNavController().navigate(action)
+        }
+        binding.rvQuickFirstAid.adapter = quickFirstAidAdapter
     }
 
     private fun setupSearch() {
-        // Tapping or typing in the search bar opens GlobalSearchFragment
+        // Home uses the empty global search field as a shortcut to the search screen.
         binding.etSearch.isFocusable = false
         binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.isEndIconVisible = false
+        binding.tilSearch.setStartIconContentDescription(R.string.search_field_hint)
+        binding.tilSearch.setStartIconOnClickListener { openGlobalSearch() }
         binding.tilSearch.setOnClickListener { openGlobalSearch() }
         binding.etSearch.setOnClickListener  { openGlobalSearch() }
+    }
+
+    private fun setupToolbar() {
+        binding.toolbar.setupSettingsAction(this)
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_settings -> {
+                    findNavController().navigate(R.id.nav_settings); true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun setupMapShortcut() {
+        binding.cardMapShortcut.setOnClickListener {
+            findNavController().navigate(R.id.nav_map)
+        }
     }
 
     private fun openGlobalSearch(query: String = "") {
         val args = Bundle().apply {
             putString(
-                com.resq.app.ui.search.GlobalSearchFragment.ARG_INITIAL_QUERY,
+                GlobalSearchFragment.ARG_INITIAL_QUERY,
                 query
             )
         }
@@ -77,20 +114,14 @@ class HomeFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 launch {
-                    viewModel.greeting.collect { greeting ->
-                        binding.tvGreeting.text = greeting
-                    }
-                }
-
-                launch {
-                    viewModel.safetyMessage.collect { message ->
-                        binding.tvSafetyMessage.text = message
-                    }
-                }
-
-                launch {
                     viewModel.disasters.collect { disasters ->
                         quickAccessAdapter.submitList(disasters.take(5))
+                    }
+                }
+
+                launch {
+                    viewModel.firstAidCategories.collect { categories ->
+                        quickFirstAidAdapter.submitList(categories)
                     }
                 }
 
@@ -103,14 +134,6 @@ class HomeFragment : Fragment() {
                             } else {
                                 it.tipText
                             }
-                        }
-                    }
-                }
-
-                launch {
-                    viewModel.userProfile.collect { profile ->
-                        profile?.let {
-                            binding.tvGreeting.text = viewModel.greeting.value
                         }
                     }
                 }

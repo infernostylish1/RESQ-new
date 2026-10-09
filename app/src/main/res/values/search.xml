@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="search_field_background">#EEE9EA</color>
+    <string name="search_field_hint">Search RESQ</string>
+    <string name="search_suggestions">Search suggestions</string>
+    <string name="search_history">Search history</string>
+    <string name="search_history_empty">Your recent searches will appear here.</string>
+    <string name="search_clear_history">Clear search history</string>
+    <string name="search_clear_query">Clear search</string>
+    <string name="search_loading">Searching</string>
+    <string name="search_history_cleared">Search history cleared</string>
+
+    <!-- Terms match the offline content, whose titles are in English. -->
+    <string-array name="global_search_suggestions" translatable="false">
+        <item>Earthquake</item>
+        <item>CPR</item>
+        <item>Flood</item>
+        <item>Burns</item>
+        <item>Typhoon</item>
+        <item>Emergency</item>
+    </string-array>
+
+    <style name="Widget.RESQ.TextInputLayout.GlobalSearch" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="hintEnabled">false</item>
+        <item name="boxBackgroundColor">@color/search_field_background</item>
+        <item name="boxCornerRadiusTopStart">28dp</item>
+        <item name="boxCornerRadiusTopEnd">28dp</item>
+        <item name="boxCornerRadiusBottomStart">28dp</item>
+        <item name="boxCornerRadiusBottomEnd">28dp</item>
+        <item name="boxStrokeColor">@color/outline</item>
+        <item name="startIconDrawable">@drawable/ic_search</item>
+        <item name="startIconTint">@color/text_secondary</item>
+        <item name="endIconMode">custom</item>
+        <item name="endIconDrawable">@drawable/ic_search_clear</item>
+        <item name="endIconTint">@color/text_primary</item>
+        <item name="endIconContentDescription">@string/search_clear_query</item>
+    </style>
+
+    <style name="Widget.RESQ.Chip.SearchTerm" parent="Widget.Material3.Chip.Assist">
+        <item name="chipBackgroundColor">@color/search_field_background</item>
+        <item name="chipStrokeWidth">0dp</item>
+        <item name="chipMinHeight">40dp</item>
+        <item name="ensureMinTouchTargetSize">true</item>
+        <item name="android:textAppearance">@style/TextAppearance.RESQ.BodySmall</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:checkable">false</item>
+    </style>
+</resources>

@@ -6,103 +6,109 @@
     style="@style/Widget.RESQ.CardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_sm">
+    android:layout_marginBottom="@dimen/spacing_md"
+    android:clickable="true"
+    android:focusable="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/iv_contact_icon"
-            android:layout_width="@dimen/icon_size_lg"
-            android:layout_height="@dimen/icon_size_lg"
-            android:contentDescription="@string/cd_contact_icon"
-            android:src="@android:drawable/ic_menu_call"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/error" />
-
-        <TextView
-            android:id="@+id/tv_contact_name"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_md"
-            android:layout_marginEnd="@dimen/spacing_sm"
-            android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
-            app:layout_constraintBottom_toTopOf="@id/tv_contact_number"
-            app:layout_constraintEnd_toStartOf="@id/btn_call"
-            app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            tools:text="Philippine National Police" />
+            android:minHeight="@dimen/contact_call_button_size">
 
-        <TextView
-            android:id="@+id/tv_contact_number"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_md"
-            android:layout_marginTop="@dimen/spacing_xs"
-            android:layout_marginEnd="@dimen/spacing_sm"
-            android:textAppearance="@style/TextAppearance.RESQ.Body"
-            android:textColor="@color/text_secondary"
-            app:layout_constraintBottom_toTopOf="@id/btn_edit"
-            app:layout_constraintEnd_toStartOf="@id/btn_call"
-            app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
-            app:layout_constraintTop_toBottomOf="@id/tv_contact_name"
-            tools:text="117" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btn_call"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Text-link "Edit" — part of the vertical packed chain -->
-        <TextView
-            android:id="@+id/btn_edit"
-            android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/tv_contact_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
+                    android:textColor="@color/text_primary"
+                    tools:text="Philippine National Police" />
+
+                <TextView
+                    android:id="@+id/tv_contact_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:textAppearance="@style/TextAppearance.RESQ.Body"
+                    android:textColor="@color/text_secondary"
+                    tools:text="117" />
+
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_call"
+                style="@style/Widget.Material3.Button.IconButton.Filled"
+                android:layout_width="@dimen/contact_call_button_size"
+                android:layout_height="@dimen/contact_call_button_size"
+                android:contentDescription="@string/cd_call_button"
+                android:gravity="center"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                app:backgroundTint="@color/primary"
+                app:cornerRadius="24dp"
+                app:icon="@drawable/ic_contact_call"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="@dimen/icon_size_md"
+                app:iconTint="@color/on_primary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/contact_actions"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_md"
-            android:layout_marginTop="@dimen/spacing_xs"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingHorizontal="@dimen/spacing_xs"
-            android:paddingVertical="2dp"
-            android:text="@string/contacts_edit"
-            android:textColor="@color/primary"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
-            android:textStyle="bold"
+            android:layout_marginTop="@dimen/spacing_sm"
+            android:gravity="start"
+            android:orientation="horizontal"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/iv_contact_icon"
-            app:layout_constraintTop_toBottomOf="@id/tv_contact_number"
-            tools:visibility="visible" />
+            tools:visibility="visible">
 
-        <!-- Text-link "Delete" — follows btn_edit horizontally -->
-        <TextView
-            android:id="@+id/btn_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_md"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:paddingHorizontal="@dimen/spacing_xs"
-            android:paddingVertical="2dp"
-            android:text="@string/contacts_delete"
-            android:textColor="@color/error"
-            android:textAppearance="@style/TextAppearance.RESQ.Caption"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintBaseline_toBaselineOf="@id/btn_edit"
-            app:layout_constraintStart_toEndOf="@id/btn_edit"
-            tools:visibility="visible" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_edit"
+                style="@style/Widget.RESQ.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/button_height"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:text="@string/contacts_edit"
+                android:textAppearance="@style/TextAppearance.RESQ.Label"
+                android:textColor="@color/primary" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_call"
-            style="@style/Widget.RESQ.Button.Icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/cd_call_button"
-            app:backgroundTint="@color/error"
-            app:icon="@android:drawable/ic_menu_call"
-            app:iconTint="@color/on_error"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_delete"
+                style="@style/Widget.RESQ.Button.Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/spacing_sm"
+                android:minHeight="@dimen/button_height"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:text="@string/contacts_delete"
+                android:textAppearance="@style/TextAppearance.RESQ.Label"
+                android:textColor="@color/error" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

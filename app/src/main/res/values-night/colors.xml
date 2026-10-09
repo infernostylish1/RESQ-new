@@ -89,7 +89,7 @@
     <color name="nav_background">#2D2D30</color>
     <color name="nav_selected">#FF6659</color>
     <color name="nav_unselected">#9E9E9E</color>
-    <color name="status_bar">#1C1B1F</color>
+    <color name="status_bar">@color/background</color>
 
     <!-- ── Card ───────────────────────────────────────────────────────────── -->
     <color name="card_background">#2D2D30</color>
@@ -115,4 +115,24 @@
     <color name="secondary_variant">#FFD180</color>
     <color name="ripple_color">#1AFF6659</color>
     <color name="divider">#49454F</color>
+
+    <!-- Hazard: Flood -->
+    <color name="haz_flood_low">#93c5fd</color>
+    <color name="haz_flood_med">#3b82f6</color>
+    <color name="haz_flood_high">#1d4ed8</color>
+
+    <!-- Hazard: Landslide -->
+    <color name="haz_landslide_low">#fde68a</color>
+    <color name="haz_landslide_med">#f59e0b</color>
+    <color name="haz_landslide_high">#b45309</color>
+
+    <!-- Hazard: Debris Flow -->
+    <color name="haz_debris_low">#fdba74</color>
+    <color name="haz_debris_med">#f97316</color>
+    <color name="haz_debris_high">#c2410c</color>
+
+    <!-- Hazard: Storm Surge -->
+    <color name="haz_ssa_low">#99f6e4</color>
+    <color name="haz_ssa_med">#2dd4bf</color>
+    <color name="haz_ssa_high">#0f766e</color>
 </resources>

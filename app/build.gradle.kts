@@ -19,7 +19,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Room schema export for migrations
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
@@ -59,6 +58,17 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    androidResources {
+        // .onnx files must remain uncompressed for sherpa-onnx to read via openFd
+        noCompress += listOf("onnx", "txt", "pmtiles")
+    }
+}
+
+configurations.all {
+    // sherpa-onnx publishes both an AAR and a JVM JAR; only the AAR is
+    // needed on Android. Excluding the JVM artifact prevents duplicate-class errors.
+    exclude(group = "com.github.k2-fsa.sherpa-onnx", module = "sherpa-onnx-jvm")
 }
 
 dependencies {
@@ -108,6 +118,12 @@ dependencies {
     // Media3 ExoPlayer — video playback
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.ui)
+
+    // Sherpa-ONNX — offline TTS, ASR, and VAD
+    implementation(libs.sherpa.onnx)
+
+    // MapLibre — offline vector maps (PMTiles)
+    implementation(libs.maplibre.android)
 
     // Testing
     testImplementation(libs.junit)

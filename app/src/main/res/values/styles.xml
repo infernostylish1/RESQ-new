@@ -172,11 +172,15 @@
     <!-- ==================== TOOLBAR STYLES ==================== -->
 
     <style name="Widget.RESQ.Toolbar" parent="Widget.Material3.Toolbar">
-        <item name="android:background">@color/surface</item>
+        <item name="android:background">@color/background</item>
         <item name="titleTextColor">@color/text_primary</item>
         <item name="titleTextAppearance">@style/TextAppearance.RESQ.Headline</item>
         <item name="navigationIconTint">@color/on_surface</item>
-        <item name="android:elevation">@dimen/toolbar_elevation</item>
+        <item name="contentInsetStart">@dimen/screen_margin_horizontal</item>
+        <item name="contentInsetEnd">0dp</item>
+        <item name="titleMarginStart">0dp</item>
+        <item name="titleMarginEnd">@dimen/spacing_sm</item>
+        <item name="android:elevation">0dp</item>
     </style>
 
     <style name="Widget.RESQ.Toolbar.Transparent" parent="Widget.RESQ.Toolbar">
@@ -188,6 +192,8 @@
 
     <style name="Widget.RESQ.BottomNavigationView" parent="Widget.Material3.BottomNavigationView">
         <item name="backgroundTint">@color/nav_background</item>
+        <item name="android:elevation">0dp</item>
+        <item name="elevation">0dp</item>
         <item name="itemIconTint">@color/nav_item_color</item>
         <item name="itemTextColor">@color/nav_item_color</item>
         <item name="labelVisibilityMode">labeled</item>

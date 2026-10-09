@@ -41,7 +41,6 @@
 
         <!-- Navigation Bar -->
         <item name="android:navigationBarColor">@color/nav_background</item>
-        <item name="android:windowLightNavigationBar">false</item>
 
         <!-- Ripple -->
         <item name="android:colorControlHighlight">@color/ripple_color</item>

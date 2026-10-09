@@ -56,13 +56,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_home_to_tips"
-            app:destination="@id/nav_tips"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -71,12 +64,23 @@
         android:label="@string/nav_disasters"
         tools:layout="@layout/fragment_disasters">
         <argument
-            android:name="voiceTab"
+            android:name="voiceMainTab"
+            android:defaultValue=""
+            app:argType="string" />
+        <argument
+            android:name="voiceFilterTab"
             android:defaultValue=""
             app:argType="string" />
         <action
             android:id="@+id/action_disasters_to_detail"
             app:destination="@id/nav_disaster_detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_disasters_to_tip_detail"
+            app:destination="@id/nav_tip_detail"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -126,24 +130,6 @@
     </fragment>
 
     <fragment
-        android:id="@+id/nav_tips"
-        android:name="com.resq.app.ui.fragment.TipsFragment"
-        android:label="@string/nav_tips"
-        tools:layout="@layout/fragment_tips">
-        <argument
-            android:name="voiceTab"
-            android:defaultValue=""
-            app:argType="string" />
-        <action
-            android:id="@+id/action_tips_to_tip_detail"
-            app:destination="@id/nav_tip_detail"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
-
-    <fragment
         android:id="@+id/nav_tip_detail"
         android:name="com.resq.app.ui.fragment.TipDetailFragment"
         android:label="{disasterName}"
@@ -187,6 +173,13 @@
         <action
             android:id="@+id/action_settings_to_privacy"
             app:destination="@id/nav_privacy"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_settings_to_data_sources"
+            app:destination="@id/nav_data_sources"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -253,5 +246,17 @@
         app:exitAnim="@anim/slide_out_left"
         app:popEnterAnim="@anim/slide_in_left"
         app:popExitAnim="@anim/slide_out_right" />
+
+    <fragment
+        android:id="@+id/nav_map"
+        android:name="com.resq.app.ui.fragment.MapFragment"
+        android:label="@string/nav_map"
+        tools:layout="@layout/fragment_map" />
+
+    <fragment
+        android:id="@+id/nav_data_sources"
+        android:name="com.resq.app.ui.fragment.DataSourcesFragment"
+        android:label="@string/settings_data_sources"
+        tools:layout="@layout/fragment_data_sources" />
 
 </navigation>

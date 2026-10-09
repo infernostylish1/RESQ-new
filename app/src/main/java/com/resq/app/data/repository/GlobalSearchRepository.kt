@@ -3,6 +3,7 @@ package com.resq.app.data.repository
 
 import com.resq.app.ui.search.GlobalSearchResult
 import com.resq.app.util.SearchHelper
+import com.resq.app.util.SearchTextMatch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
@@ -35,15 +36,17 @@ class GlobalSearchRepository @Inject constructor(
 
             // ── Disasters ─────────────────────────────────────────────────────
             val disasterResults = disasters.map { entity ->
+                val useTagalog = !entity.name.contains(normalized, ignoreCase = true) &&
+                    entity.nameTagalog.contains(normalized, ignoreCase = true)
+                val name = if (useTagalog) entity.nameTagalog else entity.name
+                val description = if (useTagalog) entity.descriptionTagalog else entity.description
                 GlobalSearchResult.DisasterResult(
                     id             = entity.id,
-                    title          = entity.name,
-                    subtitle       = entity.description
-                        .take(80)
-                        .let { if (entity.description.length > 80) "$it…" else it },
+                    title          = name,
+                    subtitle       = SearchTextMatch.snippet(description, normalized),
                     iconResName    = entity.iconResName,
                     relevanceScore = searchHelper.calculateRelevanceScore(
-                        entity.name + " " + entity.description, normalized
+                        "$name $description", normalized
                     )
                 )
             }.sortedByDescending { it.relevanceScore }
@@ -55,15 +58,20 @@ class GlobalSearchRepository @Inject constructor(
 
             // ── First Aid ─────────────────────────────────────────────────────
             val firstAidResults = firstAidCategories.map { entity ->
+                val englishMatches = entity.name.contains(normalized, ignoreCase = true) ||
+                    entity.description.contains(normalized, ignoreCase = true)
+                val tagalogMatches = entity.nameTagalog.contains(normalized, ignoreCase = true) ||
+                    entity.descriptionTagalog.contains(normalized, ignoreCase = true)
+                val useTagalog = !englishMatches && tagalogMatches
+                val name = if (useTagalog) entity.nameTagalog else entity.name
+                val description = if (useTagalog) entity.descriptionTagalog else entity.description
                 GlobalSearchResult.FirstAidResult(
                     id             = entity.id,
-                    title          = entity.name,
-                    subtitle       = entity.description
-                        .take(80)
-                        .let { if (entity.description.length > 80) "$it…" else it },
+                    title          = name,
+                    subtitle       = SearchTextMatch.snippet(description, normalized),
                     iconResName    = entity.iconResName,
                     relevanceScore = searchHelper.calculateRelevanceScore(
-                        entity.name + " " + entity.description, normalized
+                        "$name $description", normalized
                     )
                 )
             }.sortedByDescending { it.relevanceScore }
@@ -79,19 +87,20 @@ class GlobalSearchRepository @Inject constructor(
                 .groupBy { it.disasterId }
                 .map { (disasterId, tipList) ->
                     val topTip = tipList.maxByOrNull {
-                        searchHelper.calculateRelevanceScore(it.tipText, normalized)
+                        searchHelper.calculateRelevanceScore(
+                            matchingText(it.tipText, it.tipTextTagalog, normalized), normalized
+                        )
                     }!!
+                    val tipText = matchingText(topTip.tipText, topTip.tipTextTagalog, normalized)
                     GlobalSearchResult.TipResult(
                         id             = topTip.id,
                         disasterId     = disasterId,
                         disasterName   = "", // filled below if needed — kept simple
-                        title          = topTip.tipText
-                            .take(60)
-                            .let { if (topTip.tipText.length > 60) "$it…" else it },
+                        title          = SearchTextMatch.snippet(tipText, normalized),
                         subtitle       = "Tip • Disaster #$disasterId",
                         iconResName    = "ic_tip",
                         relevanceScore = searchHelper.calculateRelevanceScore(
-                            topTip.tipText, normalized
+                            tipText, normalized
                         )
                     )
                 }.sortedByDescending { it.relevanceScore }
@@ -124,4 +133,11 @@ class GlobalSearchRepository @Inject constructor(
             results
         }
     }
+
+    private fun matchingText(english: String, tagalog: String, query: String): String =
+        if (!english.contains(query, ignoreCase = true) && tagalog.contains(query, ignoreCase = true)) {
+            tagalog
+        } else {
+            english
+        }
 }

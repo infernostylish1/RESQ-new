@@ -48,3 +48,25 @@
 -keep class com.bumptech.glide.load.data.ParcelFileDescriptorRewinder$InternalRewinder {
     *** rewind();
 }
+
+# Sherpa-ONNX JNI — TTS, ASR, and VAD all live under the same package
+-keep class com.k2fsa.sherpa.onnx.** { *; }
+-keepclassmembers class com.k2fsa.sherpa.onnx.** {
+    native <methods>;
+    <fields>;
+    <init>(...);
+}
+
+# Keep ONNX Runtime classes referenced by Sherpa
+-keep class ai.onnxruntime.** { *; }
+-dontwarn ai.onnxruntime.**
+
+# MapLibre
+-keep class org.maplibre.android.** { *; }
+-dontwarn org.maplibre.android.**
+-keep class com.mapbox.** { *; }
+-dontwarn com.mapbox.**
+
+# PMTiles protocol (if using a separate PMTiles plugin, keep its classes)
+-keep class com.protomaps.** { *; }
+-dontwarn com.protomaps.**

@@ -4,19 +4,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.resq.app.data.entity.DisasterEntity
 import com.resq.app.data.entity.DisasterTipEntity
+import com.resq.app.data.entity.FirstAidCategoryEntity
 import com.resq.app.data.entity.UserProfileEntity
 import com.resq.app.data.entity.UserSettingsEntity
 import com.resq.app.data.repository.DisasterRepository
 import com.resq.app.data.repository.DisasterTipRepository
+import com.resq.app.data.repository.FirstAidRepository
 import com.resq.app.data.repository.UserProfileRepository
 import com.resq.app.data.repository.UserSettingsRepository
 import com.resq.app.util.DateTimeHelper
 import com.resq.app.util.ProfileSituationMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -29,6 +33,7 @@ class HomeViewModel @Inject constructor(
     private val userSettingsRepository: UserSettingsRepository,
     private val disasterRepository: DisasterRepository,
     private val disasterTipRepository: DisasterTipRepository,
+    firstAidRepository: FirstAidRepository,
     private val dateTimeHelper: DateTimeHelper
 ) : ViewModel() {
 
@@ -43,6 +48,13 @@ class HomeViewModel @Inject constructor(
 
     private val _disasters = MutableStateFlow<List<DisasterEntity>>(emptyList())
     val disasters: StateFlow<List<DisasterEntity>> = _disasters.asStateFlow()
+
+    val firstAidCategories: StateFlow<List<FirstAidCategoryEntity>> =
+        firstAidRepository.getAllCategories().stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
 
     private val _currentTip = MutableStateFlow<DisasterTipEntity?>(null)
     val currentTip: StateFlow<DisasterTipEntity?> = _currentTip.asStateFlow()

@@ -93,7 +93,7 @@ class DisasterDetailFragment : Fragment() {
                 launch {
                     viewModel.selectedDisaster.collect { disaster ->
                         disaster ?: return@collect
-                        binding.collapsingToolbar.title = disaster.name
+                        binding.toolbar.title = disaster.name
                         binding.tvDescription.text      = disaster.description
                         loadHeaderImage(disaster.imageResName)
                         viewModel.loadPreparationsByPhase(args.disasterId, currentPhase)
@@ -133,10 +133,30 @@ class DisasterDetailFragment : Fragment() {
             }
         }
 
-        setFragmentResultListener(MainActivity.REQUEST_SWITCH_TAB) { _, bundle ->
-            val label = bundle.getString(MainActivity.KEY_TAB_LABEL) ?: return@setFragmentResultListener
-            selectPhaseByLabel(label)
+        setFragmentResultListener(MainActivity.REQUEST_TTS) { _, bundle ->
+            when (bundle.getString(MainActivity.KEY_TTS)) {
+                MainActivity.TTS_READ -> readContentAloud()
+                MainActivity.TTS_STOP -> ttsManager.stop()
+            }
         }
+    }
+
+    private fun readContentAloud() {
+        val disaster = viewModel.selectedDisaster.value ?: return
+        val steps = viewModel.preparations.value
+
+        val stringBuilder = StringBuilder()
+        stringBuilder.append(disaster.name).append(". ")
+        stringBuilder.append(disaster.description).append(". ")
+        stringBuilder.append("Guidelines for ").append(currentPhase).append(". ")
+
+        steps.forEachIndexed { index, step ->
+            stringBuilder.append("Step ${index + 1}: ").append(step.title).append(". ")
+            stringBuilder.append(step.content).append(". ")
+            step.tip?.let { stringBuilder.append("Tip: ").append(it).append(". ") }
+        }
+
+        ttsManager.speak(stringBuilder.toString())
     }
 
     private fun selectPhaseByLabel(label: String) {
@@ -161,7 +181,6 @@ class DisasterDetailFragment : Fragment() {
 
     /**
      * Loads the header image (static or GIF) using Glide.
-     * Supports any image format Glide can handle, including animated GIFs.
      */
     private fun loadHeaderImage(imageResName: String) {
         val context = requireContext()
@@ -169,16 +188,21 @@ class DisasterDetailFragment : Fragment() {
             imageResName, "drawable", context.packageName
         )
         if (resId != 0) {
+            binding.ivHeader.visibility = View.VISIBLE
             Glide.with(context)
                 .load(resId)
-                .centerCrop()
+                .fitCenter()
                 .into(binding.ivHeader)
+        } else {
+            Glide.with(context).clear(binding.ivHeader)
+            binding.ivHeader.setImageDrawable(null)
+            binding.ivHeader.visibility = View.GONE
         }
     }
 
     override fun onDestroyView() {
         ttsManager.stop()
-        preparationAdapter.releaseAllPlayers()  // ← ADDED: prevents memory leak
+        preparationAdapter.releaseAllPlayers()
         super.onDestroyView()
         _binding = null
     }

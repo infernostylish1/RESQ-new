@@ -18,6 +18,7 @@ import com.resq.app.ui.viewmodel.FirstAidViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import com.resq.app.R
+import com.resq.app.util.setupSettingsAction
 
 /**
  * First Aid categories grid fragment.
@@ -27,6 +28,7 @@ import com.resq.app.R
  * - binding.tvEmptyState → binding.tvEmpty (id: tv_empty)
  * - Removed programmatic LinearLayoutManager — layout XML declares GridLayoutManager (spanCount=2)
  * - No progressBar in this layout — removed
+ * - Toolbar now hosts the shared settings action (menu_top_level)
  */
 @AndroidEntryPoint
 class FirstAidFragment : Fragment() {
@@ -49,6 +51,7 @@ class FirstAidFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupToolbar()
         setupSearch()
         observeViewModel()
     }
@@ -67,9 +70,24 @@ class FirstAidFragment : Fragment() {
         binding.rvCategories.adapter = categoryAdapter
     }
 
+    private fun setupToolbar() {
+        binding.toolbar.setupSettingsAction(this)
+        binding.toolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_settings -> {
+                    findNavController().navigate(R.id.nav_settings); true
+                }
+                else -> false
+            }
+        }
+    }
+
     private fun setupSearch() {
         binding.etSearch.isFocusable = false
         binding.etSearch.isFocusableInTouchMode = false
+        binding.tilSearch.isEndIconVisible = false
+        binding.tilSearch.setStartIconContentDescription(R.string.search_field_hint)
+        binding.tilSearch.setStartIconOnClickListener { openGlobalSearch() }
         binding.tilSearch.setOnClickListener { openGlobalSearch() }
         binding.etSearch.setOnClickListener  { openGlobalSearch() }
     }

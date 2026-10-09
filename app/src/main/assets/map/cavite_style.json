@@ -1,0 +1,375 @@
+{
+  "version": 8,
+  "name": "RESQ Cavite OSM Standard",
+  "glyphs": "asset://fonts/{fontstack}/{range}.pbf",
+  "sources": {
+    "basemap": {
+      "type": "vector",
+      "url": "pmtiles://file://{BASEMAP_PATH}",
+      "attribution": "© OpenStreetMap contributors"
+    },
+    "cavite-region": {
+      "type": "geojson",
+      "data": "asset://map/cavite_outline.geojson"
+    },
+    "cavite-municipal-boundaries": {
+      "type": "geojson",
+      "data": "asset://map/cavite_region_boundary.json"
+    },
+    "cavite-municipalities": {
+      "type": "geojson",
+      "data": "asset://map/cavite_municipalities.geojson"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#f2efe9" }
+    },
+    {
+      "id": "earth",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "earth",
+      "paint": { "fill-color": "#f2efe9" }
+    },
+    {
+      "id": "landcover",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "landcover",
+      "paint": {
+        "fill-color": [
+          "match", ["get", "kind"],
+          "forest", "#add19e",
+          "grassland", "#cfe6a0",
+          "farmland", "#f2efe9",
+          "#f2efe9"
+        ],
+        "fill-opacity": 0.7
+      }
+    },
+    {
+      "id": "landuse",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "landuse",
+      "minzoom": 11,
+      "paint": {
+        "fill-color": [
+          "match", ["get", "kind"],
+          ["park", "wood", "forest", "garden", "nature_reserve", "grass", "recreation_ground", "pitch"], "#c8facc",
+          ["school", "university", "college", "kindergarten"], "#f2dcdc",
+          ["hospital", "medical", "clinic"], "#f2dcdc",
+          ["cemetery"], "#add19e",
+          "#f2efe9"
+        ],
+        "fill-opacity": 0.6
+      }
+    },
+    {
+      "id": "water-bodies",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "water",
+      "filter": [
+        "in", ["get", "kind"],
+        ["literal", ["ocean", "lake", "pond", "reservoir"]]
+      ],
+      "paint": { "fill-color": "#aad3df" }
+    },
+    {
+      "id": "waterways",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "water",
+      "minzoom": 11,
+      "filter": [
+        "all",
+        ["==", ["geometry-type"], "LineString"],
+        ["in", ["get", "kind"], ["literal", ["river", "stream", "canal"]]]
+      ],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#aad3df",
+        "line-width": [
+          "interpolate", ["exponential", 1.4], ["zoom"],
+          11, 0.5,
+          13, 1.0,
+          16, 2.5,
+          19, 6.0
+        ]
+      }
+    },
+    {
+      "id": "cavite-municipal-boundaries",
+      "type": "line",
+      "source": "cavite-municipal-boundaries",
+      "minzoom": 9,
+      "paint": {
+        "line-color": "#b8bfc6",
+        "line-width": [
+          "interpolate", ["linear"], ["zoom"],
+          9, 0.5,
+          14, 0.8
+        ],
+        "line-opacity": 0.6,
+        "line-dasharray": [3, 3]
+      }
+    },
+    {
+      "id": "buildings",
+      "type": "fill",
+      "source": "basemap",
+      "source-layer": "buildings",
+      "minzoom": 14,
+      "paint": {
+        "fill-color": "#d9d0c9",
+        "fill-outline-color": "#c2b8af",
+        "fill-opacity": [
+          "interpolate", ["linear"], ["zoom"],
+          14, 0.6,
+          16, 1.0
+        ]
+      }
+    },
+    {
+      "id": "roads-minor",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "roads",
+      "minzoom": 12,
+      "filter": ["in", ["get", "kind"], ["literal", ["minor_road", "path"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#ffffff",
+        "line-width": [
+          "interpolate", ["exponential", 1.4], ["zoom"],
+          12, 0.8,
+          15, 2.5,
+          18, 8
+        ]
+      }
+    },
+    {
+      "id": "roads-major-casing",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "roads",
+      "minzoom": 10,
+      "filter": ["in", ["get", "kind"], ["literal", ["highway", "major_road"]]],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#d6d6d6",
+        "line-width": [
+          "interpolate", ["exponential", 1.4], ["zoom"],
+          10, 2.0,
+          14, 4.0,
+          18, 14
+        ]
+      }
+    },
+    {
+      "id": "roads-major",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "roads",
+      "filter": ["==", ["get", "kind"], "major_road"],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#fcd6a4",
+        "line-width": [
+          "interpolate", ["exponential", 1.4], ["zoom"],
+          8, 1.0,
+          12, 2.0,
+          15, 4.5,
+          18, 12
+        ]
+      }
+    },
+    {
+      "id": "roads-highway",
+      "type": "line",
+      "source": "basemap",
+      "source-layer": "roads",
+      "minzoom": 7,
+      "filter": ["==", ["get", "kind"], "highway"],
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#e892a2",
+        "line-width": [
+          "interpolate", ["exponential", 1.4], ["zoom"],
+          7, 1.0,
+          12, 2.5,
+          15, 5.0,
+          18, 12
+        ]
+      }
+    },
+    {
+      "id": "hazard-overlay-anchor",
+      "type": "background",
+      "paint": { "background-opacity": 0 }
+    },
+    {
+      "id": "cavite-outline-halo",
+      "type": "line",
+      "source": "cavite-region",
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#ffffff",
+        "line-width": [
+          "interpolate", ["linear"], ["zoom"],
+          8, 4.0,
+          16, 6.0
+        ],
+        "line-opacity": 0.9
+      }
+    },
+    {
+      "id": "cavite-outline",
+      "type": "line",
+      "source": "cavite-region",
+      "layout": { "line-cap": "round", "line-join": "round" },
+      "paint": {
+        "line-color": "#4e6e5e",
+        "line-width": [
+          "interpolate", ["linear"], ["zoom"],
+          8, 1.6,
+          16, 2.6
+        ],
+        "line-opacity": 0.95
+      }
+    },
+    {
+      "id": "places-context",
+      "type": "symbol",
+      "source": "basemap",
+      "source-layer": "places",
+      "filter": [
+        "all",
+        ["!=", ["get", "resq_focus"], 1],
+        ["in", ["get", "kind"], ["literal", ["region", "locality"]]]
+      ],
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": [
+          "interpolate", ["linear"], ["zoom"],
+          8, 10,
+          14, 12
+        ],
+        "text-max-width": 8,
+        "text-padding": 14
+      },
+      "paint": {
+        "text-color": "#666666",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "cavite-municipality-labels",
+      "type": "symbol",
+      "source": "cavite-municipalities",
+      "maxzoom": 12,
+      "layout": {
+        "text-field": ["get", "name"],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": [
+          "interpolate", ["linear"], ["zoom"],
+          8, 10,
+          11, 12
+        ],
+        "text-max-width": 7,
+        "text-padding": 3,
+        "symbol-sort-key": ["coalesce", ["get", "rank"], 0]
+      },
+      "paint": {
+        "text-color": "#333333",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4
+      }
+    },
+    {
+      "id": "places-detail",
+      "type": "symbol",
+      "source": "basemap",
+      "source-layer": "places",
+      "minzoom": 12,
+      "filter": ["==", ["get", "resq_focus"], 1],
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": [
+          "interpolate", ["linear"], ["zoom"],
+          12, 11,
+          17, 14
+        ],
+        "text-max-width": 8,
+        "text-padding": 7
+      },
+      "paint": {
+        "text-color": "#333333",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4
+      }
+    },
+    {
+      "id": "roads-labels",
+      "type": "symbol",
+      "source": "basemap",
+      "source-layer": "roads",
+      "minzoom": 14,
+      "filter": ["in", ["get", "kind"], ["literal", ["highway", "major_road", "minor_road", "path"]]],
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": 10,
+        "symbol-placement": "line",
+        "symbol-spacing": 280,
+        "text-padding": 5
+      },
+      "paint": {
+        "text-color": "#666666",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1
+      }
+    },
+    {
+      "id": "poi-dots",
+      "type": "circle",
+      "source": "basemap",
+      "source-layer": "pois",
+      "minzoom": 16,
+      "paint": {
+        "circle-radius": 2,
+        "circle-color": "#666666",
+        "circle-stroke-color": "#ffffff",
+        "circle-stroke-width": 1
+      }
+    },
+    {
+      "id": "pois",
+      "type": "symbol",
+      "source": "basemap",
+      "source-layer": "pois",
+      "minzoom": 16,
+      "layout": {
+        "text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+        "text-font": ["Noto Sans Regular"],
+        "text-size": 10,
+        "text-max-width": 8,
+        "text-anchor": "top",
+        "text-offset": [0, 0.6],
+        "text-padding": 8
+      },
+      "paint": {
+        "text-color": "#666666",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.3
+      }
+    }
+  ]
+}

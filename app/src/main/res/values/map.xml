@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="map_region_name">Cavite</string>
+    <string name="map_accessibility_description">Offline map of Cavite province. Pinch to zoom and drag to explore.</string>
+    <string name="map_status_loading">Preparing offline map…</string>
+    <string name="map_status_overview">Offline basemap · Province overview</string>
+    <string name="map_status_detail">Offline basemap · Street detail</string>
+    <string name="map_status_exploring">Offline basemap · Exploring Cavite</string>
+    <string name="map_show_all">Show all of Cavite</string>
+    <string name="map_zoom_in">Zoom in</string>
+    <string name="map_zoom_out">Zoom out</string>
+    <string name="map_basemap_attribution">© OpenStreetMap contributors · Protomaps</string>
+    <string name="map_load_error">The offline map could not be loaded. Please try again.</string>
+    <string name="map_retry">Retry</string>
+
+    <style name="Widget.RESQ.MapControl" parent="Widget.Material3.Button.IconButton.Filled">
+        <item name="backgroundTint">#F9FAF7</item>
+        <item name="iconTint">@color/map_control_icon</item>
+        <item name="iconSize">22dp</item>
+        <item name="iconPadding">0dp</item>
+        <item name="iconGravity">textStart</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="strokeColor">#E2E7E2</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:padding">13dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:minWidth">48dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+</resources>

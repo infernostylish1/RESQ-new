@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_field_hint">Maghanap sa RESQ</string>
+    <string name="search_suggestions">Mga mungkahing paghahanap</string>
+    <string name="search_history">Kasaysayan ng paghahanap</string>
+    <string name="search_history_empty">Lalabas dito ang mga kamakailan mong hinanap.</string>
+    <string name="search_clear_history">Burahin ang kasaysayan ng paghahanap</string>
+    <string name="search_clear_query">Burahin ang hinahanap</string>
+    <string name="search_loading">Naghahanap</string>
+    <string name="search_history_cleared">Nabura ang kasaysayan ng paghahanap</string>
+</resources>

@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.resq.app.R
 import com.resq.app.data.entity.EmergencyContactEntity
 import com.resq.app.databinding.ItemEmergencyContactBinding
 
@@ -57,8 +58,10 @@ class EmergencyContactAdapter(
             binding.apply {
                 tvContactName.text = contact.name
                 tvContactNumber.text = contact.phoneNumber
-                btnEdit.visibility = if (contact.isCustom) View.VISIBLE else View.GONE
-                btnDelete.visibility = if (contact.isCustom) View.VISIBLE else View.GONE
+                btnCall.contentDescription = root.context.getString(
+                    R.string.cd_call_named_contact, contact.name
+                )
+                contactActions.visibility = if (contact.isCustom) View.VISIBLE else View.GONE
             }
         }
     }

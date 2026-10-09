@@ -29,6 +29,8 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/bottom_nav_height"
             android:background="@color/nav_background"
+            android:elevation="0dp"
+            app:elevation="0dp"
             app:itemIconTint="@color/nav_item_color"
             app:itemTextColor="@color/nav_item_color"
             app:labelVisibilityMode="labeled"

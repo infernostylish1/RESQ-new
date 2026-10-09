@@ -5,9 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".ui.fragment.DisastersFragment">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         style="@style/Widget.RESQ.Toolbar"
         android:layout_width="0dp"
@@ -15,12 +16,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/menu_top_level"
         app:title="@string/nav_disasters" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/background"
+        android:elevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
@@ -31,22 +35,20 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/disasters_tab_recommended" />
+            android:text="@string/disasters_tab_information" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/disasters_tab_all" />
-
+            android:text="@string/nav_tips" />
     </com.google.android.material.tabs.TabLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_search"
-        style="@style/Widget.RESQ.TextInputLayout.Search"
+        style="@style/Widget.RESQ.TextInputLayout.GlobalSearch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/screen_margin_horizontal"
-        android:hint="@string/disasters_search_hint"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tab_layout">
@@ -55,19 +57,24 @@
             android:id="@+id/et_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:hint="@string/search_field_hint"
+            android:imeOptions="actionSearch|flagNoExtractUi"
             android:inputType="text"
-            android:maxLines="1" />
-
+            android:singleLine="true"
+            android:paddingVertical="14dp"
+            android:textAppearance="@style/TextAppearance.RESQ.Body"
+            android:textColorHint="@color/text_secondary" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_disasters"
+        android:id="@+id/rv_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/spacing_md"
+        android:layout_marginTop="@dimen/spacing_sm"
         android:clipToPadding="false"
+        android:overScrollMode="never"
         android:paddingHorizontal="@dimen/screen_margin_horizontal"
-        android:paddingBottom="@dimen/spacing_lg"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -84,7 +91,7 @@
         android:textAppearance="@style/TextAppearance.RESQ.Body"
         android:textColor="@color/text_secondary"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_filter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_search" />
@@ -95,9 +102,38 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_filter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_search" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/floating_actions_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="0dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_filter"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_margin_horizontal"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minWidth="0dp"
+        android:minHeight="@dimen/button_height"
+        android:paddingHorizontal="@dimen/spacing_md"
+        android:text="@string/disasters_tab_recommended"
+        android:textColor="@color/text_primary"
+        app:backgroundTint="@color/toolbar_action_background"
+        app:cornerRadius="@dimen/button_corner_radius"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/floating_actions_center"
+        app:layout_constraintBottom_toBottomOf="@id/floating_actions_center" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,6 +9,7 @@ import com.resq.app.data.model.TipsPreference
 import com.resq.app.data.repository.UserProfileRepository
 import com.resq.app.data.repository.UserSettingsRepository
 import com.resq.app.util.LanguageManager
+import com.resq.app.util.TextToSpeechManager
 import com.resq.app.util.ThemeManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,8 @@ class SettingsViewModel @Inject constructor(
     private val userSettingsRepository: UserSettingsRepository,
     private val userProfileRepository: UserProfileRepository,
     private val themeManager: ThemeManager,
-    private val languageManager: LanguageManager
+    private val languageManager: LanguageManager,
+    private val ttsManager: TextToSpeechManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -48,6 +50,11 @@ class SettingsViewModel @Inject constructor(
                     settings = settings,
                     profile = profile
                 )
+                
+                // Sync TTS settings to manager when loaded
+                settings?.let {
+                    ttsManager.updateSettings(it.ttsSpeed, it.ttsPitch)
+                }
             }
         }
     }
@@ -94,7 +101,17 @@ class SettingsViewModel @Inject constructor(
     fun updateTTSSettings(speed: Float, pitch: Float) {
         viewModelScope.launch {
             userSettingsRepository.updateTtsSettings(speed, pitch)
+            ttsManager.updateSettings(speed, pitch)
         }
+    }
+
+    fun testTTS() {
+        val greeting = if (_uiState.value.settings?.preferredLanguage == "tl") {
+            "Ito ay isang pagsubok ng boses ng RESQ application."
+        } else {
+            "This is a test of the RESQ application voice output."
+        }
+        ttsManager.speak(greeting)
     }
 
     fun updateProfile(

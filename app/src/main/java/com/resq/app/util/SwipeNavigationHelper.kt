@@ -45,12 +45,13 @@ class SwipeNavigationLayout @JvmOverloads constructor(
             R.id.nav_home,
             R.id.nav_disasters,
             R.id.nav_first_aid,
-            R.id.nav_tips,
-            R.id.nav_settings
+            R.id.nav_map
         )
 
         private val SWIPE_DISABLED_DESTINATIONS = setOf(
-            R.id.nav_onboarding
+            R.id.nav_onboarding,
+            R.id.nav_global_search,
+            R.id.nav_map
         )
 
         private const val SWIPE_THRESHOLD = 100

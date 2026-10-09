@@ -9,33 +9,24 @@
     android:layout_marginHorizontal="@dimen/screen_margin_horizontal"
     android:layout_marginBottom="@dimen/spacing_sm"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    app:cardElevation="0dp"
+    app:contentPadding="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="@dimen/spacing_md">
 
-        <!-- Category badge chip (Disaster / First Aid / Tip / Contact) -->
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_category"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/text_size_xs"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Disaster" />
-
         <!-- Result title -->
         <TextView
             android:id="@+id/tv_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
             android:textAppearance="@style/TextAppearance.RESQ.Subtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/chip_category"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="Earthquake" />
 
         <!-- Subtitle / description snippet -->

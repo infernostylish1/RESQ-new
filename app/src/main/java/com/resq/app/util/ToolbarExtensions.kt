@@ -2,6 +2,8 @@ package com.resq.app.util
 
 import android.view.View
 import androidx.appcompat.widget.Toolbar
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.appcompat.widget.TooltipCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -17,8 +19,8 @@ import com.resq.app.R
  *   binding.toolbar.setupWithNavController(this, viewModel)
  */
 fun Toolbar.setupWithNavController(fragment: Fragment) {
-    // Set the selector drawable for press states
-    navigationIcon = fragment.requireContext().getDrawable(R.drawable.ic_back_button_selector)
+    navigationIcon = AppCompatResources.getDrawable(context, R.drawable.ic_toolbar_back)
+    setNavigationContentDescription(R.string.cd_back_button)
 
     setNavigationOnClickListener { view ->
         // Add haptic feedback and visual feedback
@@ -27,6 +29,20 @@ fun Toolbar.setupWithNavController(fragment: Fragment) {
         // Animate the press effect
         animateBackButtonPress(view) {
             fragment.findNavController().navigateUp()
+        }
+    }
+}
+
+/** Binds the shared settings container, including its accessible icon button. */
+fun Toolbar.setupSettingsAction(fragment: Fragment) {
+    val settingsItem = menu.findItem(R.id.action_settings) ?: return
+    settingsItem.actionView?.findViewById<View>(R.id.btn_toolbar_settings)?.apply {
+        TooltipCompat.setTooltipText(this, settingsItem.title)
+        setOnClickListener {
+            val controller = fragment.findNavController()
+            if (controller.currentDestination?.id != R.id.nav_settings) {
+                controller.navigate(R.id.nav_settings)
+            }
         }
     }
 }

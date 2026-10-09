@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -12,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.resq.app.MainActivity
 import com.resq.app.databinding.FragmentFirstAidDetailBinding
 import com.resq.app.ui.adapter.FirstAidStepAdapter
 import com.resq.app.ui.viewmodel.FirstAidViewModel
@@ -21,19 +23,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * First Aid detail fragment — scrollable list of all steps for a category.
- *
- * Layout: fragment_first_aid_detail.xml
- *   CoordinatorLayout
- *     AppBarLayout → CollapsingToolbarLayout (iv_header, scrim, toolbar)
- *     NestedScrollView
- *       tv_description   — category description
- *       rv_steps         — all steps via FirstAidStepAdapter
- *     fab_read_aloud     — reads all steps aloud via TTS
- *
- * No step-pager logic. No prev/next buttons. Mirrors DisasterDetailFragment.
- */
 @AndroidEntryPoint
 class FirstAidDetailFragment : Fragment() {
 
@@ -63,6 +52,7 @@ class FirstAidDetailFragment : Fragment() {
         setupRecyclerView()
         viewModel.loadCategory(args.categoryId)
         observeViewModel()
+        setupVoiceListeners()
     }
 
     private fun setupToolbar() {
@@ -72,9 +62,6 @@ class FirstAidDetailFragment : Fragment() {
     private fun setupRecyclerView() {
         stepAdapter = FirstAidStepAdapter()
         binding.rvSteps.adapter = stepAdapter
-        // Defensive: XML already sets LinearLayoutManager via app:layoutManager,
-        // but this guard ensures it is never null if that attribute is ever
-        // removed or overridden during a layout refactor.
         if (binding.rvSteps.layoutManager == null) {
             binding.rvSteps.layoutManager = LinearLayoutManager(requireContext())
         }
@@ -83,19 +70,12 @@ class FirstAidDetailFragment : Fragment() {
     private fun observeViewModel() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
-                // Update collapsing toolbar title, description, and header image
-                // once the category entity arrives from the DB.
                 launch {
                     viewModel.selectedCategory.collect { category ->
                         category ?: return@collect
-
-                        binding.collapsingToolbar.title = category.name
+                        binding.toolbar.title = category.name
                         binding.tvDescription.text      = category.description
 
-                        // Resolve imageResName to a drawable resource ID.
-                        // Falls back gracefully — iv_header just shows the scrim
-                        // colour if no matching drawable exists yet.
                         val resId = requireContext().resources.getIdentifier(
                             category.imageResName,
                             "drawable",
@@ -103,11 +83,14 @@ class FirstAidDetailFragment : Fragment() {
                         )
                         if (resId != 0) {
                             binding.ivHeader.setImageResource(resId)
+                            binding.ivHeader.visibility = View.VISIBLE
+                        } else {
+                            binding.ivHeader.setImageDrawable(null)
+                            binding.ivHeader.visibility = View.GONE
                         }
                     }
                 }
 
-                // Submit the full step list to the adapter whenever it changes.
                 launch {
                     viewModel.categorySteps.collect { steps ->
                         stepAdapter.submitList(steps)
@@ -115,6 +98,46 @@ class FirstAidDetailFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun setupVoiceListeners() {
+        setFragmentResultListener(MainActivity.REQUEST_SCROLL) { _, bundle ->
+            when (bundle.getString(MainActivity.KEY_SCROLL)) {
+                MainActivity.SCROLL_UP   -> binding.nestedScrollView.smoothScrollTo(0, 0)
+                MainActivity.SCROLL_DOWN -> binding.nestedScrollView.smoothScrollTo(
+                    0, binding.nestedScrollView.getChildAt(0).height
+                )
+            }
+        }
+
+        setFragmentResultListener(MainActivity.REQUEST_TTS) { _, bundle ->
+            when (bundle.getString(MainActivity.KEY_TTS)) {
+                MainActivity.TTS_READ -> readContentAloud()
+                MainActivity.TTS_STOP -> ttsManager.stop()
+            }
+        }
+    }
+
+    private fun readContentAloud() {
+        val category = viewModel.selectedCategory.value ?: return
+        val steps = viewModel.categorySteps.value
+
+        val stringBuilder = StringBuilder()
+        stringBuilder.append(category.name).append(". ")
+        stringBuilder.append(category.description).append(". ")
+        stringBuilder.append("Here are the steps. ")
+
+        steps.forEachIndexed { index, step ->
+            stringBuilder.append("Step ${index + 1}: ").append(step.title).append(". ")
+            stringBuilder.append(step.content).append(". ")
+
+            val sectionLower = step.sectionTitle.lowercase()
+            if (sectionLower.contains("warning") || sectionLower.contains("important")) {
+                stringBuilder.append("Warning: ").append(step.sectionTitle).append(". ")
+            }
+        }
+
+        ttsManager.speak(stringBuilder.toString())
     }
 
     override fun onDestroyView() {

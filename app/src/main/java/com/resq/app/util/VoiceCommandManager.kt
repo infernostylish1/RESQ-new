@@ -1,231 +1,208 @@
 package com.resq.app.util
 
+import android.Manifest
 import android.content.Context
-import android.content.Intent
-import android.os.Bundle
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
 import android.util.Log
+import androidx.annotation.RequiresPermission
+import com.resq.app.util.voice.SherpaAsrEngine
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Voice command manager powered entirely by offline sherpa-onnx.
+ *
+ * Recognition is delegated to [SherpaAsrEngine], which runs a single
+ * multilingual Omnilingual ASR CTC model (English + Filipino) gated by
+ * Silero VAD. No network access is ever required.
+ *
+ * The language switch is a no-op — the model is multilingual and auto-detects
+ * the spoken language, so both English and Filipino commands are recognized
+ * without configuration changes.
+ */
 @Singleton
 class VoiceCommandManager @Inject constructor() {
 
-    private var speechRecognizer: SpeechRecognizer? = null
-    private var currentLanguage: String = "en"
+    private var sherpaEngine: SherpaAsrEngine? = null
     private var isListening = false
-    private var retryCount = 0
+    private var modelReady = false
+
+    /** A start request that arrived before the model finished loading. */
+    private var pendingStart: ((VoiceCommand) -> Unit)? = null
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var timeoutJob: Job? = null
 
     private val _recognitionState = MutableStateFlow<RecognitionState>(RecognitionState.Idle)
     val recognitionState: StateFlow<RecognitionState> = _recognitionState.asStateFlow()
 
     private var onCommandRecognized: ((VoiceCommand) -> Unit)? = null
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Lifecycle
+    // ══════════════════════════════════════════════════════════════════════════
+
+    /** Creates the Sherpa engine and starts loading its model in the background. */
     fun initialize(context: Context) {
-        if (!SpeechRecognizer.isRecognitionAvailable(context)) {
-            _recognitionState.value = RecognitionState.Error("Speech recognition not available")
-            return
-        }
-        speechRecognizer?.destroy()
+        if (sherpaEngine == null) {
+            val engine = SherpaAsrEngine(context.applicationContext)
+            sherpaEngine = engine
+            Log.d(TAG, "Sherpa ASR engine created")
 
-        speechRecognizer = if (
-            android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
-            SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
-        ) {
-            Log.d(TAG, "Using ON-DEVICE speech recognizer")
-            SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
-        } else {
-            Log.d(TAG, "Using default speech recognizer (may need network)")
-            SpeechRecognizer.createSpeechRecognizer(context)
-        }
-
-        speechRecognizer?.setRecognitionListener(createRecognitionListener())
-    }
-
-    private fun createRecognitionListener() = object : RecognitionListener {
-        override fun onReadyForSpeech(params: Bundle?) {
-            _recognitionState.value = RecognitionState.Listening
-        }
-        override fun onBeginningOfSpeech() {}
-        override fun onRmsChanged(rmsdB: Float) {}
-        override fun onBufferReceived(buffer: ByteArray?) {}
-        override fun onEndOfSpeech() {
-            _recognitionState.value = RecognitionState.Processing
-        }
-
-        override fun onError(error: Int) {
-            when (error) {
-                SpeechRecognizer.ERROR_NO_MATCH,
-                SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> {
-                    if (retryCount < MAX_RETRIES) {
-                        retryCount++
-                        Log.d(TAG, "No match/timeout — auto-retry #$retryCount")
-                        isListening = false
-                        onCommandRecognized?.let { callback ->
-                            startListening(callback)
-                        } ?: run {
-                            isListening = false
-                            _recognitionState.value = RecognitionState.Error(
-                                "No speech detected. Tap to try again."
-                            )
-                        }
-                    } else {
-                        retryCount = 0
-                        isListening = false
-                        _recognitionState.value = RecognitionState.Error(
-                            "No speech detected. Tap to try again."
-                        )
+            scope.launch {
+                val result = engine.initialize()
+                if (result.isSuccess) {
+                    modelReady = true
+                    Log.d(TAG, "Sherpa ASR engine ready")
+                    pendingStart?.let { cb ->
+                        pendingStart = null
+                        startListening(cb)
                     }
+                } else {
+                    val error = result.exceptionOrNull() ?: Exception("Unknown init error")
+                    Log.e(TAG, "Sherpa ASR engine failed to initialize", error)
+                    _recognitionState.value =
+                        RecognitionState.Error("Failed to load speech model: ${error.message}")
                 }
-                else -> {
-                    retryCount = 0
-                    isListening = false
-                    _recognitionState.value = RecognitionState.Error(getErrorMessage(error))
-                }
             }
         }
-
-        override fun onResults(results: Bundle?) {
-            isListening = false
-            retryCount = 0
-            val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-            if (!matches.isNullOrEmpty()) {
-                val command = matches
-                    .map { parseCommand(it) }
-                    .firstOrNull { it !is VoiceCommand.Unknown }
-                    ?: VoiceCommand.Unknown(matches.first())
-
-                val bestText = matches.first()
-                _recognitionState.value = RecognitionState.Result(bestText, command)
-                onCommandRecognized?.invoke(command)
-            } else {
-                _recognitionState.value = RecognitionState.Error("No speech recognized")
-            }
-        }
-
-        override fun onPartialResults(partialResults: Bundle?) {
-            val partial = partialResults
-                ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                ?.firstOrNull()
-            if (!partial.isNullOrEmpty()) {
-                _recognitionState.value = RecognitionState.PartialResult(partial)
-            }
-        }
-        override fun onEvent(eventType: Int, params: Bundle?) {}
     }
 
+    /**
+     * No-op. The Omnilingual ASR model is multilingual and auto-detects the
+     * spoken language. Kept so callers (VoiceCommandViewModel) don't need to
+     * change.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun setLanguage(languageCode: String) {
+        // Intentionally empty — see class doc.
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Listening
+    // ══════════════════════════════════════════════════════════════════════════
+
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     fun startListening(onCommand: (VoiceCommand) -> Unit) {
         if (isListening) return
-        isListening = true
         onCommandRecognized = onCommand
 
-        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(
-                RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
-            )
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "en-US")
-            putExtra(
-                "android.speech.extra.EXTRA_ADDITIONAL_LANGUAGES",
-                arrayOf("fil-PH")
-            )
-            putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false)
-            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-            putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 5000L)
-            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 4000L)
-            putExtra(
-                RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
-                3000L
-            )
+        val engine = sherpaEngine ?: run {
+            _recognitionState.value = RecognitionState.Error("Speech engine not initialized")
+            return
         }
-        try {
-            speechRecognizer?.startListening(intent)
+
+        if (!modelReady || !engine.isReady) {
+            pendingStart = onCommand
             _recognitionState.value = RecognitionState.Starting
-        } catch (e: Exception) {
-            _recognitionState.value =
-                RecognitionState.Error("Failed to start listening: ${e.message}")
-            isListening = false
+            return
         }
+
+        isListening = true
+        _recognitionState.value = RecognitionState.Starting
+        scheduleTimeout()
+
+        engine.startListening(
+            onFinal = { text ->
+                handleFinal(text)
+            },
+            onError = { e ->
+                Log.e(TAG, "Sherpa ASR error", e)
+                stopListeningInternal()
+                _recognitionState.value =
+                    RecognitionState.Error("Speech error: ${e.message ?: "unknown"}")
+            },
+        )
     }
 
-    fun stopListening() {
-        if (!isListening) return
-        speechRecognizer?.stopListening()
+    private fun handleFinal(text: String) {
+        // Mark not-listening first so nothing re-enters the callback.
         isListening = false
-        _recognitionState.value = RecognitionState.Idle
+        timeoutJob?.cancel()
+        timeoutJob = null
+
+        if (text.isBlank()) {
+            _recognitionState.value =
+                RecognitionState.Error("No speech detected. Tap to try again.")
+            sherpaEngine?.stopListening()
+            return
+        }
+
+        val command = parseCommand(text)
+        _recognitionState.value = RecognitionState.Result(text, command)
+        onCommandRecognized?.invoke(command)
+
+        sherpaEngine?.stopListening()
+    }
+
+    /** Stop the microphone immediately. Safe to call from any state. */
+    fun stopListening() {
+        stopListeningInternal()
+    }
+
+    private fun stopListeningInternal() {
+        timeoutJob?.cancel()
+        timeoutJob = null
+        sherpaEngine?.stopListening()
+        isListening = false
+        if (_recognitionState.value !is RecognitionState.Result) {
+            _recognitionState.value = RecognitionState.Idle
+        }
     }
 
     fun cancel() {
-        speechRecognizer?.cancel()
-        isListening = false
-        retryCount = 0
+        stopListeningInternal()
+        pendingStart = null
         _recognitionState.value = RecognitionState.Idle
     }
 
-    fun setLanguage(languageCode: String) { currentLanguage = languageCode }
     fun isCurrentlyListening(): Boolean = isListening
 
     fun destroy() {
-        speechRecognizer?.destroy()
-        speechRecognizer = null
-        isListening = false
-        retryCount = 0
+        stopListeningInternal()
+        pendingStart = null
+        sherpaEngine?.release()
+        sherpaEngine = null
+        modelReady = false
         _recognitionState.value = RecognitionState.Idle
     }
 
-    fun promptOfflineLanguageDownload(context: Context) {
-        try {
-            val downloadIntent =
-                Intent("com.google.android.googlequicksearchbox.VOICE_SEARCH_PARAMS")
-            downloadIntent.putExtra("language", "en-US")
-            context.startActivity(downloadIntent)
-        } catch (e: Exception) {
-            try {
-                val settingsIntent =
-                    Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS)
-                context.startActivity(settingsIntent)
-            } catch (_: Exception) {
-                Log.w(TAG, "Cannot open language download settings")
+    fun resetToIdle() {
+        _recognitionState.value = RecognitionState.Idle
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  Silence timeout
+    // ══════════════════════════════════════════════════════════════════════════
+
+    private fun scheduleTimeout() {
+        timeoutJob?.cancel()
+        timeoutJob = scope.launch {
+            delay(MAX_LISTEN_MS)
+            if (isListening) {
+                Log.d(TAG, "Listening timeout after ${MAX_LISTEN_MS}ms")
+                stopListeningInternal()
+                _recognitionState.value =
+                    RecognitionState.Error("No speech detected. Tap to try again.")
             }
         }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  Command parsing
+    //  Command parsing  (UNCHANGED)
     // ══════════════════════════════════════════════════════════════════════════
 
-    /**
-     * Parse steps (order matters):
-     *
-     *  1.  Normalize.
-     *  2.  Apply phonetic Tagalog normalizer.
-     *  3.  Hard navigation (require explicit nav verb).
-     *  3.5 List commands (before generic app-control).
-     *  4.  App-control / TTS / tip browsing / emergency.
-     *  5.  Phase + disaster combo → OpenDisasterPhase.
-     *  5.5 Tab + module combo → NavigateDisastersTab / NavigateTipsTab.  ← NEW
-     *  6.  Tab-switch (user already on detail screen).
-     *  7.  Tip trigger phrases.
-     *  8.  Strip intent prefix → disaster keywords → OpenDisaster.
-     *  9.  Strip intent prefix → first-aid keywords → OpenFirstAidCategory.
-     * 10.  General search patterns.
-     * 11.  Unknown fallback.
-     */
     fun parseCommand(rawText: String): VoiceCommand {
-        // Step 1
         val lowered = rawText.lowercase().trim()
-
-        // Step 2
         val normalized = normalizeTagalog(lowered)
-
         Log.d(TAG, "raw='$rawText'  normalized='$normalized'")
 
         // ── Step 3: Hard navigation ───────────────────────────────────────────
@@ -284,10 +261,7 @@ class VoiceCommandManager @Inject constructor() {
             return VoiceCommand.SwitchTab(detectedPhase)
         }
 
-        // ── Step 5.5: Tab + module combo → navigate to screen with tab (NEW) ─
-        // Handles: "recommended disasters", "all tips", "show all disasters",
-        //          "rekomendado na sakuna", etc.
-        // Only fires for "recommended" and "all" — tabs that exist on list screens.
+        // ── Step 5.5: Tab + module combo ──────────────────────────────────────
         run {
             val moduleTabLabels = listOf("recommended", "all")
             for (tab in moduleTabLabels) {
@@ -297,7 +271,6 @@ class VoiceCommandManager @Inject constructor() {
                     val mentionsTips      = SCREEN_TIPS_KEYWORDS.any { normalized.contains(it) }
                     if (mentionsDisasters) return VoiceCommand.NavigateDisastersTab(tab)
                     if (mentionsTips)      return VoiceCommand.NavigateTipsTab(tab)
-                    // No screen keyword found → fall through to Step 6 for generic SwitchTab
                 }
             }
         }
@@ -320,7 +293,7 @@ class VoiceCommandManager @Inject constructor() {
             return VoiceCommand.NavigateTips
         }
 
-        // ── Steps 8–9: Strip prefix, match subject ───────────────────────────
+        // ── Steps 8–9: Strip prefix, match subject ────────────────────────────
         val subject = stripIntentPrefix(normalized)
 
         for ((disasterKey, keywords) in VoiceCommand.DISASTER_KEYWORDS) {
@@ -346,7 +319,7 @@ class VoiceCommandManager @Inject constructor() {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  Tagalog phonetic normalizer
+    //  Tagalog phonetic normalizer  (UNCHANGED)
     // ══════════════════════════════════════════════════════════════════════════
 
     private fun normalizeTagalog(text: String): String {
@@ -427,7 +400,7 @@ class VoiceCommandManager @Inject constructor() {
     }
 
     // ══════════════════════════════════════════════════════════════════════════
-    //  Helpers
+    //  Helpers  (UNCHANGED)
     // ══════════════════════════════════════════════════════════════════════════
 
     private fun matchesAny(text: String, keywords: List<String>): Boolean =
@@ -457,22 +430,9 @@ class VoiceCommandManager @Inject constructor() {
         return stripped
     }
 
-    private fun getErrorMessage(errorCode: Int): String = when (errorCode) {
-        SpeechRecognizer.ERROR_AUDIO                    -> "Audio recording error"
-        SpeechRecognizer.ERROR_CLIENT                   -> "Client side error"
-        SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
-        SpeechRecognizer.ERROR_NETWORK                  -> "Network error — enable offline speech pack in device settings"
-        SpeechRecognizer.ERROR_NETWORK_TIMEOUT          -> "Network timeout — enable offline speech pack in device settings"
-        SpeechRecognizer.ERROR_NO_MATCH                 -> "No speech detected. Tap to try again."
-        SpeechRecognizer.ERROR_RECOGNIZER_BUSY          -> "Recognition service busy"
-        SpeechRecognizer.ERROR_SERVER                   -> "Server error — enable offline speech pack in device settings"
-        SpeechRecognizer.ERROR_SPEECH_TIMEOUT           -> "No speech input"
-        else                                            -> "Unknown error: $errorCode"
-    }
-
     companion object {
         private const val TAG = "VoiceCommandManager"
-        private const val MAX_RETRIES = 2
+        private const val MAX_LISTEN_MS = 8_000L
 
         private val NAV_HOME_KEYWORDS = listOf(
             "go home", "home screen", "go to home", "tahanan",
@@ -501,7 +461,6 @@ class VoiceCommandManager @Inject constructor() {
             "hotlines", "emergency numbers", "mga contact", "contact list"
         )
 
-        // ── List-command keywords ─────────────────────────────────────────────
         private val LIST_ALL_DISASTERS_KEYWORDS = listOf(
             "list all disasters", "show all disasters", "all disasters",
             "list disasters", "lahat ng sakuna", "lahat ng kalamidad",
@@ -518,7 +477,6 @@ class VoiceCommandManager @Inject constructor() {
             "complete tip list"
         )
 
-        // ── Screen-level keywords (generic, NOT specific disaster names) (NEW) ─
         private val SCREEN_DISASTER_KEYWORDS = listOf(
             "disaster", "disasters", "sakuna", "kalamidad", "mga sakuna"
         )
@@ -582,9 +540,5 @@ class VoiceCommandManager @Inject constructor() {
             Regex("look\\s+(?:for\\s+)?(.+)"),
             Regex("hanapin\\s+(.+)")
         )
-    }
-
-    fun resetToIdle() {
-        _recognitionState.value = RecognitionState.Idle
     }
 }

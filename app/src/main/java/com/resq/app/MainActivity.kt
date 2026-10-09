@@ -1,10 +1,14 @@
 package com.resq.app
 
+import com.k2fsa.sherpa.onnx.OfflineRecognizer
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -43,7 +47,12 @@ class MainActivity : AppCompatActivity() {
     private val voiceViewModel: VoiceCommandViewModel by viewModels()
 
     private var isFabMenuOpen = false
-    private val fabHiddenDestinations = setOf(R.id.nav_onboarding, R.id.nav_settings)
+    private val fabHiddenDestinations = setOf(
+        R.id.nav_onboarding,
+        R.id.nav_settings,
+        R.id.nav_global_search
+    )
+    private val bottomNavHiddenDestinations = setOf(R.id.nav_onboarding, R.id.nav_global_search)
 
     override fun attachBaseContext(newBase: Context) {
         // We need to access the repository before Hilt is initialized in onCreate
@@ -57,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         val fontSize = runBlocking {
             repository.getSettingsOnce()?.fontSize ?: FontSize.MEDIUM
         }
-        
+
         super.attachBaseContext(manager.wrapContext(newBase, fontSize))
     }
 
@@ -71,11 +80,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Draw behind system bars without fitsSystemWindows inflating the nav bar
+        // Keep content inside the system bars; their colors blend with the app surfaces.
         WindowCompat.setDecorFitsSystemWindows(window, true)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        updateSystemBars()
 
         // Apply insets ONLY to the fragment container so the status bar is respected,
         // but the BottomNavigationView height stays fixed and is never pushed up.
@@ -87,6 +97,30 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         setupFabMenu()
         observeVoiceCommands()
+    }
+
+    private fun updateSystemBars() {
+        val contentColor = ContextCompat.getColor(this, R.color.background)
+        val navigationColor = ContextCompat.getColor(
+            this,
+            if (binding.bottomNavigation.visibility == View.VISIBLE) R.color.nav_background
+            else R.color.background
+        )
+        window.statusBarColor = contentColor
+        window.navigationBarColor = navigationColor
+
+        WindowCompat.getInsetsController(window, binding.root).apply {
+            isAppearanceLightStatusBars = ColorUtils.calculateLuminance(contentColor) > 0.5
+            isAppearanceLightNavigationBars = ColorUtils.calculateLuminance(navigationColor) > 0.5
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            window.navigationBarDividerColor = navigationColor
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // Avoid Android adding a contrasting scrim over the colors chosen above.
+            window.isStatusBarContrastEnforced = false
+            window.isNavigationBarContrastEnforced = false
+        }
     }
 
     // ── Navigation setup ──────────────────────────────────────────────────────
@@ -119,8 +153,7 @@ class MainActivity : AppCompatActivity() {
                     R.id.nav_home,
                     R.id.nav_disasters,
                     R.id.nav_first_aid,
-                    R.id.nav_tips,
-                    R.id.nav_settings
+                    R.id.nav_map
                 )
 
                 if (currentId in topLevelIds) {
@@ -151,7 +184,8 @@ class MainActivity : AppCompatActivity() {
                 val isHiddenDest = destination.id in fabHiddenDestinations
                 val isOnContactsScreen = destination.id == R.id.nav_emergency_contacts
                 binding.bottomNavigation.visibility =
-                    if (destination.id == R.id.nav_onboarding) View.GONE else View.VISIBLE
+                    if (destination.id in bottomNavHiddenDestinations) View.GONE else View.VISIBLE
+                updateSystemBars()
                 binding.fabMain.visibility = if (isHiddenDest) View.GONE else View.VISIBLE
                 updateFabRowAvailability(isOnContactsScreen)
                 syncBottomNavSelection(destination.id)
@@ -163,12 +197,11 @@ class MainActivity : AppCompatActivity() {
         val ownerTab = when (destinationId) {
             R.id.nav_home             -> R.id.nav_home
             R.id.nav_disasters,
-            R.id.nav_disaster_detail  -> R.id.nav_disasters
+            R.id.nav_disaster_detail,
+            R.id.nav_tip_detail       -> R.id.nav_disasters
             R.id.nav_first_aid,
             R.id.nav_first_aid_detail -> R.id.nav_first_aid
-            R.id.nav_tips,
-            R.id.nav_tip_detail       -> R.id.nav_tips
-            R.id.nav_settings         -> R.id.nav_settings
+            R.id.nav_map              -> R.id.nav_map
             else                      -> null
         }
         if (ownerTab != null) {
@@ -275,34 +308,39 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateToScreenWithTab(destinationId: Int, tab: String) {
-        if (navController.currentDestination?.id == destinationId) {
-            supportFragmentManager.setFragmentResult(
-                REQUEST_SWITCH_TAB,
-                Bundle().apply { putString(KEY_TAB_LABEL, tab) }
-            )
+    /**
+     * Routes voice commands into the Disasters hub.
+     *
+     * - If we're already on nav_disasters, deliver the request via FragmentResult
+     *   so DisastersFragment can flip its sub-tab/filter without re-creating.
+     * - Otherwise navigate to nav_disasters with the desired tab/filter as args.
+     */
+    private fun navigateToDisasters(mainTab: String, filterTab: String = "") {
+        val args = Bundle().apply {
+            putString(ARG_VOICE_MAIN_TAB, mainTab)
+            if (filterTab.isNotEmpty()) putString(ARG_VOICE_FILTER_TAB, filterTab)
+        }
+        if (navController.currentDestination?.id == R.id.nav_disasters) {
+            supportFragmentManager.setFragmentResult(REQUEST_SWITCH_TAB, args)
         } else {
-            navController.navigate(
-                destinationId,
-                Bundle().apply { putString(ARG_VOICE_TAB, tab) }
-            )
+            navController.navigate(R.id.nav_disasters, args)
         }
     }
 
     private fun executeVoiceCommand(command: VoiceCommand) {
         when (command) {
             is VoiceCommand.NavigateHome      -> navController.navigate(R.id.nav_home)
-            is VoiceCommand.NavigateDisasters -> navController.navigate(R.id.nav_disasters)
+            is VoiceCommand.NavigateDisasters -> navigateToDisasters("information")
             is VoiceCommand.NavigateFirstAid  -> navController.navigate(R.id.nav_first_aid)
-            is VoiceCommand.NavigateTips      -> navController.navigate(R.id.nav_tips)
+            is VoiceCommand.NavigateTips      -> navigateToDisasters("tips")
             is VoiceCommand.NavigateSettings  -> navController.navigate(R.id.nav_settings)
             is VoiceCommand.NavigateContacts  -> navController.navigate(R.id.nav_emergency_contacts)
 
             is VoiceCommand.NavigateDisastersTab -> {
-                navigateToScreenWithTab(R.id.nav_disasters, command.tab)
+                navigateToDisasters("information", command.tab)
             }
             is VoiceCommand.NavigateTipsTab -> {
-                navigateToScreenWithTab(R.id.nav_tips, command.tab)
+                navigateToDisasters("tips", command.tab)
             }
 
             is VoiceCommand.OpenDisasterDetail -> {
@@ -320,30 +358,30 @@ class MainActivity : AppCompatActivity() {
                 safeNavigateToTipDetail(command.disasterId, command.disasterName)
             }
 
-            is VoiceCommand.OpenDisaster         -> navController.navigate(R.id.nav_disasters)
-            is VoiceCommand.OpenDisasterPhase    -> navController.navigate(R.id.nav_disasters)
+            is VoiceCommand.OpenDisaster         -> navigateToDisasters("information")
+            is VoiceCommand.OpenDisasterPhase    -> navigateToDisasters("information")
             is VoiceCommand.OpenFirstAidCategory -> navController.navigate(R.id.nav_first_aid)
-            is VoiceCommand.OpenTipDetail        -> navController.navigate(R.id.nav_tips)
+            is VoiceCommand.OpenTipDetail        -> navigateToDisasters("tips")
 
             is VoiceCommand.ListAllDisasters -> {
-                navigateToScreenWithTab(R.id.nav_disasters, "all")
+                navigateToDisasters("information", "all")
             }
             is VoiceCommand.ListAllFirstAid  -> navController.navigate(R.id.nav_first_aid)
             is VoiceCommand.ListAllTips -> {
-                navigateToScreenWithTab(R.id.nav_tips, "all")
+                navigateToDisasters("tips", "all")
             }
 
             is VoiceCommand.SearchDisaster -> {
-                navController.navigate(R.id.nav_disasters,
-                    Bundle().apply { putString(ARG_VOICE_QUERY, command.query) })
+                // Search body lives in the Disasters hub; drop the query arg since
+                // DisastersFragment opens the global search screen from its own search bar.
+                navigateToDisasters("information", "all")
             }
             is VoiceCommand.SearchFirstAid -> {
                 navController.navigate(R.id.nav_first_aid,
                     Bundle().apply { putString(ARG_VOICE_QUERY, command.query) })
             }
             is VoiceCommand.GeneralSearch -> {
-                navController.navigate(R.id.nav_disasters,
-                    Bundle().apply { putString(ARG_VOICE_QUERY, command.query) })
+                navigateToDisasters("information", "all")
             }
 
             is VoiceCommand.GoBack -> navController.popBackStack()
@@ -392,7 +430,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             is VoiceCommand.GetRandomTip,
-            is VoiceCommand.GetNextTip -> navController.navigate(R.id.nav_tips)
+            is VoiceCommand.GetNextTip -> navigateToDisasters("tips")
 
             is VoiceCommand.Unknown -> Unit
         }
@@ -429,7 +467,10 @@ class MainActivity : AppCompatActivity() {
         when (navController.currentDestination?.id) {
             R.id.nav_first_aid -> navController.navigate(R.id.action_first_aid_to_detail, args)
             R.id.nav_first_aid_detail -> {
-                navController.popBackStack(R.id.nav_first_aid, false)
+                // Home shortcuts can open a detail without the category list on the back stack.
+                if (!navController.popBackStack(R.id.nav_first_aid, false)) {
+                    navController.navigate(R.id.nav_first_aid)
+                }
                 navController.navigate(R.id.action_first_aid_to_detail, args)
             }
             else -> {
@@ -439,20 +480,26 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Tips now live inside the Disasters hub (nav_tips is removed from the graph).
+     * The tip-detail destination is reached from nav_disasters via
+     * action_disasters_to_tip_detail.
+     */
     private fun safeNavigateToTipDetail(disasterId: Long, disasterName: String) {
         val args = Bundle().apply {
             putLong("disasterId", disasterId)
             putString("disasterName", disasterName)
         }
         when (navController.currentDestination?.id) {
-            R.id.nav_tips -> navController.navigate(R.id.action_tips_to_tip_detail, args)
+            R.id.nav_disasters ->
+                navController.navigate(R.id.action_disasters_to_tip_detail, args)
             R.id.nav_tip_detail -> {
-                navController.popBackStack(R.id.nav_tips, false)
-                navController.navigate(R.id.action_tips_to_tip_detail, args)
+                navController.popBackStack(R.id.nav_disasters, false)
+                navController.navigate(R.id.action_disasters_to_tip_detail, args)
             }
             else -> {
-                navController.navigate(R.id.nav_tips)
-                navController.navigate(R.id.action_tips_to_tip_detail, args)
+                navController.navigate(R.id.nav_disasters)
+                navController.navigate(R.id.action_disasters_to_tip_detail, args)
             }
         }
     }
@@ -475,9 +522,11 @@ class MainActivity : AppCompatActivity() {
 
         const val REQUEST_ADD_CONTACT = "request_add_contact"
 
+        const val ARG_VOICE_MAIN_TAB   = "voiceMainTab"
+        const val ARG_VOICE_FILTER_TAB = "voiceFilterTab"
+
         const val ARG_VOICE_PHASE     = "voicePhase"
         const val ARG_VOICE_QUERY     = "arg_voice_query"
-        const val ARG_VOICE_TAB       = "voiceTab"
         const val ARG_CONTACT_NAME    = "arg_contact_name"
     }
 }

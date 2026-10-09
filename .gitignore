@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Large model / map assets (distributed separately)
+app/src/main/assets/asr/model.int8.onnx
+app/src/main/assets/tts/model.onnx
+app/src/main/assets/pmtiles/*.pmtiles

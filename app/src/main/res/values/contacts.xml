@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cd_call_named_contact">Call %1$s</string>
+    <dimen name="contacts_toolbar_title_size">18sp</dimen>
+    <dimen name="contacts_list_bottom_padding">112dp</dimen>
+    <style name="TextAppearance.RESQ.ContactsToolbar" parent="TextAppearance.RESQ.Title">
+        <item name="android:textSize">@dimen/contacts_toolbar_title_size</item>
+    </style>
+</resources>

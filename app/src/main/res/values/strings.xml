@@ -75,15 +75,18 @@
     <string name="profile_emergency_contact_hint">Enter emergency contact number</string>
 
     <!-- Home Screen -->
+    <string name="home_name">RESQ</string>
     <string name="home_greeting_morning">Good Morning</string>
     <string name="home_greeting_afternoon">Good Afternoon</string>
     <string name="home_greeting_evening">Good Evening</string>
     <string name="home_safety_message">Stay prepared, stay safe.</string>
     <string name="home_quick_access">Quick Disaster Access</string>
+    <string name="home_quick_first_aid">Quick First Aid Access</string>
     <string name="home_daily_tip">Daily Tip</string>
     <string name="home_tip_of_the_day">Tip of the Day</string>
     <string name="home_see_all">See All</string>
     <string name="home_search_hint">Search disasters, first aid, tips...</string>
+    <string name="home_hazard_map">Hazard Map</string>
 
     <!-- Disaster Module -->
     <string name="disasters_title">Disaster Information</string>
@@ -275,6 +278,7 @@
     <!-- Disasters tab labels -->
     <string name="disasters_tab_recommended">Recommended</string>
     <string name="disasters_tab_all">All Disasters</string>
+    <string name="disasters_filter_description">Disaster filter: %1$s. Tap to show %2$s.</string>
 
     <string name="cd_emergency_fab">Open Emergency Hotlines</string>
 
@@ -386,4 +390,51 @@ We may update this Privacy Policy from time to time. Continued use of the app af
 10. Contact Us
 If you have any questions about this Privacy Policy, please contact us through the app\'s feedback mechanism.</string>
 
+    <!-- Map -->
+    <string name="nav_map">Map</string>
+    <string name="map_title">Hazard Map</string>
+    <string name="map_desc">A map that displays the prone zones or hazards of an area</string>
+    <string name="map_attribution_short">© Project NOAH · OSM · Protomaps</string>
+    <string name="map_layer_flood_5yr">Flood 5yr</string>
+    <string name="map_layer_flood_25yr">Flood 25yr</string>
+    <string name="map_layer_flood_100yr">Flood 100yr</string>
+    <string name="map_layer_landslide">Landslide</string>
+    <string name="map_layer_debris_flow">Debris Flow</string>
+    <string name="map_layer_ssa1">Storm Surge 1</string>
+    <string name="map_layer_ssa2">Storm Surge 2</string>
+    <string name="map_layer_ssa3">Storm Surge 3</string>
+    <string name="map_layer_ssa4">Storm Surge 4</string>
+    <string name="map_legend_flood">Flood Hazard</string>
+    <string name="map_legend_landslide">Landslide Hazard</string>
+    <string name="map_legend_debris_flow">Debris Flow Hazard</string>
+    <string name="map_legend_storm_surge">Storm Surge Hazard</string>
+    <string name="map_legend_low">Low</string>
+    <string name="map_legend_medium">Medium</string>
+    <string name="map_legend_high">High</string>
+    <string name="map_hazard_source">Source: Project NOAH (UP, PAGASA, NIGS) — ODC-ODbL</string>
+    <string name="map_detail_flood_low">Low flood hazard: 0–0.5 m depth.</string>
+    <string name="map_detail_flood_med">Medium flood hazard: 0.5–1.5 m depth.</string>
+    <string name="map_detail_flood_high">High flood hazard: &gt;1.5 m depth. Evacuate immediately.</string>
+    <string name="map_detail_landslide_low">Low landslide hazard. Monitor conditions.</string>
+    <string name="map_detail_landslide_med">Medium landslide hazard. Build only with slope protection.</string>
+    <string name="map_detail_landslide_high">High landslide hazard. No dwelling zone.</string>
+    <string name="map_detail_debris">Debris flow / alluvial fan area.</string>
+    <string name="map_detail_ssa_low">Low storm surge hazard.</string>
+    <string name="map_detail_ssa_med">Medium storm surge hazard.</string>
+    <string name="map_detail_ssa_high">High storm surge hazard. Evacuate to high ground.</string>
+
+    <!-- Data Sources -->
+    <string name="settings_data_sources">Data Sources</string>
+    <string name="data_sources_title">Data Sources &amp; Attributions</string>
+    <string name="data_sources_intro">RESQ uses the following open datasets. All data is bundled offline.</string>
+    <string name="data_sources_noah_title">Project NOAH Hazard Maps</string>
+    <string name="data_sources_noah_body">Flood, landslide, debris flow, and storm surge hazard maps for Cavite City.\n\nSource: Project NOAH — University of the Philippines, PAGASA, NIGS.\n\nLicense: Open Data Commons Open Database License (ODC-ODbL).</string>
+    <string name="data_sources_osm_title">OpenStreetMap / Protomaps</string>
+    <string name="data_sources_osm_body">Basemap tiles derived from OpenStreetMap data and built with Protomaps.\n\nLicense: Open Database License (ODbL).</string>
+    <string name="data_sources_glyphs_title">Protomaps Glyphs</string>
+    <string name="data_sources_glyphs_body">Font glyphs for map labels: Noto Sans.\n\nLicense: SIL Open Font License 1.1.</string>
+    <string name="data_sources_license_link">View full license</string>
+
+    <string name="disasters_tab_information">Information</string>
+    <string name="filter_all">All</string>
 </resources>

@@ -228,6 +228,58 @@
 
             </LinearLayout>
 
+            <!-- TTS Customization Section -->
+            <LinearLayout
+                android:id="@+id/layout_tts_customization"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="@dimen/spacing_md"
+                android:paddingBottom="@dimen/spacing_md"
+                android:animateLayoutChanges="true"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:text="Speech Rate"
+                    android:textAppearance="@style/TextAppearance.RESQ.BodySmall" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_tts_speed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="0.5"
+                    android:valueTo="2.0"
+                    android:stepSize="0.1" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:text="Speech Pitch"
+                    android:textAppearance="@style/TextAppearance.RESQ.BodySmall" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/slider_tts_pitch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:valueFrom="0.5"
+                    android:valueTo="2.0"
+                    android:stepSize="0.1" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_test_tts"
+                    style="@style/Widget.RESQ.Button.Text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="Test Voice" />
+
+            </LinearLayout>
+
             <View
                 style="@style/Widget.RESQ.Divider"
                 android:layout_marginVertical="@dimen/spacing_lg" />
@@ -329,6 +381,28 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/privacy_title"
+                    android:textAppearance="@style/TextAppearance.RESQ.Body" />
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_md"
+                    android:layout_height="@dimen/icon_size_md"
+                    android:contentDescription="@string/cd_next_button"
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="@color/text_secondary" />
+
+            </LinearLayout>
+
+            <!-- NEW: Data Sources -->
+            <LinearLayout
+                android:id="@+id/setting_data_sources"
+                style="@style/Widget.RESQ.ListItem"
+                android:layout_marginTop="@dimen/spacing_sm">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/settings_data_sources"
                     android:textAppearance="@style/TextAppearance.RESQ.Body" />
 
                 <ImageView
