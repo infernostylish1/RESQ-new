@@ -1,0 +1,128 @@
+{
+  "health": {
+    "x": 0,
+    "y": 0,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "police": {
+    "x": 24,
+    "y": 0,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "fire": {
+    "x": 48,
+    "y": 0,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "civic": {
+    "x": 72,
+    "y": 0,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "education": {
+    "x": 0,
+    "y": 24,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "food": {
+    "x": 24,
+    "y": 24,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "shop": {
+    "x": 48,
+    "y": 24,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "recreation": {
+    "x": 72,
+    "y": 24,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "travel": {
+    "x": 0,
+    "y": 48,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "utility": {
+    "x": 24,
+    "y": 48,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "other": {
+    "x": 48,
+    "y": 48,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "dam": {
+    "x": 0,
+    "y": 72,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "fuel": {
+    "x": 24,
+    "y": 72,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "bus_station": {
+    "x": 48,
+    "y": 72,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "ferry_terminal": {
+    "x": 72,
+    "y": 72,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "taxi": {
+    "x": 0,
+    "y": 96,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "worship": {
+    "x": 24,
+    "y": 96,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  },
+  "fuel_station": {
+    "x": 48,
+    "y": 96,
+    "width": 24,
+    "height": 24,
+    "pixelRatio": 1
+  }
+}

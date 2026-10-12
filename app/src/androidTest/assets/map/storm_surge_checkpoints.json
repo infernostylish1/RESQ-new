@@ -1,0 +1,74 @@
+[
+  {
+    "advisory": 1,
+    "HAZ": 1,
+    "longitude": 120.89850999305446,
+    "latitude": 14.487211169056957
+  },
+  {
+    "advisory": 1,
+    "HAZ": 2,
+    "longitude": 120.88127871549177,
+    "latitude": 14.44609015874505
+  },
+  {
+    "advisory": 1,
+    "HAZ": 3,
+    "longitude": 120.9465756332969,
+    "latitude": 14.464502584784844
+  },
+  {
+    "advisory": 2,
+    "HAZ": 1,
+    "longitude": 120.95996014777134,
+    "latitude": 14.461185167481405
+  },
+  {
+    "advisory": 2,
+    "HAZ": 2,
+    "longitude": 120.91874724055033,
+    "latitude": 14.44537208511684
+  },
+  {
+    "advisory": 2,
+    "HAZ": 3,
+    "longitude": 120.89409825675793,
+    "latitude": 14.447661457626637
+  },
+  {
+    "advisory": 3,
+    "HAZ": 1,
+    "longitude": 120.85726564395576,
+    "latitude": 14.41671691895765
+  },
+  {
+    "advisory": 3,
+    "HAZ": 2,
+    "longitude": 120.95471179611883,
+    "latitude": 14.45707312692388
+  },
+  {
+    "advisory": 3,
+    "HAZ": 3,
+    "longitude": 120.82489196023505,
+    "latitude": 14.384958564500394
+  },
+  {
+    "advisory": 4,
+    "HAZ": 1,
+    "longitude": 120.85776244460476,
+    "latitude": 14.413237709092686
+  },
+  {
+    "advisory": 4,
+    "HAZ": 2,
+    "longitude": 120.91484739412188,
+    "latitude": 14.4359856995818
+  },
+  {
+    "advisory": 4,
+    "HAZ": 3,
+    "longitude": 120.8241367214363,
+    "latitude": 14.381632644000453
+  }
+]

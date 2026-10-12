@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="map_region_name">Cavite</string>
+    <integer name="map_zoom_orientation">1</integer>
+    <dimen name="map_zoom_margin_top">76dp</dimen>
+    <dimen name="map_zoom_margin_end">12dp</dimen>
+    <dimen name="map_zoom_button_margin_top">4dp</dimen>
+    <dimen name="map_zoom_button_margin_start">0dp</dimen>
+    <dimen name="map_hazard_margin_top">12dp</dimen>
+    <dimen name="map_hazard_card_width">272dp</dimen>
+    <dimen name="map_legend_width">164dp</dimen>
+    <dimen name="map_legend_margin_start">12dp</dimen>
+    <dimen name="map_legend_margin_bottom">42dp</dimen>
+    <dimen name="map_scale_margin_bottom">112dp</dimen>
     <string name="map_accessibility_description">Offline map of Cavite province. Pinch to zoom and drag to explore.</string>
-    <string name="map_status_loading">Preparing offline map…</string>
-    <string name="map_status_overview">Offline basemap · Province overview</string>
-    <string name="map_status_detail">Offline basemap · Street detail</string>
-    <string name="map_status_exploring">Offline basemap · Exploring Cavite</string>
-    <string name="map_show_all">Show all of Cavite</string>
+    <string name="map_scale_bar">Map scale</string>
+    <string name="map_show_all">Reset map view</string>
     <string name="map_zoom_in">Zoom in</string>
     <string name="map_zoom_out">Zoom out</string>
     <string name="map_basemap_attribution">© OpenStreetMap contributors · Protomaps</string>
     <string name="map_load_error">The offline map could not be loaded. Please try again.</string>
     <string name="map_retry">Retry</string>
+    <string name="map_hazard_storm_surge">Storm surge</string>
+    <string name="map_hazard_advisories">Advisory layers</string>
+    <string name="map_hazard_opacity">Overlay opacity</string>
 
     <style name="Widget.RESQ.MapControl" parent="Widget.Material3.Button.IconButton.Filled">
         <item name="backgroundTint">#F9FAF7</item>

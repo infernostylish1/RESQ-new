@@ -1,0 +1,6389 @@
+{
+  "version": 8,
+  "name": "android_map_cavite_region",
+  "sources": {
+    "mapsplat": {
+      "type": "vector",
+      "url": "pmtiles://file://{ARCHIVE_DIRECTORY}/layers.pmtiles"
+    },
+    "coastline_water": {
+      "type": "vector",
+      "url": "pmtiles://file://{ARCHIVE_DIRECTORY}/water.pmtiles"
+    },
+    "traffic_areas": {
+      "type": "vector",
+      "url": "pmtiles://file://{ARCHIVE_DIRECTORY}/traffic_areas.pmtiles"
+    },
+    "transport_areas": {
+      "type": "vector",
+      "url": "pmtiles://file://{ARCHIVE_DIRECTORY}/transport_areas.pmtiles"
+    },
+    "fuel_points": {
+      "type": "vector",
+      "url": "pmtiles://file://{ARCHIVE_DIRECTORY}/fuel_points.pmtiles"
+    },
+    "admin_labels": {
+      "type": "vector",
+      "url": "pmtiles://file://{ARCHIVE_DIRECTORY}/admin_labels.pmtiles"
+    },
+    "noah": {
+      "type": "vector",
+      "url": "pmtiles://file://{ARCHIVE_DIRECTORY}/cavite_storm_surge.pmtiles",
+      "maxzoom": 18
+    }
+  },
+  "glyphs": "asset://fonts/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f8f9fa"
+      }
+    },
+    {
+      "id": "bbox_boundary_cav_bbox",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "bbox_boundary_cav_bbox",
+      "paint": {
+        "fill-color": "#ffffff",
+        "fill-opacity": 0.0,
+        "fill-outline-color": "#ffffff"
+      }
+    },
+    {
+      "id": "land",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "land",
+      "paint": {
+        "fill-color": "#f7f5f4",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_1_allotments_farm_farmland_farmyard_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "allotments",
+            "farm",
+            "farmland",
+            "farmyard"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_2_cemetery_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "cemetery",
+            "grave_yard"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#fafbfc",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_3_retail_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "retail"
+      ],
+      "paint": {
+        "fill-color": "#f8f1f1",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_4_industrial_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "industrial"
+      ],
+      "paint": {
+        "fill-color": "#f7f4f8",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_5_commercial_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "commercial"
+      ],
+      "paint": {
+        "fill-color": "#f4f2e9",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_6_conservation_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "conservation"
+      ],
+      "paint": {
+        "fill-color": "#e2eed7",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_7_grass_grassland_village_green_park_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "grass",
+            "grassland",
+            "village_green",
+            "park"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#e7f5dd",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_8_greenhouse_horticulture_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "greenhouse_horticulture"
+      ],
+      "paint": {
+        "fill-color": "#e2eed7",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_9_meadow_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "meadow"
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_10_military_line_0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "military"
+      ],
+      "paint": {
+        "line-color": "rgba(182,139,139,0.2118)",
+        "line-width": 1.134,
+        "line-dasharray": [
+          2,
+          2
+        ]
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_11_orchard_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "orchard"
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_12_vineyard_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "vineyard"
+      ],
+      "paint": {
+        "fill-color": "#e2eed7",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_14_landfill_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "landfill"
+      ],
+      "paint": {
+        "fill-color": "#d8d8b8",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_15_recreation_ground_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "recreation_ground"
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_16_school_education_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "school",
+            "education"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#fce9e0",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_17_wood_forest_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "wood",
+            "forest"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_18_aquaculture_basin_reservoir_pool_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "aquaculture",
+            "basin",
+            "reservoir",
+            "pool"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#b8d9f7",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_19_salt_pond_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "salt_pond"
+      ],
+      "paint": {
+        "fill-color": "#b8d9f7",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_20_harbour_outline_0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "harbour"
+      ],
+      "paint": {
+        "line-color": "rgba(85,85,255,0.3)",
+        "line-width": 0.756,
+        "line-dasharray": [
+          2,
+          2
+        ]
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_21_pitch_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "pitch"
+      ],
+      "paint": {
+        "fill-color": "#b8d7a9",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_21_pitch_line_1",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "pitch"
+      ],
+      "paint": {
+        "line-color": "rgba(255,255,255,0.3)",
+        "line-width": 2.268
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_landuse_a_free_1_qgis_22_farm_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "farm"
+      ],
+      "paint": {
+        "fill-color": "#fbecd7",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_water_a_free_1",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_water_a_free_1",
+      "paint": {
+        "fill-color": "#90d9ed",
+        "fill-opacity": 0.3
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#6e5f46",
+        "line-width": 3.5909999999999997,
+        "line-opacity": 0.2412
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "motorway",
+            "motorway_link",
+            "trunk",
+            "trunk_link"
+          ]
+        ]
+      ],
+      "minzoom": 8.817830189429031
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule0_2",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#ecb753",
+        "line-width": 2.3436,
+        "line-opacity": 0.2824
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "motorway",
+            "motorway_link",
+            "trunk",
+            "trunk_link"
+          ]
+        ]
+      ],
+      "minzoom": 8.817830189429031
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule2_3",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#7d6e55",
+        "line-width": 2.9484,
+        "line-opacity": 0.2235
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "primary",
+            "primary_link"
+          ]
+        ]
+      ],
+      "minzoom": 9.595437768092584
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule2_4",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f5cb78",
+        "line-width": 1.89,
+        "line-opacity": 0.2706
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "primary",
+            "primary_link"
+          ]
+        ]
+      ],
+      "minzoom": 9.595437768092584
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule4_5",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#918773",
+        "line-width": 2.4192,
+        "line-opacity": 0.2059
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "secondary",
+            "secondary_link"
+          ]
+        ]
+      ],
+      "minzoom": 10.265289166400253
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule4_6",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f0dcaf",
+        "line-width": 1.512,
+        "line-opacity": 0.2588
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "secondary",
+            "secondary_link"
+          ]
+        ]
+      ],
+      "minzoom": 10.265289166400253
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule6_7",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#a09b91",
+        "line-width": 1.89,
+        "line-opacity": 0.1824
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "tertiary",
+            "tertiary_link"
+          ]
+        ]
+      ],
+      "minzoom": 11.402792690150187
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule6_8",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f6edd6",
+        "line-width": 1.134,
+        "line-opacity": 0.2471
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "tertiary",
+            "tertiary_link"
+          ]
+        ]
+      ],
+      "minzoom": 11.402792690150187
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule8_9",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#a5a5a5",
+        "line-width": 1.2852000000000001,
+        "line-opacity": 0.1471
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "residential",
+            "unclassified",
+            "busway"
+          ]
+        ]
+      ],
+      "minzoom": 12.917365862979945
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule8_10",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f7f7f7",
+        "line-width": 0.756,
+        "line-opacity": 0.2529
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "residential",
+            "unclassified",
+            "busway"
+          ]
+        ]
+      ],
+      "minzoom": 12.917365862979945
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule10_11",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#b4b4b4",
+        "line-width": 1.0206,
+        "line-opacity": 0.1294
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "service",
+            "living_street",
+            "pedestrian"
+          ]
+        ]
+      ],
+      "minzoom": 14.139758284316393
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule10_12",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f2f2f2",
+        "line-width": 0.567,
+        "line-opacity": 0.2235
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "service",
+            "living_street",
+            "pedestrian"
+          ]
+        ]
+      ],
+      "minzoom": 14.139758284316393
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule12_13",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#919191",
+        "line-width": 0.756,
+        "line-opacity": 0.1706,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "footway",
+            "cycleway"
+          ]
+        ]
+      ],
+      "minzoom": 15.046648879924913
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule13_14",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#9b917d",
+        "line-width": 0.6803999999999999,
+        "line-opacity": 0.1588,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "path",
+            "track",
+            "track_grade1",
+            "track_grade2",
+            "track_grade3",
+            "track_grade4",
+            "track_grade5"
+          ]
+        ]
+      ],
+      "minzoom": 15.72472078503755
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule14_15",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#878787",
+        "line-width": 0.6426000000000001,
+        "line-opacity": 0.1529,
+        "line-dasharray": [
+          1,
+          2
+        ]
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "steps"
+      ],
+      "minzoom": 16.461686379203755
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule15_16",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#5a4637",
+        "line-width": 0.6426000000000001,
+        "line-opacity": 0.2647,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "motorway",
+              "motorway_link",
+              "trunk",
+              "trunk_link",
+              "primary",
+              "primary_link",
+              "secondary",
+              "secondary_link",
+              "tertiary",
+              "tertiary_link"
+            ]
+          ]
+        ],
+        [
+          "==",
+          [
+            "get",
+            "bridge"
+          ],
+          "T"
+        ]
+      ],
+      "minzoom": 11.402792690150187
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule16_17",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#645041",
+        "line-width": 0.567,
+        "line-opacity": 0.2412,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "motorway",
+              "motorway_link",
+              "trunk",
+              "trunk_link",
+              "primary",
+              "primary_link",
+              "secondary",
+              "secondary_link",
+              "tertiary",
+              "tertiary_link"
+            ]
+          ]
+        ],
+        [
+          "==",
+          [
+            "get",
+            "bridge"
+          ],
+          "T"
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "get",
+              "fclass"
+            ],
+            [
+              "literal",
+              [
+                "motorway",
+                "motorway_link",
+                "trunk",
+                "trunk_link",
+                "primary",
+                "primary_link",
+                "secondary",
+                "secondary_link",
+                "tertiary",
+                "tertiary_link"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "minzoom": 13.402792690150187
+    },
+    {
+      "id": "diff_bbox_gis_osm_roads_free_1_rule17_18",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#5a5a5a",
+        "line-width": 0.6048,
+        "line-opacity": 0.2235,
+        "line-dasharray": [
+          1,
+          2
+        ]
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "tunnel"
+        ],
+        "T"
+      ],
+      "minzoom": 13.402792690150187
+    },
+    {
+      "id": "diff_bbox_gis_osm_buildings_a_free_1_rule0",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 0.3,
+        "fill-outline-color": "rgba(224,217,206,0.3)"
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_buildings_a_free_1_rule1_2",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 0.3,
+        "fill-outline-color": "rgba(224,217,206,0.3)"
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_buildings_a_free_1_rule2_3",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 0.3,
+        "fill-outline-color": "rgba(224,217,206,0.3)"
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_buildings_a_free_1_rule3_4",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 0.3,
+        "fill-outline-color": "rgba(224,217,206,0.3)"
+      }
+    },
+    {
+      "id": "diff_bbox_gis_osm_buildings_a_free_1_rule4_5",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 0.3,
+        "fill-outline-color": "rgba(224,217,206,0.3)"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_1_allotments_farm_farmland_farmyard_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "allotments",
+            "farm",
+            "farmland",
+            "farmyard"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_2_cemetery_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "cemetery",
+            "grave_yard"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#fafbfc",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_3_retail_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "retail"
+      ],
+      "paint": {
+        "fill-color": "#f8f1f1",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_4_industrial_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "industrial"
+      ],
+      "paint": {
+        "fill-color": "#f7f4f8",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_5_commercial_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "commercial"
+      ],
+      "paint": {
+        "fill-color": "#f4f2e9",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_6_conservation_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "conservation"
+      ],
+      "paint": {
+        "fill-color": "#e2eed7",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_7_grass_grassland_village_green_park_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "grass",
+            "grassland",
+            "village_green",
+            "park"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#e7f5dd",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_8_greenhouse_horticulture_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "greenhouse_horticulture"
+      ],
+      "paint": {
+        "fill-color": "#e2eed7",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_9_meadow_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "meadow"
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_10_military_line_0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "military"
+      ],
+      "paint": {
+        "line-color": "rgba(182,139,139,0.7059)",
+        "line-width": 1.134,
+        "line-dasharray": [
+          2,
+          2
+        ]
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_11_orchard_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "orchard"
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_12_vineyard_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "vineyard"
+      ],
+      "paint": {
+        "fill-color": "#e2eed7",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_14_landfill_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "landfill"
+      ],
+      "paint": {
+        "fill-color": "#d8d8b8",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_15_recreation_ground_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "recreation_ground"
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_16_school_education_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "school",
+            "education"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#fce9e0",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_17_wood_forest_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "wood",
+            "forest"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#d2e8c5",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_18_aquaculture_basin_reservoir_pool_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "aquaculture",
+            "basin",
+            "reservoir",
+            "pool"
+          ]
+        ]
+      ],
+      "paint": {
+        "fill-color": "#b8d9f7",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_19_salt_pond_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "salt_pond"
+      ],
+      "paint": {
+        "fill-color": "#b8d9f7",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_20_harbour_outline_0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "harbour"
+      ],
+      "paint": {
+        "line-color": "rgba(85,85,255,1.0)",
+        "line-width": 0.756,
+        "line-dasharray": [
+          2,
+          2
+        ]
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_21_pitch_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "pitch"
+      ],
+      "paint": {
+        "fill-color": "#b8d7a9",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_21_pitch_line_1",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "pitch"
+      ],
+      "paint": {
+        "line-color": "rgba(255,255,255,1.0)",
+        "line-width": 2.268
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_landuse_a_free_1_qgis_22_farm_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_landuse_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "farm"
+      ],
+      "paint": {
+        "fill-color": "#fbecd7",
+        "fill-opacity": 1.0
+      }
+    },
+    {
+      "id": "clipped_gis_osm_water_a_free_1",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_water_a_free_1",
+      "paint": {
+        "fill-color": "#90d9ed",
+        "fill-opacity": 1.0,
+        "fill-antialias": true
+      },
+      "minzoom": 0
+    },
+    {
+      "id": "water_water_polygons",
+      "type": "fill",
+      "source": "coastline_water",
+      "source-layer": "water_water_polygons",
+      "paint": {
+        "fill-color": "#90d9ed",
+        "fill-opacity": 1.0,
+        "fill-antialias": true
+      },
+      "minzoom": 0
+    },
+    {
+      "id": "diff_bbox_gis_osm_waterways_free_1_rule0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 2.646,
+        "line-opacity": 0.3
+      },
+      "minzoom": 8.817830189429031,
+      "maxzoom": 11.402792690150187,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "river"
+        ],
+        [
+          "all",
+          [
+            "has",
+            "name"
+          ],
+          [
+            "!=",
+            [
+              "get",
+              "name"
+            ],
+            ""
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "diff_bbox_gis_osm_waterways_free_1_rule1_2",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 2.457,
+        "line-opacity": 0.3
+      },
+      "minzoom": 11.402792690150187,
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "river"
+      ]
+    },
+    {
+      "id": "diff_bbox_gis_osm_waterways_free_1_rule2_3",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 1.5876,
+        "line-opacity": 0.3
+      },
+      "minzoom": 12.402792690150187,
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "stream"
+      ]
+    },
+    {
+      "id": "diff_bbox_gis_osm_waterways_free_1_rule3_4",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 1.512,
+        "line-opacity": 0.3,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "minzoom": 13.402792690150187,
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "canal"
+      ]
+    },
+    {
+      "id": "diff_bbox_gis_osm_waterways_free_1_rule4_5",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "diff_bbox_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 1.134,
+        "line-opacity": 0.3,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "minzoom": 14.461686379203757,
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "drain"
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_rule0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 2.646,
+        "line-opacity": 1.0
+      },
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "river"
+        ],
+        [
+          "all",
+          [
+            "has",
+            "name"
+          ],
+          [
+            "!=",
+            [
+              "get",
+              "name"
+            ],
+            ""
+          ]
+        ]
+      ],
+      "minzoom": 8.817830189429031,
+      "maxzoom": 11.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_rule1_2",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 2.457,
+        "line-opacity": 1.0
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "river"
+      ],
+      "minzoom": 11.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_rule2_3",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 1.5876,
+        "line-opacity": 1.0
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "stream"
+      ],
+      "minzoom": 12.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_rule3_4",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 1.512,
+        "line-opacity": 1.0,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "canal"
+      ],
+      "minzoom": 13.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_rule4_5",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "paint": {
+        "line-color": "#90d9ed",
+        "line-width": 1.134,
+        "line-opacity": 1.0,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "drain"
+      ],
+      "minzoom": 14.461686379203757
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_labels_river",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": 8.3,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 207
+      },
+      "paint": {
+        "text-color": "#285f82",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 11.139758284316393,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "river"
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_labels_stream",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": 8.3,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 207
+      },
+      "paint": {
+        "text-color": "#285f82",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 12.917365862979945,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "stream"
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_waterways_free_1_labels_drain",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_waterways_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": 8.3,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 207
+      },
+      "paint": {
+        "text-color": "#285f82",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 14.72472078503755,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "drain"
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_buildings_a_free_1_rule0",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 1.0,
+        "fill-outline-color": "#e0d9ce"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_buildings_a_free_1_rule1_2",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 1.0,
+        "fill-outline-color": "#e0d9ce"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_buildings_a_free_1_rule2_3",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 1.0,
+        "fill-outline-color": "#e0d9ce"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_buildings_a_free_1_rule3_4",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 1.0,
+        "fill-outline-color": "#e0d9ce"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_buildings_a_free_1_rule4_5",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_buildings_a_free_1",
+      "minzoom": 16,
+      "paint": {
+        "fill-color": "#e6ded3",
+        "fill-opacity": 1.0,
+        "fill-outline-color": "#e0d9ce"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_0_city_municipal_other_government_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "town_hall",
+              "public_building",
+              "courthouse"
+            ]
+          ]
+        ],
+        [
+          "!",
+          [
+            "any",
+            [
+              "!=",
+              [
+                "index-of",
+                "barangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "brgy",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "pambarangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ]
+          ]
+        ]
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "fill-color": "#884ea0",
+        "fill-opacity": 0.1765
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_0_city_municipal_other_government_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "town_hall",
+              "public_building",
+              "courthouse"
+            ]
+          ]
+        ],
+        [
+          "!",
+          [
+            "any",
+            [
+              "!=",
+              [
+                "index-of",
+                "barangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "brgy",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "pambarangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ]
+          ]
+        ]
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "line-color": "rgba(84,39,103,0.3)",
+        "line-width": 2.457
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_1_fire_station_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "fire_station"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "fill-color": "#e60000",
+        "fill-opacity": 0.2118
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_1_fire_station_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "fire_station"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "line-color": "rgba(128,0,0,0.3)",
+        "line-width": 3.213
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_2_police_station_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "police"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "fill-color": "#194ba0",
+        "fill-opacity": 0.2059
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_2_police_station_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "police"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "line-color": "rgba(10,35,95,0.3)",
+        "line-width": 3.024
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_3_hospital_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "hospital"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "fill-color": "#dc2d55",
+        "fill-opacity": 0.2
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_3_hospital_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "hospital"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "line-color": "rgba(140,20,55,0.3)",
+        "line-width": 3.024
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_4_shelter_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "shelter"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "fill-color": "#ffd700",
+        "fill-opacity": 0.2118
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_4_shelter_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "shelter"
+      ],
+      "minzoom": 12.49,
+      "paint": {
+        "line-color": "rgba(160,120,0,0.3)",
+        "line-width": 3.024
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_5_college_university_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "college",
+            "university"
+          ]
+        ]
+      ],
+      "minzoom": 13.49,
+      "paint": {
+        "fill-color": "#2d7dd2",
+        "fill-opacity": 0.1706
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_5_college_university_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "college",
+            "university"
+          ]
+        ]
+      ],
+      "minzoom": 13.49,
+      "paint": {
+        "line-color": "rgba(20,70,135,0.3)",
+        "line-width": 2.457
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_7_wastewater_facility_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "wastewater_plant"
+      ],
+      "minzoom": 13.49,
+      "paint": {
+        "fill-color": "#6e8c41",
+        "fill-opacity": 0.1706
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_7_wastewater_facility_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "wastewater_plant"
+      ],
+      "minzoom": 13.49,
+      "paint": {
+        "line-color": "rgba(60,85,30,0.3)",
+        "line-width": 2.457
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_9_barangay_hall_barangay_government_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "town_hall",
+              "public_building",
+              "community_centre"
+            ]
+          ]
+        ],
+        [
+          "any",
+          [
+            "!=",
+            [
+              "index-of",
+              "barangay",
+              [
+                "downcase",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "name"
+                  ]
+                ]
+              ]
+            ],
+            -1
+          ],
+          [
+            "!=",
+            [
+              "index-of",
+              "brgy",
+              [
+                "downcase",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "name"
+                  ]
+                ]
+              ]
+            ],
+            -1
+          ],
+          [
+            "!=",
+            [
+              "index-of",
+              "pambarangay",
+              [
+                "downcase",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "name"
+                  ]
+                ]
+              ]
+            ],
+            -1
+          ]
+        ]
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "fill-color": "#ffaa00",
+        "fill-opacity": 0.1941
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_9_barangay_hall_barangay_government_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "town_hall",
+              "public_building",
+              "community_centre"
+            ]
+          ]
+        ],
+        [
+          "any",
+          [
+            "!=",
+            [
+              "index-of",
+              "barangay",
+              [
+                "downcase",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "name"
+                  ]
+                ]
+              ]
+            ],
+            -1
+          ],
+          [
+            "!=",
+            [
+              "index-of",
+              "brgy",
+              [
+                "downcase",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "name"
+                  ]
+                ]
+              ]
+            ],
+            -1
+          ],
+          [
+            "!=",
+            [
+              "index-of",
+              "pambarangay",
+              [
+                "downcase",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "name"
+                  ]
+                ]
+              ]
+            ],
+            -1
+          ]
+        ]
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "line-color": "rgba(153,92,0,0.3)",
+        "line-width": 2.646
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_10_clinic_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "clinic"
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "fill-color": "#e85873",
+        "fill-opacity": 0.1706
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_10_clinic_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "clinic"
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "line-color": "rgba(145,40,65,0.3)",
+        "line-width": 2.457
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_11_potential_evacuation_assembly_facility_v_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "community_centre",
+              "sports_hall",
+              "sports_centre",
+              "stadium"
+            ]
+          ]
+        ],
+        [
+          "!",
+          [
+            "any",
+            [
+              "!=",
+              [
+                "index-of",
+                "barangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "brgy",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "pambarangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ]
+          ]
+        ]
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "fill-color": "#ffcd5a",
+        "fill-opacity": 0.1588
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_11_potential_evacuation_assembly_facility_v_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "community_centre",
+              "sports_hall",
+              "sports_centre",
+              "stadium"
+            ]
+          ]
+        ],
+        [
+          "!",
+          [
+            "any",
+            [
+              "!=",
+              [
+                "index-of",
+                "barangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "brgy",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ],
+            [
+              "!=",
+              [
+                "index-of",
+                "pambarangay",
+                [
+                  "downcase",
+                  [
+                    "to-string",
+                    [
+                      "get",
+                      "name"
+                    ]
+                  ]
+                ]
+              ],
+              -1
+            ]
+          ]
+        ]
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "line-color": "rgba(190,125,20,0.3)",
+        "line-width": 2.268
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_12_relief_supply_market_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "marketplace",
+            "supermarket"
+          ]
+        ]
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "fill-color": "#b47d37",
+        "fill-opacity": 0.1588
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_12_relief_supply_market_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "marketplace",
+            "supermarket"
+          ]
+        ]
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "line-color": "rgba(105,70,25,0.3)",
+        "line-width": 2.079
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_13_post_office_logistics_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "post_office"
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "fill-color": "#785faf",
+        "fill-opacity": 0.1647
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_13_post_office_logistics_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "post_office"
+      ],
+      "minzoom": 14.49,
+      "paint": {
+        "line-color": "rgba(65,45,110,0.3)",
+        "line-width": 2.268
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_14_school_kindergarten_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "school",
+            "kindergarten"
+          ]
+        ]
+      ],
+      "minzoom": 15.22,
+      "paint": {
+        "fill-color": "#2d7dd2",
+        "fill-opacity": 0.1588
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_14_school_kindergarten_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "school",
+            "kindergarten"
+          ]
+        ]
+      ],
+      "minzoom": 15.22,
+      "paint": {
+        "line-color": "rgba(20,70,135,0.3)",
+        "line-width": 2.079
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_15_doctor_dentist_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "doctors",
+            "dentist"
+          ]
+        ]
+      ],
+      "minzoom": 15.22,
+      "paint": {
+        "fill-color": "#eb6e87",
+        "fill-opacity": 0.1471
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_15_doctor_dentist_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "doctors",
+            "dentist"
+          ]
+        ]
+      ],
+      "minzoom": 15.22,
+      "paint": {
+        "line-color": "rgba(150,55,75,0.3)",
+        "line-width": 2.079
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_17_pharmacy_chemist_fill",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "pharmacy",
+            "chemist"
+          ]
+        ]
+      ],
+      "minzoom": 16.13,
+      "paint": {
+        "fill-color": "#eb7d96",
+        "fill-opacity": 0.1471
+      }
+    },
+    {
+      "id": "clipped_gis_osm_pois_a_free_1_qgis_17_pharmacy_chemist_outline",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pois_a_free_1",
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "pharmacy",
+            "chemist"
+          ]
+        ]
+      ],
+      "minzoom": 16.13,
+      "paint": {
+        "line-color": "rgba(150,60,85,0.3)",
+        "line-width": 1.89
+      },
+      "layout": {
+        "line-join": "round"
+      }
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule0",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#6e5f46",
+        "line-width": 3.5909999999999997,
+        "line-opacity": 0.8039215803146362
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "motorway",
+            "motorway_link",
+            "trunk",
+            "trunk_link"
+          ]
+        ]
+      ],
+      "minzoom": 8.817830189429031
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule0_2",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#ecb753",
+        "line-width": 2.3436,
+        "line-opacity": 0.9411764740943909
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "motorway",
+            "motorway_link",
+            "trunk",
+            "trunk_link"
+          ]
+        ]
+      ],
+      "minzoom": 8.817830189429031
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule2_3",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#7d6e55",
+        "line-width": 2.9484,
+        "line-opacity": 0.7450980544090271
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "primary",
+            "primary_link"
+          ]
+        ]
+      ],
+      "minzoom": 9.595437768092584
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule2_4",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f5cb78",
+        "line-width": 1.89,
+        "line-opacity": 0.9019607901573181
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "primary",
+            "primary_link"
+          ]
+        ]
+      ],
+      "minzoom": 9.595437768092584
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule4_5",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#918773",
+        "line-width": 2.4192,
+        "line-opacity": 0.686274528503418
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "secondary",
+            "secondary_link"
+          ]
+        ]
+      ],
+      "minzoom": 10.265289166400253
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule4_6",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f0dcaf",
+        "line-width": 1.512,
+        "line-opacity": 0.8627451062202454
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "secondary",
+            "secondary_link"
+          ]
+        ]
+      ],
+      "minzoom": 10.265289166400253
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule6_7",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#a09b91",
+        "line-width": 1.89,
+        "line-opacity": 0.6078431606292725
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "tertiary",
+            "tertiary_link"
+          ]
+        ]
+      ],
+      "minzoom": 11.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule6_8",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f6edd6",
+        "line-width": 1.134,
+        "line-opacity": 0.8235294222831726
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "tertiary",
+            "tertiary_link"
+          ]
+        ]
+      ],
+      "minzoom": 11.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule8_9",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#a5a5a5",
+        "line-width": 1.2852000000000001,
+        "line-opacity": 0.4901960790157318
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "residential",
+            "unclassified",
+            "busway"
+          ]
+        ]
+      ],
+      "minzoom": 12.917365862979945
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule8_10",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f7f7f7",
+        "line-width": 0.756,
+        "line-opacity": 0.843137264251709
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "residential",
+            "unclassified",
+            "busway"
+          ]
+        ]
+      ],
+      "minzoom": 12.917365862979945
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule10_11",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#b4b4b4",
+        "line-width": 1.0206,
+        "line-opacity": 0.4313725531101227
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "service",
+            "living_street",
+            "pedestrian"
+          ]
+        ]
+      ],
+      "minzoom": 14.139758284316393
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule10_12",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#f2f2f2",
+        "line-width": 0.567,
+        "line-opacity": 0.7450980544090271
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "service",
+            "living_street",
+            "pedestrian"
+          ]
+        ]
+      ],
+      "minzoom": 14.139758284316393
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule12_13",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#919191",
+        "line-width": 0.756,
+        "line-opacity": 0.5686274766921997,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "footway",
+            "cycleway"
+          ]
+        ]
+      ],
+      "minzoom": 15.046648879924913
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule13_14",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#9b917d",
+        "line-width": 0.6803999999999999,
+        "line-opacity": 0.529411792755127,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "in",
+        [
+          "get",
+          "fclass"
+        ],
+        [
+          "literal",
+          [
+            "path",
+            "track",
+            "track_grade1",
+            "track_grade2",
+            "track_grade3",
+            "track_grade4",
+            "track_grade5"
+          ]
+        ]
+      ],
+      "minzoom": 15.72472078503755
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule14_15",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#878787",
+        "line-width": 0.6426000000000001,
+        "line-opacity": 0.5098039507865906,
+        "line-dasharray": [
+          1,
+          2
+        ]
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "fclass"
+        ],
+        "steps"
+      ],
+      "minzoom": 16.461686379203755
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule15_16",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#5a4637",
+        "line-width": 0.6426000000000001,
+        "line-opacity": 0.8823529481887817,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "motorway",
+              "motorway_link",
+              "trunk",
+              "trunk_link",
+              "primary",
+              "primary_link",
+              "secondary",
+              "secondary_link",
+              "tertiary",
+              "tertiary_link"
+            ]
+          ]
+        ],
+        [
+          "==",
+          [
+            "get",
+            "bridge"
+          ],
+          "T"
+        ]
+      ],
+      "minzoom": 11.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule16_17",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#645041",
+        "line-width": 0.567,
+        "line-opacity": 0.8039215803146362,
+        "line-dasharray": [
+          4,
+          2
+        ]
+      },
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "motorway",
+              "motorway_link",
+              "trunk",
+              "trunk_link",
+              "primary",
+              "primary_link",
+              "secondary",
+              "secondary_link",
+              "tertiary",
+              "tertiary_link"
+            ]
+          ]
+        ],
+        [
+          "==",
+          [
+            "get",
+            "bridge"
+          ],
+          "T"
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "get",
+              "fclass"
+            ],
+            [
+              "literal",
+              [
+                "motorway",
+                "motorway_link",
+                "trunk",
+                "trunk_link",
+                "primary",
+                "primary_link",
+                "secondary",
+                "secondary_link",
+                "tertiary",
+                "tertiary_link"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "minzoom": 13.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_rule17_18",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "paint": {
+        "line-color": "#5a5a5a",
+        "line-width": 0.6048,
+        "line-opacity": 0.7450980544090271,
+        "line-dasharray": [
+          1,
+          2
+        ]
+      },
+      "filter": [
+        "==",
+        [
+          "get",
+          "tunnel"
+        ],
+        "T"
+      ],
+      "minzoom": 13.402792690150187
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_labels_motorway_trunk",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "case",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "ref"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.2,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 245
+      },
+      "paint": {
+        "text-color": "#4b463c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 9.595437768092584,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "motorway",
+              "trunk"
+            ]
+          ]
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "all",
+            [
+              "has",
+              "ref"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "ref"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_labels_primary",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "case",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "ref"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.2,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 245
+      },
+      "paint": {
+        "text-color": "#4b463c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 9.595437768092584,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "primary"
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "all",
+            [
+              "has",
+              "ref"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "ref"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_labels_secondary",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "case",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "ref"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.2,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 245
+      },
+      "paint": {
+        "text-color": "#4b463c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 10.265289166400253,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "secondary"
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "all",
+            [
+              "has",
+              "ref"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "ref"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_labels_tertiary",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "case",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "ref"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.2,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 245
+      },
+      "paint": {
+        "text-color": "#4b463c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 12.139758284316393,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "tertiary"
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "all",
+            [
+              "has",
+              "ref"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "ref"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_labels_residential_unclassified",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "case",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "ref"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.2,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 245
+      },
+      "paint": {
+        "text-color": "#4b463c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 14.139758284316393,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "residential",
+              "unclassified"
+            ]
+          ]
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "all",
+            [
+              "has",
+              "ref"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "ref"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "clipped_gis_osm_roads_free_1_labels_service_living_street_pedestrian",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_roads_free_1",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "case",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "get",
+            "name"
+          ],
+          [
+            "get",
+            "ref"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.2,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "left",
+        "symbol-placement": "line",
+        "text-rotation-alignment": "map",
+        "symbol-spacing": 245
+      },
+      "paint": {
+        "text-color": "#4b463c",
+        "text-halo-color": "#ffffff",
+        "text-halo-width": 1.4364
+      },
+      "minzoom": 15.239293957867309,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "service",
+              "living_street",
+              "pedestrian"
+            ]
+          ]
+        ],
+        [
+          "any",
+          [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          [
+            "all",
+            [
+              "has",
+              "ref"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "ref"
+              ],
+              ""
+            ]
+          ]
+        ]
+      ]
+    },
+    {
+      "id": "progressive_named_pois_poi_local_services_rule0",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_local_services",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "health"
+      ],
+      "minzoom": 16.0,
+      "layout": {
+        "icon-image": "health",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_local_services_rule1_2",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_local_services",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "civic"
+      ],
+      "minzoom": 16.0,
+      "layout": {
+        "icon-image": "civic",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_local_services_rule2_3",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_local_services",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "education"
+      ],
+      "minzoom": 16.0,
+      "layout": {
+        "icon-image": "education",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_local_services_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_local_services",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      },
+      "minzoom": 16.0
+    },
+    {
+      "id": "progressive_named_pois_poi_emergency_rule0",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_emergency",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "health"
+      ],
+      "minzoom": 14.0,
+      "layout": {
+        "icon-image": "health",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_emergency_rule1_2",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_emergency",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "police"
+      ],
+      "minzoom": 14.0,
+      "layout": {
+        "icon-image": "police",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_emergency_rule2_3",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_emergency",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "fire"
+      ],
+      "minzoom": 14.0,
+      "layout": {
+        "icon-image": "fire",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_emergency_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_emergency",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      },
+      "minzoom": 14.0
+    },
+    {
+      "id": "progressive_named_pois_poi_everyday_rule0",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_everyday",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "food"
+      ],
+      "minzoom": 17.0,
+      "layout": {
+        "icon-image": "food",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_everyday_rule1_2",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_everyday",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "shop"
+      ],
+      "minzoom": 17.0,
+      "layout": {
+        "icon-image": "shop",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_everyday_rule2_3",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_everyday",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "recreation"
+      ],
+      "minzoom": 17.0,
+      "layout": {
+        "icon-image": "recreation",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_everyday_rule3_4",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_everyday",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "travel"
+      ],
+      "minzoom": 17.0,
+      "layout": {
+        "icon-image": "travel",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_everyday_rule4_5",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_everyday",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "utility"
+      ],
+      "minzoom": 17.0,
+      "layout": {
+        "icon-image": "utility",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_everyday_rule5_6",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_everyday",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "other"
+      ],
+      "minzoom": 17.0,
+      "layout": {
+        "icon-image": "other",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_everyday_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_everyday",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      },
+      "minzoom": 17.0
+    },
+    {
+      "id": "progressive_named_pois_poi_public_services_rule0",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_public_services",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "health"
+      ],
+      "minzoom": 15.0,
+      "layout": {
+        "icon-image": "health",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_public_services_rule1_2",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_public_services",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "civic"
+      ],
+      "minzoom": 15.0,
+      "layout": {
+        "icon-image": "civic",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_public_services_rule2_3",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_public_services",
+      "filter": [
+        "==",
+        [
+          "get",
+          "marker_group"
+        ],
+        "education"
+      ],
+      "minzoom": 15.0,
+      "layout": {
+        "icon-image": "education",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "progressive_named_pois_poi_public_services_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "progressive_named_pois_poi_public_services",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      },
+      "minzoom": 15.0
+    },
+    {
+      "id": "traffic_context_polygons_transparent",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_traffic_a_free_1",
+      "minzoom": 0,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "dam",
+              "fuel"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "paint": {
+        "fill-color": "#000000",
+        "fill-opacity": 0.0,
+        "fill-outline-color": "rgba(0,0,0,0)"
+      }
+    },
+    {
+      "id": "transport_context_polygons_transparent",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_transport_a_free_1",
+      "minzoom": 0,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "bus_station",
+              "ferry_terminal",
+              "taxi"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "paint": {
+        "fill-color": "#000000",
+        "fill-opacity": 0.0,
+        "fill-outline-color": "rgba(0,0,0,0)"
+      }
+    },
+    {
+      "id": "pofw_context_polygons_transparent",
+      "type": "fill",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pofw_a_free_1",
+      "minzoom": 0,
+      "filter": [
+        "all"
+      ],
+      "paint": {
+        "fill-color": "#000000",
+        "fill-opacity": 0.0,
+        "fill-outline-color": "rgba(0,0,0,0)"
+      }
+    },
+    {
+      "id": "context_dam_marker",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_traffic_free_1",
+      "minzoom": 14,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "dam"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "osm_id"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2453625291"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "dam",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": false,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "context_dam_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_traffic_free_1",
+      "minzoom": 14,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "dam"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "osm_id"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2453625291"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      }
+    },
+    {
+      "id": "context_ferry_terminal_marker",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_transport_free_1",
+      "minzoom": 14,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "ferry_terminal"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "layout": {
+        "icon-image": "ferry_terminal",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": false,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "context_ferry_terminal_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_transport_free_1",
+      "minzoom": 14,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "ferry_terminal"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      }
+    },
+    {
+      "id": "context_bus_station_marker",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_transport_free_1",
+      "minzoom": 15,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "bus_station"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "layout": {
+        "icon-image": "bus_station",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": false,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "context_bus_station_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_transport_free_1",
+      "minzoom": 15,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "bus_station"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      }
+    },
+    {
+      "id": "context_fuel_labels",
+      "type": "symbol",
+      "source": "fuel_points",
+      "source-layer": "fuel_points",
+      "minzoom": 17.0,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "fuel"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "osm_id"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "2580522888"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ],
+        "icon-image": "fuel_station",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      },
+      "metadata": {
+        "mapsplat:label": "Fuel stations"
+      }
+    },
+    {
+      "id": "context_taxi_marker",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_transport_free_1",
+      "minzoom": 16,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "taxi"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "osm_id"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "13594271208"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "taxi",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": false,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "context_taxi_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_transport_free_1",
+      "minzoom": 16,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "taxi"
+            ]
+          ]
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "osm_id"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "13594271208"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      }
+    },
+    {
+      "id": "context_worship_marker",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pofw_free_1",
+      "minzoom": 17,
+      "filter": [
+        "all",
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "osm_id"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "1178841564",
+                "13718885153"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "icon-image": "worship",
+        "icon-size": 0.67,
+        "icon-anchor": "center",
+        "icon-allow-overlap": false,
+        "icon-ignore-placement": false,
+        "icon-optional": false
+      }
+    },
+    {
+      "id": "context_worship_labels",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "clipped_gis_osm_pofw_free_1",
+      "minzoom": 17,
+      "filter": [
+        "all",
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!",
+          [
+            "in",
+            [
+              "to-string",
+              [
+                "get",
+                "osm_id"
+              ]
+            ],
+            [
+              "literal",
+              [
+                "1178841564",
+                "13718885153"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "to-string",
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 9.31,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-max-width": 9.0,
+        "text-justify": "center",
+        "text-anchor": "top",
+        "text-offset": [
+          0,
+          1.25
+        ]
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.72)",
+        "text-halo-width": 0.65
+      }
+    },
+    {
+      "id": "landuse_label_anchors",
+      "type": "circle",
+      "source": "mapsplat",
+      "source-layer": "landuse_label_anchors",
+      "paint": {
+        "circle-color": "#000000",
+        "circle-opacity": 0.0,
+        "circle-radius": 3.0,
+        "circle-stroke-color": "#000000",
+        "circle-stroke-width": 1.0,
+        "circle-stroke-opacity": 0.0
+      }
+    },
+    {
+      "id": "landuse_label_anchors_labels_qgis_early",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "landuse_label_anchors",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "get",
+          "label_text"
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.0,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "center",
+        "text-anchor": "bottom-right",
+        "text-max-width": 8.0
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.78)",
+        "text-halo-width": 0.75
+      },
+      "minzoom": 15.81,
+      "filter": [
+        "all",
+        [
+          "in",
+          [
+            "get",
+            "fclass"
+          ],
+          [
+            "literal",
+            [
+              "commercial",
+              "industrial",
+              "park",
+              "cemetery"
+            ]
+          ]
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "poi_duplicate"
+          ],
+          1
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "has",
+          "label_text"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "label_text"
+          ],
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "landuse_label_anchors_labels_qgis_residential",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "landuse_label_anchors",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "get",
+          "label_text"
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.0,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "center",
+        "text-anchor": "bottom-right",
+        "text-max-width": 8.0
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.78)",
+        "text-halo-width": 0.75
+      },
+      "minzoom": 16.81,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "residential"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "poi_duplicate"
+          ],
+          1
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "has",
+          "label_text"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "label_text"
+          ],
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "landuse_label_anchors_labels_qgis_other",
+      "type": "symbol",
+      "source": "mapsplat",
+      "source-layer": "landuse_label_anchors",
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "get",
+          "label_text"
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.0,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-optional": true,
+        "text-padding": 2,
+        "text-justify": "center",
+        "text-anchor": "bottom-right",
+        "text-max-width": 8.0
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.78)",
+        "text-halo-width": 0.75
+      },
+      "minzoom": 17.32,
+      "filter": [
+        "all",
+        [
+          "!",
+          [
+            "in",
+            [
+              "get",
+              "fclass"
+            ],
+            [
+              "literal",
+              [
+                "commercial",
+                "industrial",
+                "park",
+                "cemetery",
+                "residential"
+              ]
+            ]
+          ]
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "poi_duplicate"
+          ],
+          1
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "has",
+          "label_text"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "label_text"
+          ],
+          ""
+        ]
+      ]
+    },
+    {
+      "id": "cavite_admin_label_anchors",
+      "type": "circle",
+      "source": "mapsplat",
+      "source-layer": "cavite_admin_label_anchors",
+      "paint": {
+        "circle-color": "#000000",
+        "circle-opacity": 0.0,
+        "circle-radius": 3.0,
+        "circle-stroke-color": "#000000",
+        "circle-stroke-width": 1.0,
+        "circle-stroke-opacity": 0.0
+      }
+    },
+    {
+      "id": "haz-ssa1",
+      "type": "fill",
+      "source": "noah",
+      "source-layer": "storm_surge_ssa1",
+      "minzoom": 8,
+      "maxzoom": 19,
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "fill-color": [
+          "match",
+          [
+            "get",
+            "HAZ"
+          ],
+          1,
+          "#F6D64A",
+          2,
+          "#F28C28",
+          3,
+          "#D64545",
+          "#000000"
+        ],
+        "fill-opacity": 0.58,
+        "fill-outline-color": "rgba(90,55,20,0.4)"
+      }
+    },
+    {
+      "id": "haz-ssa2",
+      "type": "fill",
+      "source": "noah",
+      "source-layer": "storm_surge_ssa2",
+      "minzoom": 8,
+      "maxzoom": 19,
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "fill-color": [
+          "match",
+          [
+            "get",
+            "HAZ"
+          ],
+          1,
+          "#F6D64A",
+          2,
+          "#F28C28",
+          3,
+          "#D64545",
+          "#000000"
+        ],
+        "fill-opacity": 0.58,
+        "fill-outline-color": "rgba(90,55,20,0.4)"
+      }
+    },
+    {
+      "id": "haz-ssa3",
+      "type": "fill",
+      "source": "noah",
+      "source-layer": "storm_surge_ssa3",
+      "minzoom": 8,
+      "maxzoom": 19,
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "fill-color": [
+          "match",
+          [
+            "get",
+            "HAZ"
+          ],
+          1,
+          "#F6D64A",
+          2,
+          "#F28C28",
+          3,
+          "#D64545",
+          "#000000"
+        ],
+        "fill-opacity": 0.58,
+        "fill-outline-color": "rgba(90,55,20,0.4)"
+      }
+    },
+    {
+      "id": "haz-ssa4",
+      "type": "fill",
+      "source": "noah",
+      "source-layer": "storm_surge_ssa4",
+      "minzoom": 8,
+      "maxzoom": 19,
+      "layout": {
+        "visibility": "none"
+      },
+      "paint": {
+        "fill-color": [
+          "match",
+          [
+            "get",
+            "HAZ"
+          ],
+          1,
+          "#F6D64A",
+          2,
+          "#F28C28",
+          3,
+          "#D64545",
+          "#000000"
+        ],
+        "fill-opacity": 0.58,
+        "fill-outline-color": "rgba(90,55,20,0.4)"
+      }
+    },
+    {
+      "id": "cavite_admin_boundary_uniform",
+      "type": "line",
+      "source": "mapsplat",
+      "source-layer": "cavite_admin_boundary",
+      "minzoom": 0,
+      "maxzoom": 15.54,
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "rgba(55,55,55,0.88)",
+        "line-width": 2.46
+      }
+    },
+    {
+      "id": "cavite_admin_label_anchors_uniform",
+      "type": "symbol",
+      "source": "admin_labels",
+      "source-layer": "cavite_admin_label_anchors",
+      "minzoom": 0,
+      "maxzoom": 15.54,
+      "filter": [
+        "in",
+        [
+          "get",
+          "geo_level"
+        ],
+        [
+          "literal",
+          [
+            "City",
+            "Mun",
+            "Island"
+          ]
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "text-field": [
+          "case",
+          [
+            "==",
+            [
+              "get",
+              "adm3_en"
+            ],
+            "City of Cavite"
+          ],
+          "Cavite City",
+          [
+            "==",
+            [
+              "slice",
+              [
+                "get",
+                "adm3_en"
+              ],
+              0,
+              8
+            ],
+            "City of "
+          ],
+          [
+            "slice",
+            [
+              "get",
+              "adm3_en"
+            ],
+            8
+          ],
+          [
+            "get",
+            "adm3_en"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Medium"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          8,
+          11.34,
+          9.31
+        ],
+        "text-allow-overlap": true,
+        "text-ignore-placement": true,
+        "text-optional": false,
+        "text-padding": 1,
+        "text-justify": "center",
+        "text-anchor": "center",
+        "symbol-placement": "point",
+        "text-max-width": 7,
+        "text-offset": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8.5,
+          [
+            "match",
+            [
+              "to-string",
+              [
+                "get",
+                "adm3_psgc"
+              ]
+            ],
+            "402104000",
+            [
+              "literal",
+              [
+                1.5,
+                1.5
+              ]
+            ],
+            "402108000",
+            [
+              "literal",
+              [
+                -0.75,
+                0
+              ]
+            ],
+            "402112000",
+            [
+              "literal",
+              [
+                -2.75,
+                1.5
+              ]
+            ],
+            "402117000",
+            [
+              "literal",
+              [
+                -1,
+                0.5
+              ]
+            ],
+            [
+              "literal",
+              [
+                0,
+                0
+              ]
+            ]
+          ],
+          11.34,
+          [
+            "literal",
+            [
+              0,
+              0
+            ]
+          ]
+        ]
+      },
+      "paint": {
+        "text-color": "#2d2d2d",
+        "text-halo-color": "rgba(255,255,255,0.9)",
+        "text-halo-width": 1.5
+      }
+    },
+    {
+      "id": "area_airport_names",
+      "type": "symbol",
+      "source": "transport_areas",
+      "source-layer": "transport_areas",
+      "minzoom": 15.81,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "airport"
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "symbol-placement": "point",
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.0,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-padding": 2,
+        "text-justify": "center",
+        "text-anchor": "center",
+        "text-max-width": 8.0
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.78)",
+        "text-halo-width": 0.75
+      }
+    },
+    {
+      "id": "area_bus_station_names",
+      "type": "symbol",
+      "source": "transport_areas",
+      "source-layer": "transport_areas",
+      "minzoom": 16.81,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "fclass"
+          ],
+          "bus_station"
+        ],
+        [
+          "has",
+          "name"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ]
+      ],
+      "layout": {
+        "visibility": "visible",
+        "symbol-placement": "point",
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 8.0,
+        "text-allow-overlap": false,
+        "text-ignore-placement": false,
+        "text-padding": 2,
+        "text-justify": "center",
+        "text-anchor": "center",
+        "text-max-width": 8.0
+      },
+      "paint": {
+        "text-color": "#374151",
+        "text-halo-color": "rgba(255,255,255,0.78)",
+        "text-halo-width": 0.75
+      }
+    }
+  ],
+  "metadata": {
+    "mapsplat:legend-groups": [
+      {
+        "name": "Cavite Region",
+        "layers": [
+          "cavite_admin_boundary",
+          "cavite_admin_label_anchors",
+          "landuse_label_anchors",
+          "progressive_named_pois_poi_public_services",
+          "progressive_named_pois_poi_everyday",
+          "progressive_named_pois_poi_emergency",
+          "progressive_named_pois_poi_local_services",
+          "clipped_gis_osm_buildings_a_free_1",
+          "clipped_gis_osm_roads_free_1",
+          "clipped_gis_osm_pois_a_free_1",
+          "water_water_polygons",
+          "clipped_gis_osm_water_a_free_1",
+          "clipped_gis_osm_waterways_free_1",
+          "clipped_gis_osm_landuse_a_free_1"
+        ]
+      },
+      {
+        "name": "BBOX Cleaned Region",
+        "layers": [
+          "diff_bbox_gis_osm_buildings_a_free_1",
+          "diff_bbox_gis_osm_roads_free_1",
+          "diff_bbox_gis_osm_water_a_free_1",
+          "diff_bbox_gis_osm_waterways_free_1",
+          "diff_bbox_gis_osm_landuse_a_free_1"
+        ]
+      },
+      {
+        "name": null,
+        "layers": [
+          "land",
+          "bbox_boundary_cav_bbox"
+        ]
+      }
+    ],
+    "mapsplat:version": "0.43.1",
+    "mapsplat:project": "android_map_cavite_region"
+  },
+  "sprite": "asset://map/poi_sprite"
+}

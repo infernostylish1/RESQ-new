@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.PointF
+import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Build
 import android.os.SystemClock
@@ -68,52 +69,142 @@ class MapScreenTest {
             assertEquals("Archive must have a real PMTiles signature", "PMTiles", String(header, 0, 7, Charsets.US_ASCII))
             assertEquals("MapLibre's offline archive must be PMTiles v3", 3, header[7].toInt())
         }
-        val boundary = metadata.getJSONArray("boundary")
+        val hazardArchives = metadata.getJSONArray("hazards")
+        assertEquals("Storm surge package must contain one compact archive", 1, hazardArchives.length())
+        val hazardArchiveName = hazardArchives.getJSONObject(0).getString("archive")
+        context.assets.open("pmtiles/$hazardArchiveName").use { archive ->
+            val header = ByteArray(8)
+            assertEquals("Storm surge PMTiles header should be available", header.size, archive.read(header))
+            assertEquals("Storm surge archive must be PMTiles v3", 3, header[7].toInt())
+        }
         val coverage = metadata.getJSONArray("coverage").let {
             doubleArrayOf(it.getDouble(0), it.getDouble(1), it.getDouble(2), it.getDouble(3))
         }
         val corners = listOf(
-            LatLng(boundary.getDouble(1), boundary.getDouble(0)),
-            LatLng(boundary.getDouble(1), boundary.getDouble(2)),
-            LatLng(boundary.getDouble(3), boundary.getDouble(0)),
-            LatLng(boundary.getDouble(3), boundary.getDouble(2))
+            LatLng(coverage[1], coverage[0]), LatLng(coverage[1], coverage[2]),
+            LatLng(coverage[3], coverage[0]), LatLng(coverage[3], coverage[2])
         )
-        val style = context.assets.open("map/cavite_style.json")
+        val style = context.assets.open("map/${metadata.getString("style")}")
             .bufferedReader().use { JSONObject(it.readText()) }
         assertTrue("The basemap source should use the offline PMTiles archive",
-            style.getJSONObject("sources").getJSONObject("basemap").getString("url").startsWith("pmtiles://"))
+            style.getJSONObject("sources").getJSONObject("mapsplat").getString("url").startsWith("pmtiles://"))
+        assertEquals("The basemap plus offline hazard source should be present", 7, style.getJSONObject("sources").length())
+        assertTrue("Storm surge source must be offline",
+            style.getJSONObject("sources").getJSONObject("noah").getString("url").startsWith("pmtiles://"))
+        assertEquals("Sprites must be available offline", "asset://map/poi_sprite", style.getString("sprite"))
         val layers = style.getJSONArray("layers")
         val definitions = (0 until layers.length()).map { layers.getJSONObject(it) }
         val roadIds = definitions.filter {
-            it.optString("type") == "line" && it.optString("source-layer") in listOf("roads", "transportation")
+            it.optString("type") == "line" && it.optString("source-layer").contains("osm_roads")
         }.map { it.getString("id") }.toTypedArray()
-        val buildingIds = definitions.filter { it.optString("source-layer") in listOf("building", "buildings") }
+        val buildingIds = definitions.filter { it.optString("source-layer").contains("osm_buildings") }
             .map { it.getString("id") }.toTypedArray()
         val outlineIds = definitions.filter {
-            it.optString("type") == "line" && it.getString("id").contains("cavite", ignoreCase = true)
+            it.getString("id") == "cavite_admin_boundary_uniform"
         }.map { it.getString("id") }.toTypedArray()
         val placeIds = definitions.filter {
-            it.optString("type") == "symbol" &&
-                (it.optString("source-layer") in listOf("places", "place") ||
-                    it.getString("id").contains("context", ignoreCase = true))
+            it.getString("id") == "cavite_admin_label_anchors_uniform"
         }.map { it.getString("id") }.toTypedArray()
+        val hazardIds = definitions.filter { it.getString("id").startsWith("haz-ssa") }
+            .map { it.getString("id") }.toTypedArray()
         assertTrue("Basemap must provide detailed roads", roadIds.isNotEmpty())
         assertTrue("Basemap must provide street-level buildings", buildingIds.isNotEmpty())
         assertTrue("Cavite must have a visible outline", outlineIds.isNotEmpty())
+        assertTrue("Administrative boundaries must be visible in the province overview",
+            definitions.first { it.getString("id") == "cavite_admin_boundary_uniform" }
+                .optDouble("minzoom", 0.0) <= 0.01)
+        val buildingDefinitions = definitions.filter { it.optString("source-layer").contains("osm_buildings") }
+        assertTrue("Buildings must be deferred until near maximum zoom",
+            buildingDefinitions.isNotEmpty() && buildingDefinitions.all { it.optDouble("minzoom", 0.0) >= 16.0 })
         assertTrue("Map must provide readable place labels", placeIds.isNotEmpty())
-        assertTrue("Basemap should leave hazard layers for the subsequent hazard integration",
-            definitions.none { it.getString("id").startsWith("haz-") })
+        assertEquals("All four storm surge advisories must be styled", 4, hazardIds.size)
+        assertTrue("Hazard layers must remain visible through the map maximum zoom",
+            definitions.filter { it.getString("id").startsWith("haz-ssa") }
+                .all { it.optDouble("maxzoom", 24.0) > 18.0 })
+        val hazardMetadata = context.assets.open("map/cavite_storm_surge.json")
+            .bufferedReader().use { JSONObject(it.readText()) }
+        assertTrue("Storm surge archive must contain native maximum-zoom tiles",
+            hazardMetadata.optInt("maxTileZoom", 0) >= 18)
 
         val savedData = launchMap(context)
         requestOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, Configuration.ORIENTATION_PORTRAIT)
         awaitMapReady()
         awaitFullRender("portrait overview")
+        scenario!!.onActivity {
+            definitions.forEach { layer ->
+                assertTrue("Export layer must load in native Android: ${layer.getString("id")}",
+                    map!!.style!!.getLayer(layer.getString("id")) != null)
+            }
+            assertTrue("The original fuel sprite must load", map!!.style!!.getImage("fuel_station") != null)
+        }
         assertOverview(corners)
         assertViewportInsideCoverage(coverage)
-        assertRenderedFeatures("Cavite boundary", outlineIds)
         assertRenderedFeatures("overview place labels", placeIds)
+        assertRenderedFeatures("administrative boundaries at minimum zoom", outlineIds)
+        assertNoRenderedFeatures("buildings at minimum zoom", buildingIds)
+        assertNoRenderedFeatures("storm surge advisories while disabled", hazardIds)
+        var collapsedHazardWidth = 0
+        scenario!!.onActivity { collapsedHazardWidth = it.findViewById<View>(R.id.layer_scroll).width }
+        scenario!!.onActivity { it.findViewById<View>(R.id.chip_hazard_storm_surge).performClick() }
+        awaitUi("storm surge advisory controls") { it.findViewById<View>(R.id.layout_hazard_advisories).isShown }
+        scenario!!.onActivity {
+            assertEquals("Selecting advisories must not resize the hazard panel",
+                collapsedHazardWidth, it.findViewById<View>(R.id.layer_scroll).width)
+        }
+        val advisoryViews = listOf(R.id.chip_ssa1, R.id.chip_ssa2, R.id.chip_ssa3, R.id.chip_ssa4)
+        val advisorySizes = mutableMapOf<Int, Pair<Int, Int>>()
+        scenario!!.onActivity { activity ->
+            advisoryViews.forEach { id ->
+                val chip = activity.findViewById<View>(id)
+                advisorySizes[id] = chip.width to chip.height
+            }
+        }
+        advisoryViews.forEachIndexed { index, viewId ->
+            scenario!!.onActivity { it.findViewById<View>(viewId).performClick() }
+            awaitFullRender("storm surge advisory ${index + 1}")
+            assertRenderedFeatures("storm surge advisory ${index + 1}", arrayOf(hazardIds[index]))
+            scenario!!.onActivity { activity ->
+                val chip = activity.findViewById<View>(viewId)
+                assertEquals("Selecting an advisory must not change its size",
+                    advisorySizes[viewId], chip.width to chip.height)
+            }
+            scenario!!.onActivity { it.findViewById<View>(viewId).performClick() }
+            awaitFullRender("storm surge advisory ${index + 1} disabled")
+        }
+        scenario!!.onActivity {
+            it.findViewById<View>(R.id.chip_ssa1).performClick()
+            map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                LatLng(14.487211169056957, 120.89850999305446), 18.0))
+        }
+        awaitUi("storm surge maximum zoom") { kotlin.math.abs(map!!.cameraPosition.zoom - 18.0) < 0.05 }
+        scenario!!.onActivity {
+            assertTrue("Storm surge layer must stay visible at the map maximum zoom",
+                map!!.style!!.getLayer(hazardIds[0])!!.visibility.toString().contains("visible"))
+        }
+        scenario!!.onActivity {
+            it.findViewById<View>(R.id.chip_ssa1).performClick()
+            it.findViewById<View>(R.id.btn_map_overview).performClick()
+        }
+        awaitFullRender("storm surge controls collapsed")
+        scenario!!.onActivity { it.findViewById<View>(R.id.chip_hazard_storm_surge).performClick() }
+        assertAdminLabels()
+        assertOriginalGeometry("portrait minimum", definitions)
         assertNoSeaLanes()
         captureScreenshot("overview-portrait")
+
+        var openingLongitude = 0.0
+        scenario!!.onActivity { openingLongitude = map!!.cameraPosition.target!!.longitude }
+        panMapWithTouch()
+        SystemClock.sleep(500)
+        scenario!!.onActivity { map!!.cancelTransitions() }
+        awaitFullRender("panned minimum view")
+        assertOverview(corners)
+        assertViewportInsideCoverage(coverage)
+        scenario!!.onActivity {
+            assertTrue("Users must be able to pan to cropped areas at the minimum zoom",
+                kotlin.math.abs(map!!.cameraPosition.target!!.longitude - openingLongitude) > 0.00001)
+            it.findViewById<View>(R.id.btn_map_overview).performClick()
+        }
 
         var portraitMinimum = 0.0
         scenario!!.onActivity { portraitMinimum = map!!.minZoomLevel }
@@ -129,6 +220,26 @@ class MapScreenTest {
         }
         awaitUi("minimum zoom clamp") { kotlin.math.abs(map!!.cameraPosition.zoom - map!!.minZoomLevel) < 0.03 }
         assertOverview(corners)
+        pinchMapWithTouch(atMinimum = true)
+        assertOverview(corners)
+
+        for (zoom in listOf(10.0, 11.0, 13.0)) {
+            scenario!!.onActivity {
+                map!!.cancelTransitions()
+                map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(14.3277, 120.9366), zoom))
+            }
+            awaitFullRender("geometry zoom $zoom")
+            assertOriginalGeometry("intermediate zoom $zoom", definitions)
+        }
+        scenario!!.onActivity {
+            map!!.cancelTransitions()
+            map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(14.3277, 120.9366), 12.0))
+        }
+        awaitUi("municipal boundary zoom") { kotlin.math.abs(map!!.cameraPosition.zoom - 12.0) < 0.05 }
+        awaitFullRender("export municipal boundaries")
+        assertRenderedFeatures("Cavite boundaries at their exported zoom", outlineIds)
+        assertOriginalGeometry("intermediate zoom 12", definitions)
+        captureScreenshot("geometry-zoom12")
 
         scenario!!.onActivity {
             map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(14.3277, 120.9366), 17.0))
@@ -137,7 +248,6 @@ class MapScreenTest {
         awaitFullRender("street-level map")
         assertRenderedFeatures("Cavite street roads", roadIds)
         assertRenderedFeatures("Cavite street buildings", buildingIds)
-        assertFocusedDetails(roadIds + buildingIds)
         assertViewportInsideCoverage(coverage)
         assertNoSeaLanes()
         captureScreenshot("street")
@@ -157,18 +267,11 @@ class MapScreenTest {
         awaitUi("maximum zoom clamp") { kotlin.math.abs(map!!.cameraPosition.zoom - map!!.maxZoomLevel) < 0.03 }
 
         scenario!!.onActivity {
-            map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(14.4793, 121.0201), 16.0))
+            map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(14.0576496, 120.8452137593759), 17.0))
         }
-        awaitFullRender("muted neighboring city")
-        scenario!!.onActivity { activity ->
-            val view = activity.findViewById<MapView>(R.id.map_view)
-            val extent = RectF(0f, 0f, view.width.toFloat(), view.height.toFloat())
-            assertTrue("Neighboring Parañaque should omit detailed buildings",
-                map!!.queryRenderedFeatures(extent, *buildingIds).isEmpty())
-            assertTrue("Neighboring Parañaque should omit detailed street lines",
-                map!!.queryRenderedFeatures(extent, *roadIds).isEmpty())
-        }
-        captureScreenshot("neighbor-context")
+        awaitFullRender("export fuel marker")
+        assertRenderedFeatures("named fuel marker", arrayOf("context_fuel_labels"))
+        captureScreenshot("fuel-marker")
 
         scenario!!.onActivity {
             map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(coverage[3], coverage[0]), 12.0))
@@ -193,7 +296,9 @@ class MapScreenTest {
         scenario!!.onActivity { landscapeMinimum = map!!.minZoomLevel }
         assertTrue("The overview minimum should adapt to the MapView's new dimensions",
             kotlin.math.abs(landscapeMinimum - portraitMinimum) > 0.05)
-        assertRenderedFeatures("landscape Cavite boundary", outlineIds)
+        assertAdminLabels()
+        assertRenderedFeatures("landscape administrative boundaries at minimum zoom", outlineIds)
+        assertOriginalGeometry("landscape minimum", definitions)
         captureScreenshot("overview-landscape")
 
         requestOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT, Configuration.ORIENTATION_PORTRAIT)
@@ -202,6 +307,13 @@ class MapScreenTest {
         assertOverview(corners)
         assertViewportInsideCoverage(coverage)
         captureScreenshot("overview-restored")
+        scenario!!.onActivity { navHost(it).navController.navigate(R.id.nav_home) }
+        awaitUi("Home after leaving map") { navHost(it).navController.currentDestination?.id == R.id.nav_home }
+        scenario!!.onActivity { navHost(it).navController.navigate(R.id.nav_map) }
+        awaitMapReady()
+        awaitFullRender("re-entered map overview")
+        assertOverview(corners)
+        assertRenderedFeatures("re-entered administrative boundaries at minimum zoom", outlineIds)
         assertTrue("Map navigation must preserve user settings, profile, and saved contacts",
             savedData == snapshotSavedData(context))
     }
@@ -276,18 +388,34 @@ class MapScreenTest {
             assertEquals("Entry zoom must equal the dynamically fitted minimum", map!!.minZoomLevel,
                 map!!.cameraPosition.zoom, 0.03)
             val margin = 2f
-            for (corner in corners) {
-                val point = map!!.projection.toScreenLocation(corner)
-                assertTrue("Every corner of the province must fit inside the MapView: $point",
-                    point.x >= -margin && point.x <= view.width + margin &&
-                        point.y >= -margin && point.y <= view.height + margin)
-            }
+            val projected = corners.map { map!!.projection.toScreenLocation(it) }
+            assertTrue("Export must fill the left edge", projected.minOf { it.x } <= margin)
+            assertTrue("Export must fill the right edge", projected.maxOf { it.x } >= view.width - margin)
+            assertTrue("Export must fill the top edge", projected.minOf { it.y } <= margin)
+            assertTrue("Export must fill the bottom edge", projected.maxOf { it.y } >= view.height - margin)
+            val horizontalCrop = projected.minOf { it.x } < -margin && projected.maxOf { it.x } > view.width + margin
+            val verticalCrop = projected.minOf { it.y } < -margin && projected.maxOf { it.y } > view.height + margin
+            assertTrue("Opening view must crop the longer map dimension instead of adding blank bands",
+                horizontalCrop || verticalCrop)
             assertEquals("Tilt should stay flat for a readable hazard map", 0.0, map!!.cameraPosition.tilt, 0.01)
             assertEquals("Province overview should keep north at the top", 0.0, map!!.cameraPosition.bearing, 0.01)
             assertFalse("Rotating the map should be disabled", map!!.uiSettings.isRotateGesturesEnabled)
             assertFalse("Tilting the map should be disabled", map!!.uiSettings.isTiltGesturesEnabled)
-            assertFalse("Incomplete hazard controls must not appear", activity.findViewById<View>(R.id.layer_scroll).isShown)
+            assertTrue("Storm surge hazard control must remain accessible", activity.findViewById<View>(R.id.chip_hazard_storm_surge).isShown)
+            assertFalse("Advisory controls should stay collapsed until requested",
+                activity.findViewById<View>(R.id.layout_hazard_advisories).isShown)
+            assertTrue("The map scale bar must be visible", activity.findViewById<View>(R.id.map_scale_container).isShown)
+            assertTrue("The map scale must have a distance label",
+                activity.findViewById<android.widget.TextView>(R.id.tv_map_scale).text.isNotBlank())
             assertTrue("The overview action must remain accessible", activity.findViewById<View>(R.id.btn_map_overview).isShown)
+            val floatingButton = Rect().also { activity.findViewById<View>(R.id.fab_main).getGlobalVisibleRect(it) }
+            for (id in listOf(R.id.btn_map_overview, R.id.btn_map_zoom_in, R.id.btn_map_zoom_out)) {
+                val control = activity.findViewById<View>(id)
+                val visible = Rect()
+                assertTrue("Every map control must remain visible", control.getGlobalVisibleRect(visible))
+                assertEquals("Control must not be clipped vertically", control.height, visible.height())
+                assertFalse("Floating action must not cover a map control", Rect.intersects(visible, floatingButton))
+            }
         }
     }
 
@@ -296,6 +424,48 @@ class MapScreenTest {
             val view = activity.findViewById<MapView>(R.id.map_view)
             map!!.triggerRepaint()
             map!!.queryRenderedFeatures(RectF(0f, 0f, view.width.toFloat(), view.height.toFloat()), *layerIds).isNotEmpty()
+        }
+    }
+
+    private fun assertNoRenderedFeatures(description: String, layerIds: Array<String>) {
+        scenario!!.onActivity { activity ->
+            val view = activity.findViewById<MapView>(R.id.map_view)
+            val features = map!!.queryRenderedFeatures(
+                RectF(0f, 0f, view.width.toFloat(), view.height.toFloat()), *layerIds)
+            assertTrue("Unexpected $description", features.isEmpty())
+        }
+    }
+
+    private fun assertOriginalGeometry(description: String, definitions: List<JSONObject>) {
+        val checkpoints = InstrumentationRegistry.getInstrumentation().context.assets
+            .open("map/geometry_checkpoints.json").bufferedReader().use { JSONArray(it.readText()) }
+        scenario!!.onActivity { activity ->
+            val view = activity.findViewById<MapView>(R.id.map_view)
+            val density = activity.resources.displayMetrics.density
+            val margin = 8 * density
+            val radius = 0.75f * density
+            val misses = mutableListOf<String>()
+            var checked = 0
+            for (index in 0 until checkpoints.length()) {
+                val checkpoint = checkpoints.getJSONObject(index)
+                val point = map!!.projection.toScreenLocation(LatLng(
+                    checkpoint.getDouble("latitude"), checkpoint.getDouble("longitude")))
+                if (point.x !in margin..(view.width - margin) || point.y !in margin..(view.height - margin)) continue
+                val layer = checkpoint.getString("layer")
+                val ids = definitions.filter { it.optString("source-layer") == layer && it.optString("type") == "line" }
+                    .map { it.getString("id") }.toTypedArray()
+                val osmId = checkpoint.getString("osm_id")
+                val features = map!!.queryRenderedFeatures(RectF(point.x - radius, point.y - radius,
+                    point.x + radius, point.y + radius), *ids)
+                checked++
+                if (features.none { it.hasProperty("osm_id") && it.getStringProperty("osm_id") == osmId }) {
+                    misses.add("$layer/$osmId at ${checkpoint.getDouble("longitude")},${checkpoint.getDouble("latitude")}")
+                }
+            }
+            assertTrue("Original road/river geometry checkpoints must be on-screen at $description", checked >= 3)
+            assertTrue("Roads and rivers must follow the original lines without gaps at $description ($checked checks): $misses",
+                misses.isEmpty())
+            Log.i("MapScreenTest", "Original geometry at $description: $checked checkpoints passed")
         }
     }
 
@@ -312,14 +482,25 @@ class MapScreenTest {
         }
     }
 
-    private fun assertFocusedDetails(layerIds: Array<String>) {
+    private fun assertAdminLabels() {
         scenario!!.onActivity { activity ->
             val view = activity.findViewById<MapView>(R.id.map_view)
             val features = map!!.queryRenderedFeatures(
-                RectF(0f, 0f, view.width.toFloat(), view.height.toFloat()), *layerIds)
-            assertTrue("Detailed street features should belong to the highlighted Cavite region", features.all {
-                it.hasProperty("resq_focus") && it.getNumberProperty("resq_focus").toInt() == 1
-            })
+                RectF(0f, 0f, view.width.toFloat(), view.height.toFloat()), "cavite_admin_label_anchors_uniform")
+            val names = features.map { it.getStringProperty("adm3_en") }.toSet()
+            val anchors = InstrumentationRegistry.getInstrumentation().context.assets
+                .open("map/admin_label_anchors.geojson").bufferedReader().use { JSONObject(it.readText()) }
+                .getJSONArray("features")
+            val margin = 20 * activity.resources.displayMetrics.density
+            val expected = (0 until anchors.length()).mapNotNull { index ->
+                val anchor = anchors.getJSONObject(index)
+                val coordinates = anchor.getJSONObject("geometry").getJSONArray("coordinates")
+                val point = map!!.projection.toScreenLocation(LatLng(coordinates.getDouble(1), coordinates.getDouble(0)))
+                if (point.x in margin..(view.width - margin) && point.y in margin..(view.height - margin))
+                    anchor.getJSONObject("properties").getString("adm3_en") else null
+            }
+            assertTrue("The filled view must show municipality names", expected.isNotEmpty())
+            assertTrue("Every on-screen municipality must remain labeled: $expected", names.containsAll(expected))
         }
     }
 
@@ -384,7 +565,7 @@ class MapScreenTest {
         }
     }
 
-    private fun pinchMapWithTouch() {
+    private fun pinchMapWithTouch(atMinimum: Boolean = false) {
         renderingPhase = "native two-finger pinch through MapView dispatch"
         var centerX = 0f
         var centerY = 0f
@@ -488,11 +669,16 @@ class MapScreenTest {
             awaitUi("native two-finger pinch decreases zoom; $injectionDiagnostic, " +
                 "scaleBegin=${scaleBegins.get()}, scaleUpdates=${scaleUpdates.get()}, scaleEnd=${scaleEnds.get()}") { activity ->
                 navHost(activity).navController.currentDestination?.id == R.id.nav_map &&
-                    map!!.cameraPosition.zoom <= initialZoom - 0.2 &&
+                    (if (atMinimum) kotlin.math.abs(map!!.cameraPosition.zoom - map!!.minZoomLevel) < 0.03
+                     else map!!.cameraPosition.zoom <= initialZoom - 0.2) &&
                     map!!.cameraPosition.zoom >= map!!.minZoomLevel - 0.03
             }
             assertTrue("Native scale listener should confirm pinch begin/update/end",
                 scaleBegins.get() > 0 && scaleUpdates.get() > 0 && scaleEnds.get() > 0)
+            // Scale inertia can outlive pointer-up. Let the gesture settle before
+            // a subsequent programmatic camera move, then stop remaining transitions.
+            SystemClock.sleep(500)
+            scenario!!.onActivity { map!!.cancelTransitions() }
         } finally {
             var finalZoom = initialZoom
             scenario!!.onActivity {

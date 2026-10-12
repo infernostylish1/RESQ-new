@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "archive": "cavite_storm_surge.pmtiles",
+  "sizeBytes": 4384111,
+  "sha256": "5881a35ad1c706d5acf308701ad5c99960d5679ab536b59e37ae0e7b6475e467",
+  "minTileZoom": 8,
+  "maxTileZoom": 18,
+  "extent": 8192,
+  "source": "Project NOAH / UP / PAGASA",
+  "mirror": "BetterGov PH",
+  "revision": "c62166a255068a47be2d017f748a9c5cbcdddc7e",
+  "license": "ODC-ODbL-1.0",
+  "licenseUrl": "https://opendatacommons.org/licenses/odbl/1.0/",
+  "primarySource": "https://noah.up.edu.ph/",
+  "sourceMetadataUrl": "https://huggingface.co/datasets/bettergovph/project-noah-hazard-maps/resolve/c62166a255068a47be2d017f748a9c5cbcdddc7e/Storm%20Surge/metadata_stormsurge.txt",
+  "boundarySha256": "46448caff1e5b90e1de6579d5cd93a2fb12528da649ed387c536757cd624cf29",
+  "boundaryRegions": 23,
+  "clipping": "Exact Cavite administrative polygon union before tiling",
+  "advisoryHeightLabels": [
+    "up to 2 m",
+    "up to 3 m",
+    "up to 4 m",
+    "more than 4 m"
+  ],
+  "hazardValues": {
+    "1": "Low",
+    "2": "Medium",
+    "3": "High"
+  },
+  "advisories": [
+    {
+      "advisory": 1,
+      "sourceLayer": "storm_surge_ssa1",
+      "url": "https://huggingface.co/datasets/bettergovph/project-noah-hazard-maps/resolve/c62166a255068a47be2d017f748a9c5cbcdddc7e/Storm%20Surge/StormSurgeAdvisory1/Cavite.zip",
+      "sourceSha256": "f769bb9e2f4a45813a2c2b468f6b0d9440f07ccee2d61ab4808badce8025ff1c",
+      "polygonPartsByHazard": {
+        "1": 1354,
+        "2": 1250,
+        "3": 1066
+      },
+      "areaM2ByHazard": {
+        "1": 3749405.997669384,
+        "2": 13195160.813039063,
+        "3": 5727201.681534278
+      }
+    },
+    {
+      "advisory": 2,
+      "sourceLayer": "storm_surge_ssa2",
+      "url": "https://huggingface.co/datasets/bettergovph/project-noah-hazard-maps/resolve/c62166a255068a47be2d017f748a9c5cbcdddc7e/Storm%20Surge/StormSurgeAdvisory2/Cavite.zip",
+      "sourceSha256": "aad83dc6e139cefa084832e6048c8d9dbaf027fc005aacbbe7421ecc2f6e8a91",
+      "polygonPartsByHazard": {
+        "1": 1384,
+        "2": 1144,
+        "3": 682
+      },
+      "areaM2ByHazard": {
+        "1": 3381390.6948775062,
+        "2": 13771804.611109365,
+        "3": 18727013.765720416
+      }
+    },
+    {
+      "advisory": 3,
+      "sourceLayer": "storm_surge_ssa3",
+      "url": "https://huggingface.co/datasets/bettergovph/project-noah-hazard-maps/resolve/c62166a255068a47be2d017f748a9c5cbcdddc7e/Storm%20Surge/StormSurgeAdvisory3/Cavite.zip",
+      "sourceSha256": "18de2ea1422fab109daf779119bc3016e15bf6f6bd61a93ed044943f3f53f699",
+      "polygonPartsByHazard": {
+        "1": 1328,
+        "2": 1246,
+        "3": 487
+      },
+      "areaM2ByHazard": {
+        "1": 2804334.101102607,
+        "2": 11699109.991242517,
+        "3": 33328204.00302371
+      }
+    },
+    {
+      "advisory": 4,
+      "sourceLayer": "storm_surge_ssa4",
+      "url": "https://huggingface.co/datasets/bettergovph/project-noah-hazard-maps/resolve/c62166a255068a47be2d017f748a9c5cbcdddc7e/Storm%20Surge/StormSurgeAdvisory4/Cavite.zip",
+      "sourceSha256": "dc609c185474c65a88c45effadca384655d136efa285bb21fd39b21a63bb938b",
+      "polygonPartsByHazard": {
+        "1": 1393,
+        "2": 1243,
+        "3": 512
+      },
+      "areaM2ByHazard": {
+        "1": 2052407.2132953745,
+        "2": 9183417.383065175,
+        "3": 46424312.304925255
+      }
+    }
+  ],
+  "tilesByZoom": {
+    "8": 2,
+    "9": 2,
+    "10": 4,
+    "11": 6,
+    "12": 11,
+    "13": 25,
+    "14": 58,
+    "15": 148,
+    "16": 395,
+    "17": 1156,
+    "18": 3611
+  },
+  "largestCompressedTileBytes": 180511
+}

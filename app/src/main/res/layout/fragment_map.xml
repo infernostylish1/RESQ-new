@@ -25,43 +25,6 @@
             android:layout_height="match_parent"
             android:contentDescription="@string/map_accessibility_description" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|start"
-            android:layout_margin="12dp"
-            app:cardBackgroundColor="#F9FAF7"
-            app:cardCornerRadius="14dp"
-            app:cardElevation="2dp"
-            app:contentPadding="12dp"
-            app:strokeColor="#E2E7E2"
-            app:strokeWidth="1dp">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_map_region"
-                    android:drawablePadding="6dp"
-                    android:fontFamily="sans-serif-medium"
-                    android:text="@string/map_region_name"
-                    android:textColor="#334C46"
-                    android:textSize="15sp" />
-                <TextView
-                    android:id="@+id/tv_map_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:maxLines="2"
-                    android:maxWidth="220dp"
-                    android:text="@string/map_status_loading"
-                    android:textColor="#65736F"
-                    android:textSize="11sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_map_overview"
             style="@style/Widget.RESQ.MapControl"
@@ -77,9 +40,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|end"
-            android:layout_marginTop="76dp"
-            android:layout_marginEnd="12dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/map_zoom_margin_top"
+            android:layout_marginEnd="@dimen/map_zoom_margin_end"
+            android:orientation="@integer/map_zoom_orientation">
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_map_zoom_in"
                 style="@style/Widget.RESQ.MapControl"
@@ -93,49 +56,161 @@
                 style="@style/Widget.RESQ.MapControl"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="@dimen/map_zoom_button_margin_top"
+                android:layout_marginStart="@dimen/map_zoom_button_margin_start"
                 android:contentDescription="@string/map_zoom_out"
                 android:enabled="false"
                 app:icon="@drawable/ic_map_minus" />
         </LinearLayout>
 
-        <!-- Hazard controls stay dormant until province hazard datasets are added. -->
-        <HorizontalScrollView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/layer_scroll"
-            android:layout_width="match_parent"
+            android:layout_width="@dimen/map_hazard_card_width"
             android:layout_height="wrap_content"
-            android:visibility="gone">
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_layers"
-                android:layout_width="wrap_content"
+            android:layout_gravity="top|start"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="@dimen/map_hazard_margin_top"
+            android:visibility="visible"
+            app:cardBackgroundColor="#F9FAF7"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="2dp"
+            app:contentPadding="10dp"
+            app:strokeColor="#E2E7E2"
+            app:strokeWidth="1dp">
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:singleSelection="false" />
-        </HorizontalScrollView>
+                android:orientation="vertical">
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_hazard_storm_surge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checkable="false"
+                    android:text="@string/map_hazard_storm_surge"
+                    app:chipIcon="@drawable/ic_storm_surge"
+                    app:chipIconTint="#2E6F73"
+                    app:ensureMinTouchTargetSize="true" />
+                <LinearLayout
+                    android:id="@+id/layout_hazard_advisories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/map_hazard_advisories"
+                        android:textAppearance="@style/TextAppearance.RESQ.Caption" />
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chip_group_layers"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleSelection="false">
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_ssa1"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="false"
+                            android:text="@string/map_layer_ssa1"
+                            app:checkedIconVisible="false" />
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_ssa2"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="false"
+                            android:text="@string/map_layer_ssa2"
+                            app:checkedIconVisible="false" />
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_ssa3"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="false"
+                            android:text="@string/map_layer_ssa3"
+                            app:checkedIconVisible="false" />
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_ssa4"
+                            style="@style/Widget.Material3.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="false"
+                            android:text="@string/map_layer_ssa4"
+                            app:checkedIconVisible="false" />
+                    </com.google.android.material.chip.ChipGroup>
+                    <TextView
+                        android:id="@+id/tv_hazard_opacity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/map_hazard_opacity"
+                        android:textAppearance="@style/TextAppearance.RESQ.Caption" />
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/slider_hazard_opacity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:value="58"
+                        android:valueFrom="15"
+                        android:valueTo="90"
+                        app:labelBehavior="gone" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_legend"
             style="@style/Widget.RESQ.CardView"
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/map_legend_width"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|start"
-            android:layout_margin="@dimen/spacing_md"
+            android:layout_marginStart="@dimen/map_legend_margin_start"
+            android:layout_marginBottom="@dimen/map_legend_margin_bottom"
             android:visibility="gone">
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/tv_legend_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.RESQ.Label" />
                 <LinearLayout
                     android:id="@+id/layout_legend_rows"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/map_scale_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="@dimen/map_scale_margin_bottom"
+            android:contentDescription="@string/map_scale_bar"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/tv_map_scale"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#E6F9FAF7"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:textColor="#334C46"
+                android:textSize="10sp" />
+            <View
+                android:id="@+id/map_scale_line"
+                android:layout_width="96dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="2dp"
+                android:background="#334C46" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_attribution"

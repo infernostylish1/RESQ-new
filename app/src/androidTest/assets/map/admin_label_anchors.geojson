@@ -1,0 +1,365 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.82516502515222,
+          14.118936568000038
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402101000,
+        "adm3_en": "Alfonso",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.91732337227774,
+          14.211770458000045
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402102000,
+        "adm3_en": "Amadeo",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.96099262083314,
+          14.433370543500043
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402103000,
+        "adm3_en": "City of Bacoor",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.03547180555442,
+          14.300114327000045
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402104000,
+        "adm3_en": "City of Carmona",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.90541910596491,
+          14.482020516500057
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402105000,
+        "adm3_en": "City of Cavite",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.96910076217797,
+          14.35166544550006
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402106000,
+        "adm3_en": "City of Dasmariñas",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.80919913906487,
+          14.16122739150003
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402107000,
+        "adm3_en": "General Emilio Aguinaldo",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.8979274270645,
+          14.32141297350006
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402108000,
+        "adm3_en": "City of General Trias",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.93928204923876,
+          14.389338116500053
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402109000,
+        "adm3_en": "City of Imus",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.87032905205997,
+          14.18750084950005
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402110000,
+        "adm3_en": "Indang",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.90788445028278,
+          14.446404027000053
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402111000,
+        "adm3_en": "Kawit",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.75025024135542,
+          14.141210582000042
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402112000,
+        "adm3_en": "Magallanes",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.69900370241245,
+          14.220146899500037
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402113000,
+        "adm3_en": "Maragondon",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.89496958273442,
+          14.135001501500057
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402114000,
+        "adm3_en": "Mendez",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.77530956529968,
+          14.307705392500024
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402115000,
+        "adm3_en": "Naic",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.88090263864069,
+          14.425808276500046
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402116000,
+        "adm3_en": "Noveleta",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.86223498371365,
+          14.412809142500038
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402117000,
+        "adm3_en": "Rosario",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.98714599589485,
+          14.247215874000062
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402118000,
+        "adm3_en": "Silang",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.92930296987612,
+          14.11029015750003
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402119000,
+        "adm3_en": "City of Tagaytay",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.82693992332702,
+          14.350844926000034
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402120000,
+        "adm3_en": "Tanza",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.66296799416506,
+          14.265168575500041
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402121000,
+        "adm3_en": "Ternate",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.86118609420058,
+          14.280408572000056
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402122000,
+        "adm3_en": "City of Trece Martires",
+        "geo_level": "City"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.01490076211755,
+          14.311407861000049
+        ]
+      },
+      "properties": {
+        "adm3_psgc": 402123000,
+        "adm3_en": "Gen. Mariano Alvarez",
+        "geo_level": "Mun"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.57403005519696,
+          14.383219158000031
+        ]
+      },
+      "properties": {
+        "label_id": "corregidor",
+        "adm3_en": "Corregidor Island",
+        "geo_level": "Island"
+      }
+    }
+  ]
+}

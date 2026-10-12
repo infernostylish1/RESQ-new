@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="map_region_name">Cavite</string>
+    <string name="map_scale_bar">Sukat ng mapa</string>
     <string name="map_accessibility_description">Offline na mapa ng lalawigan ng Cavite. Paglapitin o ilayo ang dalawang daliri para mag-zoom at i-drag para galugarin.</string>
-    <string name="map_status_loading">Inihahanda ang offline na mapa…</string>
-    <string name="map_status_overview">Offline na mapa · Buong lalawigan</string>
-    <string name="map_status_detail">Offline na mapa · Detalye ng mga kalye</string>
-    <string name="map_status_exploring">Offline na mapa · Ginagalugad ang Cavite</string>
-    <string name="map_show_all">Ipakita ang buong Cavite</string>
+    <string name="map_show_all">Ibalik ang unang tanaw ng mapa</string>
     <string name="map_zoom_in">Ilapit ang mapa</string>
     <string name="map_zoom_out">Ilayo ang mapa</string>
     <string name="map_load_error">Hindi ma-load ang offline na mapa. Pakisubukang muli.</string>
     <string name="map_retry">Subukang muli</string>
+    <string name="map_hazard_storm_surge">Storm surge</string>
+    <string name="map_hazard_advisories">Mga advisory layer</string>
+    <string name="map_hazard_opacity">Opacity ng overlay</string>
 </resources>

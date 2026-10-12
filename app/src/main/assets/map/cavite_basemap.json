@@ -1,1 +1,81 @@
-{"version":1,"archive":"cavite_basemap.pmtiles","boundary":[120.56208178900012,14.056549670000038,121.07749883300005,14.500089418000075],"coverage":[119.4,13.2,122.0,15.2],"minTileZoom":7,"maxTileZoom":15,"sizeBytes":28115495,"sha256":"ce2b659fc8fa3d943be9ff2b95c22fe418276bfdf1a9878c7293fb1a89a5b07f","source":"https://build.protomaps.com/20261003.pmtiles","osmSnapshot":"2026-10-03T04:00:00Z","tilesByZoom":{"7":4,"8":6,"9":20,"10":63,"11":208,"12":775,"13":2880,"14":11305,"15":45220},"featuresByLayer":{"boundaries":9995,"earth":27381,"landcover":4,"landuse":44203,"places":7720,"roads":43577,"water":57701,"pois":61744,"buildings":782118}}
+{
+  "version": 8,
+  "archive": "layers.pmtiles",
+  "boundary": [
+    120.56208178900012,
+    14.056549670000038,
+    121.07749883300005,
+    14.500089418000075
+  ],
+  "coverage": [
+    120.5319102,
+    14.0392096,
+    121.1117325,
+    14.519209
+  ],
+  "minTileZoom": 0,
+  "maxTileZoom": 16,
+  "sizeBytes": 113792371,
+  "sha256": "53b3d44cb9d71bd7d91e11e6b3b516077408a71fd3050ca9eeb3ffd19febc26b",
+  "archives": [
+    {
+      "archive": "layers.pmtiles",
+      "sizeBytes": 113792371,
+      "sha256": "53b3d44cb9d71bd7d91e11e6b3b516077408a71fd3050ca9eeb3ffd19febc26b"
+    },
+    {
+      "archive": "water.pmtiles",
+      "sizeBytes": 296389,
+      "sha256": "79150f144ffbc8f5b1a783a462e038d8aa07174ff6bd9e7b413e51295f6c9905"
+    },
+    {
+      "archive": "traffic_areas.pmtiles",
+      "sizeBytes": 218761,
+      "sha256": "3a436b450ac1f1e1119d612893b6b9137c8fd476666e2ef3d82c2056f30d3fcd"
+    },
+    {
+      "archive": "transport_areas.pmtiles",
+      "sizeBytes": 51359,
+      "sha256": "e905281404c6678c5b3e216d74006e54e956a828d71ffa2627f2d08cc597c6fa"
+    },
+    {
+      "archive": "fuel_points.pmtiles",
+      "sizeBytes": 282693,
+      "sha256": "1a45f2eac8665e7bef83f26384da335f4ec80241b9f70abd6c6e98d203f99862"
+    },
+    {
+      "archive": "admin_labels.pmtiles",
+      "sizeBytes": 27719,
+      "sha256": "365a0a41c39cba852ec35402b833870ece3bdbb389a255036b48cffce7b657ba"
+    }
+  ],
+  "style": "cavite_mapsplat_style.json",
+  "styleOverrides": {
+    "cavite_admin_boundary_uniform": {
+      "minzoom": 0
+    }
+  },
+  "exportStyleSha256": "2318671c3d681e90f04c15ac45a7998ceed935ea63d64cb44851bcd482e27251",
+  "geometryRepair": {
+    "rebuiltZooms": [
+      0,
+      13
+    ],
+    "extent": 4096,
+    "buffer": 164,
+    "simplification": 0,
+    "maxTileSize": 10000000,
+    "buildingsMinZoom": 16,
+    "excludedLayers": [
+      "diff_bbox_gis_osm_buildings_a_free_1"
+    ],
+    "originalArchiveSha256": "edcbf2533a3f2ba8c754d845771635b8f23190305efd7f905e278c3a0314a6d6"
+  },
+  "hazards": [
+    {
+      "archive": "cavite_storm_surge.pmtiles",
+      "sizeBytes": 4384111,
+      "sha256": "5881a35ad1c706d5acf308701ad5c99960d5679ab536b59e37ae0e7b6475e467"
+    }
+  ]
+}

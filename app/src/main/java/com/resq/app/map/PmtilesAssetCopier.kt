@@ -9,11 +9,21 @@ import java.security.MessageDigest
 object PmtilesAssetCopier {
     @Synchronized
     fun ensureCopied(context: Context, mapPackage: BasemapPackage): File {
+        val files = mapPackage.archives.associate { archive ->
+            archive.archive to ensureArchiveCopied(context, archive, mapPackage.version)
+        }
+        mapPackage.hazardArchives.forEach { archive ->
+            ensureArchiveCopied(context, archive, mapPackage.version)
+        }
+        return files.getValue(mapPackage.archive)
+    }
+
+    private fun ensureArchiveCopied(context: Context, mapPackage: BasemapPackage.Archive, version: Int): File {
         val directory = File(context.filesDir, "pmtiles")
         check(directory.isDirectory || directory.mkdirs()) { "Unable to prepare map storage" }
         val destination = File(directory, mapPackage.archive)
         val marker = File(directory, "${mapPackage.archive}.version")
-        val expectedMarker = "${mapPackage.version}:${mapPackage.sizeBytes}:${mapPackage.sha256}"
+        val expectedMarker = "$version:${mapPackage.sizeBytes}:${mapPackage.sha256}"
         if (destination.length() == mapPackage.sizeBytes && destination.hasPmtilesHeader() &&
             marker.isFile && marker.readText() == expectedMarker) {
             return destination

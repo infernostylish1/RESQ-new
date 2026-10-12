@@ -1,5 +1,91 @@
 # Offline Cavite basemap
 
+## Active MapSplat export (2026-10-12)
+
+The Map Module now loads `map/cavite_mapsplat_style.json`, imported from the
+user's `android_map_cavite_region_webmap` export. Its 187 layers are preserved
+verbatim, including colors, filters, labels, widths, ordering, and zoom ranges.
+The administrative boundary rule is intentionally promoted to `minzoom: 0` so
+municipality divisions are visible in the fitted province overview; its line
+styling remains unchanged. Only resource URLs otherwise change: six PMTiles sources resolve to private local files,
+glyphs resolve to bundled fonts, and `poi_sprite` resolves to bundled 1x/2x
+sprite sheets. The manifest records each archive's size and SHA-256, and the
+copier verifies each file before replacing its cached copy.
+
+Reimport an updated export from the Android project root:
+
+```text
+rtk proxy python tools/map/import_mapsplat.py "C:\Downloads\shp basemap\android_map_cavite_region_webmap"
+```
+
+The main export archive contains zooms 0–16 and can be overzoomed to 18.
+The camera starts at the lowest zoom that fills the entire MapView with the
+export. This crops the longer map dimension and preserves geographic proportions,
+so the regional map does not appear as a box surrounded by blank bands.
+Zoom-out controls and gestures cannot go below this floor. Re-entering the module
+returns to the centered view; rotation recalculates the floor for the viewport.
+`coverage` comes from the main archive's actual bounds, and panning keeps every
+viewport corner inside that rectangle. The reset action restores this filled view.
+
+Physical-device tests exercise the active export's native layer loading,
+all on-screen municipality names, sprites, street geometry, fuel markers, touch gestures,
+zoom bounds, both orientations, re-entry, and preservation of saved app data.
+Use the physical-device runner below, passing `--java-home` for a compatible
+JDK if needed (this workstation uses `C:\Program Files\Java\jdk-21`).
+
+## Storm surge overlay
+
+The first hazard family is the Project NOAH storm surge package. Four
+province-specific Cavite archives (SSA 1–4) are intersected with the precise
+23-region Cavite administrative union before PMTiles generation. Each advisory
+uses the NOAH `HAZ` values: 1 low, 2 medium, and 3 high. The compact offline
+archive is `pmtiles/cavite_storm_surge.pmtiles`; its checksums, source URLs,
+revision, and ODC-ODbL license are recorded in `map/cavite_storm_surge.json`.
+
+The map style keeps all four fill layers hidden until the user opens Storm
+surge and selects an advisory. The Android control exposes four independent
+chips, a shared opacity slider, and a low/medium/high legend. The overlay is
+inserted below the administrative boundary and labels, so it remains readable
+without obscuring the map context.
+
+### Repairing overview geometry
+
+The original MapSplat main archive was generated with GDAL's default compressed
+tile budget (500,000 bytes). Crowded tiles at z3-13 were reduced to grids as
+small as 128 units, affecting every layer in those tiles. Roads, river lines,
+and polygons then looked angular or disappeared between their endpoints.
+Waiting for another rendered frame cannot restore geometry discarded during export.
+
+`repair_mapsplat_tiles.py` regenerates z0-13 from the original QGIS vectors with
+the standard 4096-unit grid, no simplification, a 164-unit overlap buffer, and
+a 10 MB tile ceiling. This is twenty times the export's precision-loss budget
+while keeping individual tiles practical for a phone. Buildings are clipped to
+the Cavite administrative union and begin at z16, near the maximum detail zoom,
+so the opening and intermediate views remain responsive while roads, rivers,
+water, and land render completely. It removes the out-of-region building layer
+from every zoom and retains all other z14-16 tile data and
+all 187 style layers. Its cache is keyed by
+the original archive, source-file timestamps/sizes, and geometry settings.
+The manifest records the repair and updated SHA-256; the installed app replaces
+its old private archive on its next map load.
+
+After importing an export, run the repair using QGIS Python, then validate it:
+
+```text
+rtk proxy "C:\Program Files\QGIS 4.2.3\bin\python-qgis.bat" tools/map/repair_mapsplat_tiles.py "C:\Downloads\shp basemap\android_map_cavite_region_webmap" "C:\Downloads\shp basemap"
+rtk proxy python tools/map/build_geometry_fixture.py "C:\Downloads\shp basemap"
+rtk proxy python tools/map/validate_mapsplat_tiles.py "C:\Downloads\shp basemap\android_map_cavite_region_webmap"
+```
+
+The validator checks every tile's precision, 2,490 positions along original
+major roads and named rivers at z8-13, byte equality for z14-16, and exact style
+layer equality. `--baseline` reports defects in the original archive for comparison.
+The native device test also checks on-screen road/river checkpoints at the
+opening minimum in portrait/landscape and at an intermediate zoom.
+
+The following Protomaps pipeline documents the previous basemap and remains
+available for rebuilding that older package. It is not the active map style.
+
 The app bundles `app/src/main/assets/pmtiles/cavite_basemap.pmtiles`: a genuine
 PMTiles v3 archive of gzip-compressed Mapbox vector tiles. MapLibre can overzoom
 its z15 vectors to street viewing zooms without raster blur. The supplied
@@ -39,8 +125,9 @@ the measured viewport and the province bbox; archive minimum tile zoom is 7.
   has numeric `resq_focus=1`. Watercourse lines are also focused.
 - Places inside Cavite have `resq_focus=1`. Outside Cavite, only region/country
   and city/town/province/state names remain. Land and water provide quiet
-  surroundings; outer streets/buildings/POIs
-  are removed before packaging, saving storage and device work.
+  surroundings; outer streets/buildings/POIs are removed before packaging,
+  saving storage and device work. Retained Cavite building layers are visible
+  only from z16.
 - Ferry routes are removed and the transit layer is omitted. Boundary vectors
   explicitly marked maritime are filtered where the source provides that tag;
   the source schema does not promise a maritime flag on all administrative

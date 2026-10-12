@@ -1,5 +1,7 @@
 package com.resq.app.ui.fragment
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
@@ -9,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -18,6 +21,7 @@ import androidx.navigation.fragment.findNavController
 import com.resq.app.R
 import com.resq.app.databinding.FragmentMapBinding
 import com.resq.app.map.BasemapPackage
+import com.resq.app.map.MapLayerController
 import com.resq.app.map.MapCameraPolicy
 import com.resq.app.map.PmtilesAssetCopier
 import com.resq.app.util.setupSettingsAction
@@ -35,8 +39,14 @@ import org.maplibre.android.geometry.LatLngBounds
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.Style
+import org.maplibre.android.style.layers.PropertyFactory
 import kotlin.math.abs
 import kotlin.math.ceil
+import kotlin.math.cos
+import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class MapFragment : Fragment() {
@@ -55,9 +65,11 @@ class MapFragment : Fragment() {
     private var loadJob: Job? = null
     private var timeoutJob: Job? = null
     private var loadGeneration = 0
+    private val selectedHazards = linkedSetOf<String>()
+    private var hazardOpacity = 0.58f
 
     private val cameraMoveListener = MapLibreMap.OnCameraMoveListener { constrainCamera() }
-    private val cameraIdleListener = MapLibreMap.OnCameraIdleListener { onCameraIdle() }
+    private val cameraIdleListener = MapLibreMap.OnCameraIdleListener { updateControls() }
     private val loadErrorListener = MapView.OnDidFailLoadingMapListener { error ->
         if (_binding != null) showMapError(IllegalStateException(error))
     }
@@ -88,6 +100,11 @@ class MapFragment : Fragment() {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
         restoringCamera = savedInstanceState?.getBoolean(STATE_HAS_CAMERA) == true
         restoringOverview = savedInstanceState?.getBoolean(STATE_AT_OVERVIEW) == true
+        savedInstanceState?.getStringArrayList(STATE_HAZARDS)?.let {
+            selectedHazards.clear()
+            selectedHazards.addAll(it)
+        }
+        hazardOpacity = savedInstanceState?.getFloat(STATE_HAZARD_OPACITY, hazardOpacity) ?: hazardOpacity
         binding.mapView.onCreate(savedInstanceState)
         return binding.root
     }
@@ -96,6 +113,7 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupToolbar()
         setupAttribution()
+        setupHazardControls()
         binding.btnMapOverview.setOnClickListener { showOverview() }
         binding.btnMapZoomIn.setOnClickListener { changeZoom(1.0) }
         binding.btnMapZoomOut.setOnClickListener { changeZoom(-1.0) }
@@ -131,7 +149,7 @@ class MapFragment : Fragment() {
         mapReady = false
         currentBinding.progressMap.isVisible = true
         currentBinding.mapErrorContainer.isVisible = false
-        currentBinding.tvMapStatus.setText(R.string.map_status_loading)
+        currentBinding.mapScaleContainer.isVisible = false
         updateControls()
         loadJob = viewLifecycleOwner.lifecycleScope.launch {
             try {
@@ -155,6 +173,7 @@ class MapFragment : Fragment() {
                 currentMap.setStyle(Style.Builder().fromJson(loaded.second)) {
                     if (_binding !== currentBinding || generation != loadGeneration) return@setStyle
                     mapReady = true
+                    applyHazardState()
                     try {
                         configureCamera(reset = !restoringCamera || restoringOverview)
                         restoringCamera = false
@@ -178,18 +197,11 @@ class MapFragment : Fragment() {
         if (currentBinding.mapView.width <= 0 || currentBinding.mapView.height <= 0) return
         val wasOverview = cameraConfigured && currentMap.cameraPosition.zoom <= minimumZoom + 0.05
         val (width, height) = viewportSize()
-        val padding = MapCameraPolicy.overviewPadding(metadata.boundary, metadata.coverage, width, height)
-        val unconstrainedFit = MapCameraPolicy.fit(metadata.boundary, width, height, padding)
+        val unconstrainedFit = MapCameraPolicy.cover(metadata.coverage, width, height)
         require(unconstrainedFit.zoom >= metadata.minTileZoom && unconstrainedFit.zoom < MAXIMUM_ZOOM)
-        require(unconstrainedFit.zoom > MapCameraPolicy.coverageZoom(metadata.coverage, width + 2.0, height + 2.0)) {
-            "Bundled map coverage is too small to display the complete province on this screen"
-        }
         val fitted = MapCameraPolicy.constrain(unconstrainedFit,
             MapCameraPolicy.targetBounds(metadata.coverage, metadata.boundary, width, height, unconstrainedFit.zoom),
             unconstrainedFit.zoom, MAXIMUM_ZOOM)
-        require(MapCameraPolicy.fitsWithinPadding(fitted, metadata.boundary, width, height, padding)) {
-            "Bundled map coverage cannot contain the province and this viewport"
-        }
         minimumZoom = fitted.zoom
         overview = fitted
         currentMap.setMinZoomPreference(minimumZoom)
@@ -266,21 +278,6 @@ class MapFragment : Fragment() {
         updateControls()
     }
 
-    private fun onCameraIdle() {
-        val currentMap = map ?: return
-        val fitted = overview ?: return
-        if (mapReady && cameraConfigured && !constrainingCamera &&
-            currentMap.cameraPosition.zoom <= minimumZoom + 0.001) {
-            val target = currentMap.cameraPosition.target
-            // Returning to the zoom floor also returns to the complete province overview.
-            if (target != null && (abs(target.longitude - fitted.longitude) > 0.0000001 ||
-                abs(target.latitude - fitted.latitude) > 0.0000001)) {
-                applyCamera(fitted)
-            }
-        }
-        updateControls()
-    }
-
     private fun changeZoom(delta: Double) {
         val currentMap = map ?: return
         if (!mapReady || !cameraConfigured) return
@@ -302,11 +299,125 @@ class MapFragment : Fragment() {
         currentBinding.btnMapOverview.isEnabled = enabled
         currentBinding.btnMapZoomIn.isEnabled = enabled && zoom < MAXIMUM_ZOOM - 0.001
         currentBinding.btnMapZoomOut.isEnabled = enabled && zoom > minimumZoom + 0.001
-        if (enabled && !currentBinding.progressMap.isVisible) {
-            currentBinding.tvMapStatus.setText(when {
-                zoom <= minimumZoom + 0.05 -> R.string.map_status_overview
-                zoom >= 15.0 -> R.string.map_status_detail
-                else -> R.string.map_status_exploring
+        updateScaleBar()
+    }
+
+    private fun setupHazardControls() {
+        binding.chipHazardStormSurge.setOnClickListener {
+            binding.layoutHazardAdvisories.isVisible = !binding.layoutHazardAdvisories.isVisible
+        }
+        listOf(binding.chipSsa1, binding.chipSsa2, binding.chipSsa3, binding.chipSsa4).forEachIndexed { index, chip ->
+            val id = "haz-ssa${index + 1}"
+            val selected = selectedHazards.contains(id)
+            updateHazardChip(chip, selected)
+            chip.setOnClickListener {
+                val checked = !selectedHazards.contains(id)
+                if (checked) selectedHazards.add(id) else selectedHazards.remove(id)
+                updateHazardChip(chip, checked)
+                setHazardVisibility(id, checked)
+                updateHazardLegend()
+            }
+        }
+        binding.sliderHazardOpacity.value = hazardOpacity * 100f
+        binding.sliderHazardOpacity.addOnChangeListener { _, value, _ ->
+            hazardOpacity = value / 100f
+            MapLayerController.layers.filter { it.hazardType == com.resq.app.map.HazardType.STORM_SURGE }
+                .forEach { layer ->
+                    map?.style?.getLayer(layer.id)?.setProperties(PropertyFactory.fillOpacity(hazardOpacity))
+                }
+        }
+    }
+
+    private fun applyHazardState() {
+        val chips = listOf(binding.chipSsa1, binding.chipSsa2, binding.chipSsa3, binding.chipSsa4)
+        MapLayerController.layers.filter { it.hazardType == com.resq.app.map.HazardType.STORM_SURGE }
+            .forEachIndexed { index, layer ->
+                val selected = selectedHazards.contains(layer.id)
+                updateHazardChip(chips[index], selected)
+                setHazardVisibility(layer.id, selected)
+                map?.style?.getLayer(layer.id)?.setProperties(PropertyFactory.fillOpacity(hazardOpacity))
+            }
+        updateHazardLegend()
+    }
+
+    private fun updateHazardChip(chip: com.google.android.material.chip.Chip, selected: Boolean) {
+        chip.isCheckable = false
+        chip.isSelected = selected
+        chip.chipBackgroundColor = ColorStateList.valueOf(
+            Color.parseColor(if (selected) "#D9ECE4" else "#F1F4F1")
+        )
+        chip.chipStrokeColor = ColorStateList.valueOf(
+            Color.parseColor(if (selected) "#4C766B" else "#D5DED9")
+        )
+        chip.setTextColor(Color.parseColor(if (selected) "#24473D" else "#334C46"))
+    }
+
+    private fun updateScaleBar() {
+        val currentBinding = _binding ?: return
+        val currentMap = map ?: return
+        if (!mapReady || !cameraConfigured || currentBinding.mapView.width <= 0) {
+            currentBinding.mapScaleContainer.isVisible = false
+            return
+        }
+        val target = currentMap.cameraPosition.target ?: return
+        val metersPerPixel = 156543.03392 * cos(Math.toRadians(target.latitude)) /
+            2.0.pow(currentMap.cameraPosition.zoom)
+        val distanceMeters = chooseScaleDistance(metersPerPixel)
+        val widthPixels = (distanceMeters / metersPerPixel).roundToInt()
+            .coerceIn((64 * resources.displayMetrics.density).roundToInt(),
+                (168 * resources.displayMetrics.density).roundToInt())
+        currentBinding.tvMapScale.text = formatScaleDistance(distanceMeters)
+        currentBinding.mapScaleLine.layoutParams = currentBinding.mapScaleLine.layoutParams.apply {
+            width = widthPixels
+        }
+        currentBinding.mapScaleContainer.isVisible = true
+    }
+
+    private fun chooseScaleDistance(metersPerPixel: Double): Double {
+        val desired = (metersPerPixel * 110.0).coerceAtLeast(1.0)
+        val magnitude = 10.0.pow(floor(log10(desired)))
+        val normalized = desired / magnitude
+        val step = when {
+            normalized >= 5.0 -> 5.0
+            normalized >= 2.0 -> 2.0
+            else -> 1.0
+        }
+        return step * magnitude
+    }
+
+    private fun formatScaleDistance(distanceMeters: Double): String {
+        if (distanceMeters >= 1000.0) {
+            val kilometers = distanceMeters / 1000.0
+            return if (kilometers >= 10.0 || kilometers % 1.0 == 0.0) {
+                "${kilometers.roundToInt()} km"
+            } else {
+                "${(kilometers * 10.0).roundToInt() / 10.0} km"
+            }
+        }
+        return "${distanceMeters.roundToInt()} m"
+    }
+
+    private fun setHazardVisibility(id: String, visible: Boolean) {
+        map?.style?.getLayer(id)?.setProperties(
+            PropertyFactory.visibility(if (visible) "visible" else "none")
+        )
+    }
+
+    private fun updateHazardLegend() {
+        val shown = selectedHazards.isNotEmpty()
+        binding.cardLegend.isVisible = shown
+        if (!shown) return
+        binding.tvLegendTitle.setText(R.string.map_legend_storm_surge)
+        binding.layoutLegendRows.removeAllViews()
+        listOf(
+            R.string.map_legend_low to 0xFFF6D64A.toInt(),
+            R.string.map_legend_medium to 0xFFF28C28.toInt(),
+            R.string.map_legend_high to 0xFFD64545.toInt()
+        ).forEach { (label, color) ->
+            binding.layoutLegendRows.addView(TextView(requireContext()).apply {
+                text = "●  ${getString(label)}"
+                setTextColor(color)
+                textSize = 12f
             })
         }
     }
@@ -318,7 +429,6 @@ class MapFragment : Fragment() {
         _binding?.let {
             it.progressMap.isVisible = false
             it.mapErrorContainer.isVisible = true
-            it.tvMapStatus.setText(R.string.map_load_error)
             updateControls()
         }
     }
@@ -360,6 +470,8 @@ class MapFragment : Fragment() {
         outState.putBoolean(STATE_HAS_CAMERA, cameraConfigured)
         outState.putBoolean(STATE_AT_OVERVIEW,
             cameraConfigured && (map?.cameraPosition?.zoom ?: Double.MAX_VALUE) <= minimumZoom + 0.05)
+        outState.putStringArrayList(STATE_HAZARDS, ArrayList(selectedHazards))
+        outState.putFloat(STATE_HAZARD_OPACITY, hazardOpacity)
         _binding?.mapView?.onSaveInstanceState(outState)
     }
     override fun onDestroyView() {
@@ -388,6 +500,8 @@ class MapFragment : Fragment() {
         private const val TAG = "CaviteMap"
         private const val STATE_HAS_CAMERA = "cavite_map_has_camera"
         private const val STATE_AT_OVERVIEW = "cavite_map_at_overview"
+        private const val STATE_HAZARDS = "cavite_map_hazards"
+        private const val STATE_HAZARD_OPACITY = "cavite_map_hazard_opacity"
         private const val MAXIMUM_ZOOM = 18.0
     }
 }

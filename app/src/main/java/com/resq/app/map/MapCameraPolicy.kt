@@ -21,38 +21,15 @@ object MapCameraPolicy {
         }
     }
 
-    data class Padding(val left: Double, val top: Double, val right: Double, val bottom: Double)
     data class Camera(val longitude: Double, val latitude: Double, val zoom: Double)
 
-    /** Corner controls leave the center free in landscape, so short views need less vertical padding. */
-    fun overviewPadding(focus: Bounds, coverage: Bounds, width: Double, height: Double): Padding {
-        if (width <= height) {
-            return Padding(20.0, min(72.0, height * 0.22), 20.0, min(32.0, height * 0.12))
-        }
-        var padding = Padding(20.0, min(24.0, height * 0.10), 20.0, min(16.0, height * 0.08))
-        val coverageMinimum = coverageZoom(coverage, width + 2.0, height + 2.0)
-        repeat(8) {
-            if (fit(focus, width, height, padding).zoom > coverageMinimum) return padding
-            padding = padding.copy(top = padding.top / 2.0, bottom = padding.bottom / 2.0)
-        }
-        return padding.copy(top = 0.0, bottom = 0.0)
-    }
-
-    fun fit(bounds: Bounds, width: Double, height: Double, padding: Padding): Camera {
-        val usableWidth = width - padding.left - padding.right
-        val usableHeight = height - padding.top - padding.bottom
-        require(usableWidth > 0.0 && usableHeight > 0.0)
-        val west = longitudeX(bounds.west)
-        val east = longitudeX(bounds.east)
-        val north = latitudeY(bounds.north)
-        val south = latitudeY(bounds.south)
-        val scale = min(usableWidth / (east - west), usableHeight / (south - north))
-        val zoom = ln(scale / WORLD_SIZE) / ln(2.0)
-        // Shift the camera so the province sits in the unobscured portion of the view.
-        val centerX = (west + east) / 2.0 - (padding.left - padding.right) / (2.0 * scale)
-        val centerY = (north + south) / 2.0 - (padding.top - padding.bottom) / (2.0 * scale)
-        return Camera(xLongitude(centerX), yLatitude(centerY), zoom)
-    }
+    /** Fill the MapView, cropping the longer map dimension without distorting geography. */
+    fun cover(bounds: Bounds, width: Double, height: Double): Camera = Camera(
+        (bounds.west + bounds.east) / 2.0,
+        yLatitude((latitudeY(bounds.north) + latitudeY(bounds.south)) / 2.0),
+        // Two logical pixels per edge keep native rounding and pan limits inside the export.
+        coverageZoom(bounds, width + 4.0, height + 4.0)
+    )
 
     /** Minimum zoom needed to keep the complete screen inside the archive's data coverage. */
     fun coverageZoom(coverage: Bounds, width: Double, height: Double): Double {
@@ -95,18 +72,6 @@ object MapCameraPolicy {
             xLongitude(x + width / (2.0 * scale)),
             yLatitude(y - height / (2.0 * scale))
         )
-    }
-
-    fun fitsWithinPadding(camera: Camera, bounds: Bounds, width: Double, height: Double, padding: Padding): Boolean {
-        val scale = WORLD_SIZE * 2.0.pow(camera.zoom)
-        val centerX = longitudeX(camera.longitude)
-        val centerY = latitudeY(camera.latitude)
-        val westPixel = width / 2.0 + (longitudeX(bounds.west) - centerX) * scale
-        val eastPixel = width / 2.0 + (longitudeX(bounds.east) - centerX) * scale
-        val northPixel = height / 2.0 + (latitudeY(bounds.north) - centerY) * scale
-        val southPixel = height / 2.0 + (latitudeY(bounds.south) - centerY) * scale
-        return westPixel >= padding.left - 0.000001 && eastPixel <= width - padding.right + 0.000001 &&
-            northPixel >= padding.top - 0.000001 && southPixel <= height - padding.bottom + 0.000001
     }
 
     internal fun longitudeX(longitude: Double) = (longitude + 180.0) / 360.0
